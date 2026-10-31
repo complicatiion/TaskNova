@@ -1,0 +1,61 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ctl="using:TaskNova.App.Controls"
+             xmlns:vm="using:TaskNova.App.ViewModels"
+             x:Class="TaskNova.App.Views.PowerPlansView"
+             x:DataType="vm:PowerPlansViewModel">
+
+  <ScrollViewer VerticalScrollBarVisibility="Auto">
+    <!-- Same card width on every tool page, independent of the content: a star column of at most 820 px -->
+    <Grid Margin="0,0,8,12">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*" MaxWidth="820" />
+        <ColumnDefinition Width="Auto" />
+      </Grid.ColumnDefinitions>
+    <StackPanel Spacing="16">
+      <Border Classes="card">
+        <StackPanel Spacing="14">
+          <Grid ColumnDefinitions="*,Auto">
+            <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+              <PathIcon Data="{StaticResource IconPowerPlug}" Width="20" Height="20" Foreground="{DynamicResource BrushAccentText}" />
+              <TextBlock Classes="h2" Text="{DynamicResource HdrPowerPlans}" />
+            </StackPanel>
+            <Button Grid.Column="1" Command="{Binding OpenPowerOptionsCommand}">
+              <ctl:IconLabel Icon="{StaticResource IconOpenInNew}" Text="{DynamicResource BtnPowerOptions}" />
+            </Button>
+          </Grid>
+          <ctl:InfoText Text="{DynamicResource PowerIntro}" />
+          <TextBlock Classes="muted" Text="{DynamicResource PowerNone}" IsVisible="{Binding IsEmpty}" />
+          <ItemsControl ItemsSource="{Binding Items}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:PowerPlanRow">
+                <Button Classes="cardlink" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Margin="0,0,0,8"
+                        Command="{Binding $parent[UserControl].((vm:PowerPlansViewModel)DataContext).ActivatePlanCommand}" CommandParameter="{Binding}">
+                  <Border Classes="kpitile" Classes.selected="{Binding IsActive}" Padding="14,10">
+                    <Grid ColumnDefinitions="Auto,*,Auto">
+                      <PathIcon Data="{StaticResource IconCheckCircle}" Width="18" Height="18" Margin="0,0,12,0"
+                                Foreground="{DynamicResource BrushAccentText}" IsVisible="{Binding IsActive}" />
+                      <PathIcon Data="{StaticResource IconPowerPlug}" Width="18" Height="18" Margin="0,0,12,0"
+                                Foreground="{DynamicResource BrushTextSecondary}" IsVisible="{Binding !IsActive}" />
+                      <StackPanel Grid.Column="1" Spacing="2">
+                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
+                        <TextBlock Classes="muted small" Text="{Binding Id}" />
+                      </StackPanel>
+                      <Border Grid.Column="2" Classes="statpill" IsVisible="{Binding IsActive}" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                          <PathIcon Data="{StaticResource IconCheckCircle}" Width="12" Height="12" Foreground="{DynamicResource BrushAccentText}" VerticalAlignment="Center" />
+                          <TextBlock Text="{DynamicResource BadgeActive}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource BrushAccentText}" />
+                        </StackPanel>
+                      </Border>
+                    </Grid>
+                  </Border>
+                </Button>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+      </Border>
+    </StackPanel>
+    </Grid>
+  </ScrollViewer>
+</UserControl>

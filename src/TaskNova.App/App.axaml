@@ -1,0 +1,54 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:TaskNova.App.ViewModels"
+             x:Class="TaskNova.App.App"
+             Name="TaskNova"
+             RequestedThemeVariant="Dark">
+
+  <Application.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceInclude Source="avares://tasknova/Theme/Colors.axaml" />
+        <ResourceInclude Source="avares://tasknova/Theme/Icons.axaml" />
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </Application.Resources>
+
+  <!-- Stat pill of the page toolbars: value in the accent color, label muted -->
+  <Application.DataTemplates>
+    <DataTemplate DataType="vm:StatPill" x:DataType="vm:StatPill">
+      <Border Classes="statpill">
+        <StackPanel Orientation="Horizontal" Spacing="5">
+          <TextBlock Text="{Binding Value}" FontWeight="SemiBold" FontSize="12" Foreground="{DynamicResource BrushAccentText}" VerticalAlignment="Center" />
+          <TextBlock Text="{Binding Label}" FontSize="12" Foreground="{DynamicResource BrushTextSecondary}" VerticalAlignment="Center" />
+        </StackPanel>
+      </Border>
+    </DataTemplate>
+  </Application.DataTemplates>
+
+  <Application.Styles>
+    <FluentTheme>
+      <!-- Accent instead of system blue (check marks, radio buttons, switches, selection, focus).
+           AppearanceService rewrites these palettes at runtime for the chosen theme and accent color. -->
+      <FluentTheme.Palettes>
+        <ColorPaletteResources x:Key="Dark"
+                               Accent="#FFEF476F"
+                               RegionColor="#FF141A36"
+                               AltHigh="#FF141A36"
+                               ListLow="#FF252B4A"
+                               ListMedium="#FF2B2D42"
+                               ChromeMediumLow="#FF1C2242"
+                               ChromeMedium="#FF252B4A"
+                               ChromeLow="#FF141A36"
+                               ChromeAltLow="#FFF8F9FF"
+                               BaseHigh="#FFF8F9FF" />
+        <ColorPaletteResources x:Key="Light"
+                               Accent="#FFC81D4E"
+                               RegionColor="#FFFFFFFF"
+                               BaseHigh="#FF0B1026" />
+      </FluentTheme.Palettes>
+    </FluentTheme>
+    <StyleInclude Source="avares://tasknova/Theme/Styles.axaml" />
+  </Application.Styles>
+
+</Application>

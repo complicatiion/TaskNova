@@ -1,0 +1,149 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ctl="using:TaskNova.App.Controls"
+             xmlns:vm="using:TaskNova.App.ViewModels"
+             x:Class="TaskNova.App.Views.AboutView"
+             x:DataType="vm:AboutViewModel">
+
+  <ScrollViewer VerticalScrollBarVisibility="Auto">
+    <StackPanel Spacing="16" MaxWidth="900" HorizontalAlignment="Left" Margin="0,0,8,12">
+      <Border Classes="card" Padding="24">
+        <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto">
+          <Panel Width="96" Height="96" Margin="0,0,24,0">
+            <Border Classes="logoglow" Margin="8" CornerRadius="40" />
+            <Border Classes="logo" />
+          </Panel>
+          <StackPanel Grid.Column="1" Spacing="6" VerticalAlignment="Center">
+            <TextBlock Text="TaskNova" FontSize="30" FontWeight="Bold" />
+            <TextBlock Classes="accent" Text="{Binding VersionText}" FontWeight="SemiBold" />
+            <TextBlock Classes="muted" Text="{DynamicResource AboutTagline}" TextWrapping="Wrap" />
+            <TextBlock Classes="muted small" Text="© 2026 Sven Klocke · sksdesign | complicatiion" />
+          </StackPanel>
+          <!-- Centered under the whole card -->
+          <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Orientation="Horizontal" Spacing="8" Margin="0,18,0,0" HorizontalAlignment="Center">
+            <Button Command="{Binding OpenWebsiteCommand}">
+              <ctl:IconLabel Icon="{StaticResource IconEarth}" Text="sksdesign.de" />
+            </Button>
+            <Button Command="{Binding OpenProjectCommand}">
+              <ctl:IconLabel Icon="{StaticResource IconOpenInNew}" Text="{DynamicResource BtnGitHubRepository}" />
+            </Button>
+            <Button Command="{Binding OpenLicenseCommand}">
+              <ctl:IconLabel Icon="{StaticResource IconLicense}" Text="{DynamicResource BtnLicense}" />
+            </Button>
+          </StackPanel>
+        </Grid>
+      </Border>
+
+      <Border Classes="card">
+        <StackPanel Spacing="10">
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <PathIcon Data="{StaticResource IconLicense}" Width="20" Height="20" Foreground="{DynamicResource BrushAccentText}" />
+            <TextBlock Classes="h2" Text="{DynamicResource HdrComponents}" />
+          </StackPanel>
+          <ctl:InfoText Text="{DynamicResource AboutLicenseText}" />
+          <ItemsControl ItemsSource="{Binding Components}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:ComponentInfo">
+                <Border Classes="tablerow">
+                  <Grid ColumnDefinitions="240,150,*,Auto">
+                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <Border Grid.Column="1" Classes="badge accent">
+                      <TextBlock Text="{Binding License}" />
+                    </Border>
+                    <TextBlock Grid.Column="2" Classes="muted" Text="{Binding Use}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                    <Button Grid.Column="3" Classes="icon small" CommandParameter="{Binding}"
+                            Command="{Binding $parent[UserControl].((vm:AboutViewModel)DataContext).OpenComponentCommand}"
+                            ToolTip.Tip="{DynamicResource TipOpenLicense}">
+                      <PathIcon Data="{StaticResource IconOpenInNew}" />
+                    </Button>
+                  </Grid>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+          <Button Command="{Binding OpenLicensesCommand}" HorizontalAlignment="Center" Margin="0,6,0,0">
+            <ctl:IconLabel Icon="{StaticResource IconFolderOpen}" Text="{DynamicResource BtnLicensesFolder}" />
+          </Button>
+        </StackPanel>
+      </Border>
+
+      <!-- Privacy: what TaskNova does and does not do with the network -->
+      <Border Classes="card">
+        <StackPanel Spacing="10">
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <PathIcon Data="{StaticResource IconShieldCheck}" Width="20" Height="20" Foreground="{DynamicResource BrushAccentText}" />
+            <TextBlock Classes="h2" Text="{DynamicResource HdrPrivacy}" />
+          </StackPanel>
+          <ctl:InfoText Text="{DynamicResource AboutPrivacy}" />
+          <ItemsControl ItemsSource="{Binding PrivacyPoints}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:PrivacyPoint">
+                <Grid ColumnDefinitions="Auto,*" Margin="0,4">
+                  <PathIcon Data="{Binding Icon}" Width="16" Height="16" Margin="0,1,10,0" VerticalAlignment="Top"
+                            Foreground="{DynamicResource BrushAccentText}" />
+                  <StackPanel Grid.Column="1" Spacing="2">
+                    <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                    <TextBlock Classes="muted small" Text="{Binding Text}" TextWrapping="Wrap" />
+                  </StackPanel>
+                </Grid>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+      </Border>
+
+      <!-- Memory diagnostics: what TaskNova itself uses right now -->
+      <Border Classes="card">
+        <StackPanel Spacing="12">
+          <Grid ColumnDefinitions="*,Auto">
+            <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+              <PathIcon Data="{StaticResource IconMemory}" Width="20" Height="20" Foreground="{DynamicResource BrushAccentText}" />
+              <TextBlock Classes="h2" Text="{DynamicResource HdrMemoryDiag}" />
+            </StackPanel>
+            <Button Grid.Column="1" Command="{Binding FlushMemoryCommand}">
+              <ctl:IconLabel Icon="{StaticResource IconBroom}" Text="{DynamicResource BtnFlushMemory}" />
+            </Button>
+          </Grid>
+          <UniformGrid Columns="3">
+            <Border Classes="kpitile" Margin="0,0,10,10">
+              <StackPanel Spacing="2">
+                <TextBlock Classes="statlabel" Text="{DynamicResource DiagWorkingSet}" />
+                <TextBlock Classes="statvalue" FontWeight="SemiBold" Text="{Binding WorkingSetText}" />
+              </StackPanel>
+            </Border>
+            <Border Classes="kpitile" Margin="0,0,10,10">
+              <StackPanel Spacing="2">
+                <TextBlock Classes="statlabel" Text="{DynamicResource DiagPrivate}" />
+                <TextBlock Classes="statvalue" FontWeight="SemiBold" Text="{Binding PrivateText}" />
+              </StackPanel>
+            </Border>
+            <Border Classes="kpitile" Margin="0,0,0,10">
+              <StackPanel Spacing="2">
+                <TextBlock Classes="statlabel" Text="{DynamicResource DiagManaged}" />
+                <TextBlock Classes="statvalue" FontWeight="SemiBold" Text="{Binding ManagedText}" />
+              </StackPanel>
+            </Border>
+            <Border Classes="kpitile" Margin="0,0,10,0">
+              <StackPanel Spacing="2">
+                <TextBlock Classes="statlabel" Text="{DynamicResource DiagGc}" />
+                <TextBlock Classes="statvalue" Text="{Binding GcText}" />
+              </StackPanel>
+            </Border>
+            <Border Classes="kpitile" Margin="0,0,10,0">
+              <StackPanel Spacing="2">
+                <TextBlock Classes="statlabel" Text="{DynamicResource DiagRendering}" />
+                <TextBlock Classes="statvalue" Text="{Binding RenderingText}" />
+              </StackPanel>
+            </Border>
+            <Border Classes="kpitile">
+              <StackPanel Spacing="2">
+                <TextBlock Classes="statlabel" Text="{DynamicResource DiagBuild}" />
+                <TextBlock Classes="statvalue" Text="{Binding BuildText}" />
+              </StackPanel>
+            </Border>
+          </UniformGrid>
+        </StackPanel>
+      </Border>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

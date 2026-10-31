@@ -1,0 +1,80 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ctl="using:TaskNova.App.Controls"
+             xmlns:vm="using:TaskNova.App.ViewModels"
+             x:Class="TaskNova.App.Views.PortsView"
+             x:DataType="vm:PortsViewModel">
+
+  <Grid RowDefinitions="Auto,*">
+    <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,12">
+      <StackPanel Orientation="Horizontal" Spacing="14" VerticalAlignment="Center">
+        <ItemsControl Classes="pills" ItemsSource="{Binding Stats}" />
+        <ToggleSwitch IsChecked="{Binding OnlyListening}" OnContent="{DynamicResource LblOnlyListening}" OffContent="{DynamicResource LblOnlyListening}" />
+      </StackPanel>
+      <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+        <Button Classes="tool" Command="{Binding CopyRowCommand}" IsEnabled="{Binding HasSelection}" AutomationProperties.Name="{DynamicResource ActCopy}">
+          <ToolTip.Tip><ctl:TipContent Title="{DynamicResource ActCopy}" Text="{DynamicResource TipCopyDesc}" /></ToolTip.Tip>
+          <PathIcon Data="{StaticResource IconCopy}" />
+        </Button>
+        <Button Classes="tool" Command="{Binding ShowInProcessesCommand}" IsEnabled="{Binding HasSelection}" AutomationProperties.Name="{DynamicResource ActShowInProcesses}">
+          <ToolTip.Tip><ctl:TipContent Title="{DynamicResource ActShowInProcesses}" Text="{DynamicResource TipShowProcessesDesc}" /></ToolTip.Tip>
+          <PathIcon Data="{StaticResource IconFormatListBulleted}" />
+        </Button>
+        <Button Classes="tool danger" Command="{Binding EndProcessCommand}" IsEnabled="{Binding HasSelection}" AutomationProperties.Name="{DynamicResource ActEndTask}">
+          <ToolTip.Tip><ctl:TipContent Title="{DynamicResource ActEndTask}" Text="{DynamicResource TipEndDesc}" /></ToolTip.Tip>
+          <PathIcon Data="{StaticResource IconCloseOctagon}" />
+        </Button>
+      </StackPanel>
+    </Grid>
+
+    <Border Grid.Row="1" Classes="tablecard">
+      <DockPanel>
+        <Border DockPanel.Dock="Top" Classes="thead">
+          <Grid ColumnDefinitions="90,80,*,170,190,120,80">
+            <TextBlock Grid.Column="0" Classes="th" Text="{DynamicResource ColPort}" Margin="10,0" />
+            <TextBlock Grid.Column="1" Classes="th" Text="{DynamicResource ColProtocol}" Margin="10,0" />
+            <TextBlock Grid.Column="2" Classes="th" Text="{DynamicResource ColProcess}" Margin="10,0" />
+            <TextBlock Grid.Column="3" Classes="th" Text="{DynamicResource ColLocalAddress}" Margin="10,0" />
+            <TextBlock Grid.Column="4" Classes="th" Text="{DynamicResource ColRemoteAddress}" Margin="10,0" />
+            <TextBlock Grid.Column="5" Classes="th" Text="{DynamicResource ColState}" Margin="10,0" />
+            <TextBlock Grid.Column="6" Classes="th" Text="PID" Margin="10,0" />
+          </Grid>
+        </Border>
+        <ListBox Classes="table" ItemsSource="{Binding Items}" SelectedItem="{Binding Selected}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+          <ListBox.ItemTemplate>
+            <DataTemplate x:DataType="vm:PortRow">
+              <Grid ColumnDefinitions="90,80,*,170,190,120,80" Background="Transparent">
+                <TextBlock Classes="cell num" Text="{Binding Port}" FontWeight="SemiBold" Foreground="{DynamicResource BrushAccentText}" />
+                <TextBlock Grid.Column="1" Classes="cell dim" Text="{Binding Protocol}" />
+                <DockPanel Grid.Column="2">
+                  <Panel DockPanel.Dock="Left" Width="18" Height="18" Margin="10,0,0,0" VerticalAlignment="Center">
+                    <Image Source="{Binding Icon}" Width="16" Height="16" />
+                  </Panel>
+                  <TextBlock Classes="cell" Margin="8,0,6,0" Text="{Binding Name}" />
+                </DockPanel>
+                <TextBlock Grid.Column="3" Classes="cell dim" Text="{Binding Local}" />
+                <TextBlock Grid.Column="4" Classes="cell dim" Text="{Binding Remote}" />
+                <TextBlock Grid.Column="5" Classes="cell dim" Text="{Binding State}" />
+                <TextBlock Grid.Column="6" Classes="cell num dim" Text="{Binding Pid}" />
+              </Grid>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+          <ListBox.ContextMenu>
+            <ContextMenu>
+              <MenuItem Header="{DynamicResource ActShowInProcesses}" Command="{Binding ShowInProcessesCommand}" IsEnabled="{Binding HasSelection}">
+                <MenuItem.Icon><PathIcon Data="{StaticResource IconFormatListBulleted}" /></MenuItem.Icon>
+              </MenuItem>
+              <MenuItem Header="{DynamicResource ActCopy}" Command="{Binding CopyRowCommand}" IsEnabled="{Binding HasSelection}">
+                <MenuItem.Icon><PathIcon Data="{StaticResource IconCopy}" /></MenuItem.Icon>
+              </MenuItem>
+              <Separator />
+              <MenuItem Header="{DynamicResource ActEndTask}" Command="{Binding EndProcessCommand}" IsEnabled="{Binding HasSelection}">
+                <MenuItem.Icon><PathIcon Data="{StaticResource IconCloseOctagon}" /></MenuItem.Icon>
+              </MenuItem>
+            </ContextMenu>
+          </ListBox.ContextMenu>
+        </ListBox>
+      </DockPanel>
+    </Border>
+  </Grid>
+</UserControl>

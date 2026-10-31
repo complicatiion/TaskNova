@@ -1,0 +1,97 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ctl="using:TaskNova.App.Controls"
+             xmlns:vm="using:TaskNova.App.ViewModels"
+             x:Class="TaskNova.App.Views.AppHistoryView"
+             x:DataType="vm:AppHistoryViewModel">
+
+  <Grid RowDefinitions="Auto,*">
+    <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,12">
+      <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+        <Border Classes="statpill">
+          <StackPanel Orientation="Horizontal" Spacing="5">
+            <TextBlock Text="{DynamicResource PillRecordedSince}" FontSize="12" Foreground="{DynamicResource BrushTextSecondary}" VerticalAlignment="Center" />
+            <TextBlock Text="{Binding Since}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource BrushAccentText}" VerticalAlignment="Center" />
+          </StackPanel>
+        </Border>
+        <Border Classes="badge moderate" IsVisible="{Binding !Recording}">
+          <TextBlock Text="{DynamicResource BadgeNotRecording}" />
+        </Border>
+      </StackPanel>
+      <Button Classes="tool" Grid.Column="1" Command="{Binding ClearCommand}" AutomationProperties.Name="{DynamicResource ActClearHistory}">
+        <ToolTip.Tip><ctl:TipContent Title="{DynamicResource ActClearHistory}" Text="{DynamicResource TipDeleteHistoryDesc}" /></ToolTip.Tip>
+        <PathIcon Data="{StaticResource IconDelete}" />
+      </Button>
+    </Grid>
+
+    <Border Grid.Row="1" Classes="tablecard">
+      <DockPanel>
+        <Border DockPanel.Dock="Top" Classes="thead">
+          <Grid ColumnDefinitions="*,120,120,120,160">
+            <Button Grid.Column="0" Classes="th" Command="{Binding SortCommand}" CommandParameter="name"
+                    Classes.sorted="{Binding SortColumn, Converter={x:Static ctl:Converters.EqualsParameter}, ConverterParameter=name}"
+                    Classes.ascending="{Binding !SortDescending}">
+              <StackPanel Orientation="Horizontal" Spacing="4">
+                <TextBlock Classes="th" Text="{DynamicResource ColApp}" />
+                <PathIcon Data="{StaticResource IconChevronDown}" />
+              </StackPanel>
+            </Button>
+            <Button Grid.Column="1" Classes="th num" Command="{Binding SortCommand}" CommandParameter="cpu"
+                    Classes.sorted="{Binding SortColumn, Converter={x:Static ctl:Converters.EqualsParameter}, ConverterParameter=cpu}"
+                    Classes.ascending="{Binding !SortDescending}">
+              <StackPanel Orientation="Horizontal" Spacing="4">
+                <PathIcon Data="{StaticResource IconChevronDown}" />
+                <TextBlock Classes="th" Text="{DynamicResource ColCpuTime}" />
+              </StackPanel>
+            </Button>
+            <Button Grid.Column="2" Classes="th num" Command="{Binding SortCommand}" CommandParameter="io"
+                    Classes.sorted="{Binding SortColumn, Converter={x:Static ctl:Converters.EqualsParameter}, ConverterParameter=io}"
+                    Classes.ascending="{Binding !SortDescending}">
+              <StackPanel Orientation="Horizontal" Spacing="4">
+                <PathIcon Data="{StaticResource IconChevronDown}" />
+                <TextBlock Classes="th" Text="{DynamicResource ColIoTotal}" />
+              </StackPanel>
+            </Button>
+            <Button Grid.Column="3" Classes="th num" Command="{Binding SortCommand}" CommandParameter="run"
+                    Classes.sorted="{Binding SortColumn, Converter={x:Static ctl:Converters.EqualsParameter}, ConverterParameter=run}"
+                    Classes.ascending="{Binding !SortDescending}">
+              <StackPanel Orientation="Horizontal" Spacing="4">
+                <PathIcon Data="{StaticResource IconChevronDown}" />
+                <TextBlock Classes="th" Text="{DynamicResource ColRunTime}" />
+              </StackPanel>
+            </Button>
+            <Button Grid.Column="4" Classes="th num" Command="{Binding SortCommand}" CommandParameter="last"
+                    Classes.sorted="{Binding SortColumn, Converter={x:Static ctl:Converters.EqualsParameter}, ConverterParameter=last}"
+                    Classes.ascending="{Binding !SortDescending}">
+              <StackPanel Orientation="Horizontal" Spacing="4">
+                <PathIcon Data="{StaticResource IconChevronDown}" />
+                <TextBlock Classes="th" Text="{DynamicResource ColLastSeen}" />
+              </StackPanel>
+            </Button>
+          </Grid>
+        </Border>
+        <ListBox Classes="table" AutoScrollToSelectedItem="False" ItemsSource="{Binding Items}" SelectedItem="{Binding Selected}"
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+          <ListBox.ItemTemplate>
+            <DataTemplate x:DataType="vm:AppHistoryRow">
+              <Grid ColumnDefinitions="*,120,120,120,160" Background="Transparent">
+                <DockPanel>
+                  <PathIcon DockPanel.Dock="Left" Data="{StaticResource IconApplicationOutline}" Width="15" Height="15" Margin="10,0,0,0"
+                            Foreground="{DynamicResource BrushAccentText}" />
+                  <TextBlock Classes="cell" Text="{Binding Title}" ToolTip.Tip="{Binding Path}" />
+                </DockPanel>
+                <Grid Grid.Column="1">
+                  <ProgressBar Classes="usage" Value="{Binding CpuShare}" Maximum="100" Margin="10,0" VerticalAlignment="Bottom" Height="3" MinHeight="3" Opacity="0.7" />
+                  <TextBlock Classes="cell num" Text="{Binding CpuTimeText}" />
+                </Grid>
+                <TextBlock Grid.Column="2" Classes="cell num" Text="{Binding IoText}" />
+                <TextBlock Grid.Column="3" Classes="cell num" Text="{Binding RunText}" />
+                <TextBlock Grid.Column="4" Classes="cell num dim" Text="{Binding LastSeenText}" />
+              </Grid>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+      </DockPanel>
+    </Border>
+  </Grid>
+</UserControl>

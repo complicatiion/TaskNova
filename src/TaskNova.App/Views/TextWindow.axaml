@@ -1,0 +1,26 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ctl="using:TaskNova.App.Controls"
+        x:Class="TaskNova.App.Views.TextWindow"
+        Icon="/Assets/tasknova.ico"
+        Width="760" Height="560"
+        MinWidth="480" MinHeight="320"
+        ShowInTaskbar="False"
+        WindowStartupLocation="CenterOwner">
+  <DockPanel Margin="20">
+    <TextBlock x:Name="HeaderText" DockPanel.Dock="Top" Classes="h2" Margin="0,0,0,12" />
+    <!-- Main action right, others left of it -->
+    <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right" Margin="0,12,0,0">
+      <Button Click="OnCopy">
+        <ctl:IconLabel Icon="{StaticResource IconCopy}" Text="{DynamicResource BtnCopy}" />
+      </Button>
+      <Button Classes="primary" Click="OnClose" IsDefault="True" IsCancel="True">
+        <ctl:IconLabel Icon="{StaticResource IconCheck}" Text="{DynamicResource BtnClose}" />
+      </Button>
+    </StackPanel>
+    <Border Classes="card" Padding="4">
+      <TextBox x:Name="Body" IsReadOnly="True" AcceptsReturn="True" TextWrapping="Wrap" FontFamily="{DynamicResource MonoFont}" FontSize="12"
+               BorderThickness="0" Background="Transparent" ScrollViewer.VerticalScrollBarVisibility="Auto" />
+    </Border>
+  </DockPanel>
+</Window>

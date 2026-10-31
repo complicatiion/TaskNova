@@ -1,0 +1,95 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ctl="using:TaskNova.App.Controls"
+             xmlns:vm="using:TaskNova.App.ViewModels"
+             x:Class="TaskNova.App.Views.PerformanceView"
+             x:DataType="vm:PerformanceViewModel">
+
+  <Grid ColumnDefinitions="250,16,*">
+
+    <!-- Devices with mini charts -->
+    <ListBox Classes="devices" ItemsSource="{Binding Devices}" SelectedItem="{Binding Selected}">
+        <ListBox.ItemTemplate>
+          <DataTemplate x:DataType="vm:DeviceItem">
+            <Grid ColumnDefinitions="64,*" Height="52">
+              <Border Classes="chartframe" Width="60" Height="40" VerticalAlignment="Center">
+                <ctl:SparkChart Series="{Binding Series}" Maximum="{Binding Maximum}" StrokeThickness="1.2"
+                                Stroke="{DynamicResource BrushAccent}" />
+              </Border>
+              <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center" Spacing="2">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <PathIcon Data="{Binding Icon}" Width="14" Height="14" Foreground="{DynamicResource BrushAccentText}" />
+                  <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+                <TextBlock Classes="muted small" Text="{Binding Subtitle}" TextTrimming="CharacterEllipsis" />
+              </StackPanel>
+            </Grid>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+    </ListBox>
+
+    <!-- Selected device -->
+    <Border Grid.Column="2" Classes="card" Padding="20,16">
+      <Grid RowDefinitions="Auto,Auto,*,Auto,Auto">
+        <Grid ColumnDefinitions="Auto,*,Auto">
+          <PathIcon Data="{Binding Selected.Icon}" Width="24" Height="24" Foreground="{DynamicResource BrushAccentText}" Margin="0,0,10,0" />
+          <StackPanel Grid.Column="1">
+            <TextBlock Classes="h2" Text="{Binding Selected.Title}" TextTrimming="CharacterEllipsis" />
+            <TextBlock Classes="muted small" Text="{Binding Selected.Model}" TextTrimming="CharacterEllipsis" />
+          </StackPanel>
+          <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6" IsVisible="{Binding IsCpu}" VerticalAlignment="Center">
+            <ToggleButton Classes="chip" IsChecked="{Binding ShowOverall}" ToolTip.Tip="{DynamicResource TipCpuOverall}">
+              <ctl:IconLabel Icon="{StaticResource IconChartAreaspline}" IconSize="14" Text="{DynamicResource ModeOverall}" />
+            </ToggleButton>
+            <ToggleButton Classes="chip" IsChecked="{Binding ShowCoresChip}" ToolTip.Tip="{DynamicResource TipCpuCores}">
+              <ctl:IconLabel Icon="{StaticResource IconViewDashboard}" IconSize="14" Text="{DynamicResource ModeCores}" />
+            </ToggleButton>
+          </StackPanel>
+        </Grid>
+
+        <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Margin="0,14,0,6">
+          <StackPanel Orientation="Horizontal" Spacing="14">
+            <TextBlock Classes="statlabel" Text="{Binding Selected.ChartCaption}" />
+            <StackPanel Orientation="Horizontal" Spacing="5" IsVisible="{Binding ShowBigChart}">
+              <Ellipse Width="8" Height="8" Fill="{DynamicResource BrushAccent}" VerticalAlignment="Center" />
+              <TextBlock Classes="statlabel" Text="{Binding Selected.Legend1}" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="5" IsVisible="{Binding Selected.HasSeries2}">
+              <Ellipse Width="8" Height="8" Fill="{DynamicResource BrushAccentSecondary}" VerticalAlignment="Center" />
+              <TextBlock Classes="statlabel" Text="{Binding Selected.Legend2}" />
+            </StackPanel>
+          </StackPanel>
+          <TextBlock Grid.Column="1" Classes="statlabel" Text="{Binding HistoryCaption}" />
+        </Grid>
+
+        <!-- Big chart or one small chart per logical processor -->
+        <Border Grid.Row="2" Classes="chartframe" MinHeight="180" IsVisible="{Binding ShowBigChart}">
+          <ctl:SparkChart Series="{Binding Selected.Series}" Series2="{Binding Selected.Series2}" Maximum="{Binding Selected.Maximum}"
+                          ShowGrid="True" Fill="{Binding ChartFill}" StrokeThickness="2"
+                          Stroke="{DynamicResource BrushAccent}" Stroke2="{DynamicResource BrushAccentSecondary}"
+                          GridBrush="{DynamicResource BrushChartGrid}" />
+        </Border>
+        <ctl:CoreGrid Grid.Row="2" MinHeight="180" IsVisible="{Binding ShowCoreGrid}" Series="{Binding Cores}" Fill="{Binding ChartFill}"
+                      Stroke="{DynamicResource BrushAccent}" FrameBrush="{DynamicResource BrushBorder}" />
+
+        <Border Grid.Row="3" Classes="divider" Margin="0,16,0,12" />
+
+        <ItemsControl Grid.Row="4" ItemsSource="{Binding Selected.Stats}">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <WrapPanel Orientation="Horizontal" />
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:StatItem">
+              <StackPanel Width="170" Margin="0,0,12,12">
+                <TextBlock Classes="statlabel" Text="{Binding Label}" />
+                <TextBlock Classes="statvalue" Text="{Binding Value}" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding Value}" />
+              </StackPanel>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </Grid>
+    </Border>
+  </Grid>
+</UserControl>

@@ -1,0 +1,33 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ctl="using:TaskNova.App.Controls"
+        x:Class="TaskNova.App.Views.ConfirmWindow"
+        Icon="/Assets/tasknova.ico"
+        Width="500"
+        SizeToContent="Height"
+        CanResize="False"
+        ShowInTaskbar="False"
+        WindowStartupLocation="CenterOwner">
+  <Border Padding="24">
+    <StackPanel Spacing="14">
+      <PathIcon x:Name="Glyph" Width="36" Height="36" HorizontalAlignment="Center" />
+      <TextBlock x:Name="HeaderText" Classes="h2" TextWrapping="Wrap" TextAlignment="Center" HorizontalAlignment="Center" />
+      <TextBlock x:Name="MessageText" Classes="muted" TextWrapping="Wrap" TextAlignment="Center" HorizontalAlignment="Center" MaxWidth="440" />
+      <!-- Option ("don't ask again") as a switch, off unless the caller says otherwise -->
+      <StackPanel x:Name="OptionRow" Orientation="Horizontal" Spacing="10" IsVisible="False" HorizontalAlignment="Center">
+        <ToggleSwitch x:Name="OptionCheck" OnContent="" OffContent="" MinWidth="0" VerticalAlignment="Center" />
+        <TextBlock x:Name="OptionText" VerticalAlignment="Center" TextWrapping="Wrap" MaxWidth="360" />
+      </StackPanel>
+      <TextBox x:Name="InputBox" IsVisible="False" Width="400" HorizontalAlignment="Center" />
+      <!-- Cancel left, main action right -->
+      <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right" Margin="0,6,0,0">
+        <Button x:Name="CancelButton" Click="OnCancel" IsCancel="True" Classes="fixed">
+          <ctl:IconLabel Icon="{StaticResource IconClose}" Text="{DynamicResource BtnCancel}" />
+        </Button>
+        <Button x:Name="ConfirmButton" Click="OnConfirm" Classes="primary fixed" IsDefault="True">
+          <ctl:IconLabel x:Name="ConfirmLabel" Icon="{StaticResource IconCheck}" />
+        </Button>
+      </StackPanel>
+    </StackPanel>
+  </Border>
+</Window>

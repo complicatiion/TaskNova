@@ -1,0 +1,429 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ctl="using:TaskNova.App.Controls"
+             xmlns:vm="using:TaskNova.App.ViewModels"
+             xmlns:loc="using:TaskNova.App.Localization"
+             x:Class="TaskNova.App.Views.SettingsView"
+             x:DataType="vm:SettingsViewModel">
+
+  <UserControl.Resources>
+    <DataTemplate x:Key="ChoiceTemplate" x:DataType="vm:Choice">
+      <TextBlock Text="{Binding Title}" />
+    </DataTemplate>
+  </UserControl.Resources>
+
+  <ScrollViewer VerticalScrollBarVisibility="Auto">
+    <StackPanel Spacing="16" MaxWidth="980" HorizontalAlignment="Left" Margin="0,0,8,12">
+
+      <!-- ====================================================== Appearance -->
+      <Border Classes="card">
+        <StackPanel Spacing="14">
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <PathIcon Data="{StaticResource IconPalette}" Width="20" Height="20" Foreground="{DynamicResource BrushAccentText}" />
+            <TextBlock Classes="h2" Text="{DynamicResource HdrAppearance}" />
+          </StackPanel>
+
+          <TextBlock Classes="label" Text="{DynamicResource LblTheme}" />
+          <WrapPanel Orientation="Horizontal">
+            <RadioButton Classes="themecard" GroupName="theme" IsChecked="{Binding ThemeSystem}" Margin="0,0,12,12" Width="150">
+              <StackPanel Spacing="8">
+                <Grid ColumnDefinitions="*,*" Height="56">
+                  <Border Background="#F8F9FF" CornerRadius="6,0,0,6" />
+                  <Border Grid.Column="1" Background="#0B1026" CornerRadius="0,6,6,0" />
+                  <Border Grid.ColumnSpan="2" Height="6" Width="60" CornerRadius="3" Background="{DynamicResource BrushAccent}" VerticalAlignment="Bottom" Margin="0,0,0,8" />
+                </Grid>
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <PathIcon Data="{StaticResource IconThemeLightDark}" Width="14" Height="14" Foreground="{DynamicResource BrushAccentText}" />
+                  <TextBlock Text="{DynamicResource ThemeSystem}" />
+                </StackPanel>
+              </StackPanel>
+            </RadioButton>
+            <RadioButton Classes="themecard" GroupName="theme" IsChecked="{Binding ThemeDark}" Margin="0,0,12,12" Width="150">
+              <StackPanel Spacing="8">
+                <Border Height="56" Background="#0B1026" CornerRadius="6" BorderBrush="#2B2D42" BorderThickness="1">
+                  <StackPanel Margin="8" Spacing="5">
+                    <Border Height="8" Width="70" HorizontalAlignment="Left" CornerRadius="3" Background="#2B2D42" />
+                    <Border Height="8" Width="44" HorizontalAlignment="Left" CornerRadius="3" Background="{DynamicResource BrushAccent}" />
+                  </StackPanel>
+                </Border>
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <PathIcon Data="{StaticResource IconWeatherNight}" Width="14" Height="14" Foreground="{DynamicResource BrushAccentText}" />
+                  <TextBlock Text="{DynamicResource ThemeDark}" />
+                </StackPanel>
+              </StackPanel>
+            </RadioButton>
+            <RadioButton Classes="themecard" GroupName="theme" IsChecked="{Binding ThemeShadow}" Margin="0,0,12,12" Width="150">
+              <StackPanel Spacing="8">
+                <Border Height="56" Background="#202020" CornerRadius="6" BorderBrush="#3D3D3D" BorderThickness="1">
+                  <StackPanel Margin="8" Spacing="5">
+                    <Border Height="8" Width="70" HorizontalAlignment="Left" CornerRadius="3" Background="#3A3A3A" />
+                    <Border Height="8" Width="44" HorizontalAlignment="Left" CornerRadius="3" Background="{DynamicResource BrushAccent}" />
+                  </StackPanel>
+                </Border>
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <PathIcon Data="{StaticResource IconCircleHalfFull}" Width="14" Height="14" Foreground="{DynamicResource BrushAccentText}" />
+                  <TextBlock Text="{DynamicResource ThemeShadow}" />
+                </StackPanel>
+              </StackPanel>
+            </RadioButton>
+            <RadioButton Classes="themecard" GroupName="theme" IsChecked="{Binding ThemeLight}" Margin="0,0,12,12" Width="150">
+              <StackPanel Spacing="8">
+                <Border Height="56" Background="#F8F9FF" CornerRadius="6" BorderBrush="#D9DCEB" BorderThickness="1">
+                  <StackPanel Margin="8" Spacing="5">
+                    <Border Height="8" Width="70" HorizontalAlignment="Left" CornerRadius="3" Background="#E6E9F5" />
+                    <Border Height="8" Width="44" HorizontalAlignment="Left" CornerRadius="3" Background="{DynamicResource BrushAccent}" />
+                  </StackPanel>
+                </Border>
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <PathIcon Data="{StaticResource IconWhiteBalanceSunny}" Width="14" Height="14" Foreground="{DynamicResource BrushAccentText}" />
+                  <TextBlock Text="{DynamicResource ThemeLight}" />
+                </StackPanel>
+              </StackPanel>
+            </RadioButton>
+          </WrapPanel>
+
+          <TextBlock Classes="label" Text="{DynamicResource LblAccent}" />
+          <ItemsControl ItemsSource="{Binding Accents}">
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate>
+                <WrapPanel Orientation="Horizontal" />
+              </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:AccentOption">
+                <RadioButton Classes="swatch" GroupName="accent" Margin="0,0,8,8" IsChecked="{Binding IsSelected}"
+                             Background="{Binding Brush}" Foreground="{Binding CheckBrush}" ToolTip.Tip="{Binding Tip}" />
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+          <WrapPanel Orientation="Horizontal">
+            <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,0,24,8">
+              <RadioButton Classes="swatch" GroupName="accent" IsChecked="{Binding WindowsAccent.IsSelected}"
+                           Background="{Binding WindowsAccent.Brush}" Foreground="{Binding WindowsAccent.CheckBrush}"
+                           ToolTip.Tip="{Binding WindowsAccent.Tip}" />
+              <TextBlock Text="{DynamicResource AccentWindows}" VerticalAlignment="Center" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,0,12,8">
+              <RadioButton Classes="swatch" GroupName="accent" IsChecked="{Binding CustomAccent.IsSelected}"
+                           Background="{Binding CustomAccent.Brush}" Foreground="{Binding CustomAccent.CheckBrush}"
+                           ToolTip.Tip="{Binding CustomAccent.Tip}" />
+              <TextBlock Text="{DynamicResource AccentCustom}" VerticalAlignment="Center" />
+              <Button Command="{Binding PickCustomColorCommand}" Margin="6,0,0,0">
+                <ctl:IconLabel Icon="{StaticResource IconEyedropper}" Text="{DynamicResource BtnPickColor}" />
+              </Button>
+            </StackPanel>
+          </WrapPanel>
+          <ctl:InfoText Text="{DynamicResource AccentHint}" />
+
+          <Grid Classes="settings" ColumnDefinitions="*,260" RowDefinitions="Auto,Auto,Auto,Auto" Margin="0,6,0,0">
+            <StackPanel>
+              <TextBlock Text="{DynamicResource LblUiScale}" TextWrapping="Wrap" />
+            </StackPanel>
+            <ComboBox Grid.Column="1" ItemsSource="{Binding UiScales}" SelectedItem="{Binding SelectedUiScale}" HorizontalAlignment="Stretch"
+                      ItemTemplate="{StaticResource ChoiceTemplate}" />
+            <StackPanel Grid.Row="1">
+              <TextBlock Text="{DynamicResource LblRenderMode}" TextWrapping="Wrap" />
+              <Button Classes="link" Margin="0,4,0,0" IsVisible="{Binding RenderRestartNeeded}" Command="{Binding RestartAppCommand}">
+                <ctl:IconLabel Icon="{StaticResource IconRestart}" Text="{DynamicResource BtnRestartNow}" />
+              </Button>
+            </StackPanel>
+            <ComboBox Grid.Row="1" Grid.Column="1" ItemsSource="{Binding RenderModes}" SelectedItem="{Binding SelectedRenderMode}" HorizontalAlignment="Stretch"
+                      ItemTemplate="{StaticResource ChoiceTemplate}" />
+            <TextBlock Grid.Row="2" Text="{DynamicResource LblChartFill}" />
+            <ToggleSwitch Grid.Row="2" Grid.Column="1" IsChecked="{Binding ChartFill}" OnContent="" OffContent="" HorizontalAlignment="Right" />
+            <TextBlock Grid.Row="3" Text="{DynamicResource LblAnimations}" />
+            <ToggleSwitch Grid.Row="3" Grid.Column="1" IsChecked="{Binding Animations}" OnContent="" OffContent="" HorizontalAlignment="Right" />
+          </Grid>
+        </StackPanel>
+      </Border>
+
+      <!-- ====================================================== Language -->
+      <Border Classes="card">
+        <StackPanel Spacing="12">
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <PathIcon Data="{StaticResource IconLanguage}" Width="20" Height="20" Foreground="{DynamicResource BrushAccentText}" />
+            <TextBlock Classes="h2" Text="{DynamicResource HdrLanguage}" />
+          </StackPanel>
+          <Grid Classes="settings" ColumnDefinitions="*,260">
+            <TextBlock Text="{DynamicResource LblLanguage}" />
+            <ComboBox Grid.Column="1" ItemsSource="{Binding Languages}" SelectedItem="{Binding SelectedLanguage}" HorizontalAlignment="Stretch">
+              <ComboBox.ItemTemplate>
+                <DataTemplate x:DataType="loc:LanguageOption">
+                  <StackPanel Orientation="Horizontal" Spacing="10">
+                    <Image Classes="flag" Source="{Binding Flag}" />
+                    <TextBlock Text="{Binding Name}" VerticalAlignment="Center" />
+                  </StackPanel>
+                </DataTemplate>
+              </ComboBox.ItemTemplate>
+            </ComboBox>
+          </Grid>
+        </StackPanel>
+      </Border>
+
+      <!-- ====================================================== Start -->
+      <Border Classes="card">
+        <StackPanel Spacing="12">
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <PathIcon Data="{StaticResource IconPlay}" Width="20" Height="20" Foreground="{DynamicResource BrushAccentText}" />
+            <TextBlock Classes="h2" Text="{DynamicResource HdrStart}" />
+          </StackPanel>
+          <Grid Classes="settings" ColumnDefinitions="*,260" RowDefinitions="Auto,Auto,Auto,Auto">
+            <TextBlock Text="{DynamicResource LblStartPage}" TextWrapping="Wrap" />
+            <ComboBox Grid.Column="1" ItemsSource="{Binding StartPages}" SelectedItem="{Binding SelectedStartPage}" HorizontalAlignment="Stretch"
+                      ItemTemplate="{StaticResource ChoiceTemplate}" />
+            <StackPanel Grid.Row="1">
+              <TextBlock Text="{DynamicResource LblStartMode}" TextWrapping="Wrap" />
+            </StackPanel>
+            <ComboBox Grid.Row="1" Grid.Column="1" ItemsSource="{Binding StartModes}" SelectedItem="{Binding SelectedStartMode}" HorizontalAlignment="Stretch"
+                      ItemTemplate="{StaticResource ChoiceTemplate}" />
+            <StackPanel Grid.Row="2">
+              <TextBlock Text="{DynamicResource LblStartMonitor}" TextWrapping="Wrap" />
+            </StackPanel>
+            <ComboBox Grid.Row="2" Grid.Column="1" ItemsSource="{Binding Monitors}" SelectedItem="{Binding SelectedStartMonitor}" HorizontalAlignment="Stretch"
+                      ItemTemplate="{StaticResource ChoiceTemplate}" />
+            <TextBlock Grid.Row="3" Text="{DynamicResource LblStartMiniMonitor}" TextWrapping="Wrap" />
+            <ToggleSwitch Grid.Row="3" Grid.Column="1" IsChecked="{Binding StartMiniMonitor}" OnContent="" OffContent="" HorizontalAlignment="Right" />
+          </Grid>
+        </StackPanel>
+      </Border>
+
+      <!-- ====================================================== Mini monitor -->
+      <Border Classes="card">
+        <StackPanel Spacing="12">
+          <Grid ColumnDefinitions="*,Auto">
+            <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+              <PathIcon Data="{StaticResource IconMonitorDashboard}" Width="20" Height="20" Foreground="{DynamicResource BrushAccentText}" />
+              <TextBlock Classes="h2" Text="{DynamicResource HdrMiniMonitor}" />
+            </StackPanel>
+            <Button Grid.Column="1" Command="{Binding ToggleMiniMonitorCommand}">
+              <ctl:IconLabel Icon="{StaticResource IconMonitorDashboard}" Text="{DynamicResource BtnToggleMiniMonitor}" />
+            </Button>
+          </Grid>
+          <Grid ColumnDefinitions="Auto,24,*">
+            <!-- Position: a monitor symbol with 3 × 3 anchor points -->
+            <StackPanel Spacing="6">
+              <TextBlock Classes="label" Text="{DynamicResource LblMiniPosition}" />
+              <Border Width="150" Padding="6" CornerRadius="8" BorderThickness="3" BorderBrush="{DynamicResource BrushTextSecondary}"
+                      Background="{DynamicResource BrushBgApp}">
+                <ItemsControl ItemsSource="{Binding Anchors}">
+                  <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                      <UniformGrid Columns="3" Rows="3" />
+                    </ItemsPanelTemplate>
+                  </ItemsControl.ItemsPanel>
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:AnchorOption">
+                      <RadioButton Classes="anchor" GroupName="miniAnchor" IsChecked="{Binding IsSelected}" ToolTip.Tip="{Binding Tip}" />
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </Border>
+              <!-- Monitor stand -->
+              <Border Width="14" Height="10" Background="{DynamicResource BrushTextSecondary}" HorizontalAlignment="Center" Margin="0,-6,0,0" />
+              <Border Width="56" Height="4" CornerRadius="2" Background="{DynamicResource BrushTextSecondary}" HorizontalAlignment="Center" Margin="0,-6,0,0" />
+              <TextBlock Classes="muted small" Text="{DynamicResource HintMiniCustom}" IsVisible="{Binding MiniPositionCustom}" TextWrapping="Wrap"
+                         MaxWidth="150" />
+            </StackPanel>
+            <Grid Grid.Column="2" Classes="settings" ColumnDefinitions="*,240" RowDefinitions="Auto,Auto,Auto,Auto">
+              <TextBlock Text="{DynamicResource LblMiniScreen}" TextWrapping="Wrap" />
+              <ComboBox Grid.Column="1" ItemsSource="{Binding MiniMonitors}" SelectedItem="{Binding SelectedMiniMonitorScreen}" HorizontalAlignment="Stretch"
+                        ItemTemplate="{StaticResource ChoiceTemplate}" />
+              <TextBlock Grid.Row="1" Text="{DynamicResource LblMiniTheme}" TextWrapping="Wrap" />
+              <ComboBox Grid.Row="1" Grid.Column="1" ItemsSource="{Binding MiniThemes}" SelectedItem="{Binding SelectedMiniTheme}" HorizontalAlignment="Stretch"
+                        ItemTemplate="{StaticResource ChoiceTemplate}" />
+              <TextBlock Grid.Row="2" Text="{DynamicResource LblMiniOpacity}" TextWrapping="Wrap" />
+              <Grid Grid.Row="2" Grid.Column="1" ColumnDefinitions="*,Auto">
+                <Slider Minimum="40" Maximum="100" TickFrequency="5" IsSnapToTickEnabled="True" Value="{Binding MiniOpacity}" />
+                <TextBlock Grid.Column="1" Text="{Binding MiniOpacityText}" MinWidth="44" TextAlignment="Right" VerticalAlignment="Center" />
+              </Grid>
+              <TextBlock Grid.Row="3" Text="{DynamicResource LblMiniTopmost}" TextWrapping="Wrap" />
+              <ToggleSwitch Grid.Row="3" Grid.Column="1" IsChecked="{Binding MiniTopmost}" OnContent="" OffContent="" HorizontalAlignment="Right" />
+            </Grid>
+          </Grid>
+        </StackPanel>
+      </Border>
+
+      <!-- ====================================================== Monitoring -->
+      <Border Classes="card">
+        <StackPanel Spacing="12">
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <PathIcon Data="{StaticResource IconPulse}" Width="20" Height="20" Foreground="{DynamicResource BrushAccentText}" />
+            <TextBlock Classes="h2" Text="{DynamicResource HdrMonitoring}" />
+          </StackPanel>
+          <Grid Classes="settings" ColumnDefinitions="*,260" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto">
+            <TextBlock Text="{DynamicResource LblInterval}" />
+            <ComboBox Grid.Column="1" ItemsSource="{Binding Intervals}" SelectedItem="{Binding SelectedInterval}" HorizontalAlignment="Stretch">
+              <ComboBox.ItemTemplate>
+                <DataTemplate x:DataType="vm:Choice">
+                  <TextBlock Text="{Binding Title}" />
+                </DataTemplate>
+              </ComboBox.ItemTemplate>
+            </ComboBox>
+            <TextBlock Grid.Row="1" Text="{DynamicResource LblHistory}" />
+            <ComboBox Grid.Row="1" Grid.Column="1" ItemsSource="{Binding HistoryLengths}" SelectedItem="{Binding SelectedHistory}" HorizontalAlignment="Stretch">
+              <ComboBox.ItemTemplate>
+                <DataTemplate x:DataType="vm:Choice">
+                  <TextBlock Text="{Binding Title}" />
+                </DataTemplate>
+              </ComboBox.ItemTemplate>
+            </ComboBox>
+            <StackPanel Grid.Row="2">
+              <TextBlock Text="{DynamicResource LblUtility}" TextWrapping="Wrap" />
+              <TextBlock Classes="muted small" Text="{DynamicResource HintUtility}" TextWrapping="Wrap" />
+            </StackPanel>
+            <ToggleSwitch Grid.Row="2" Grid.Column="1" IsChecked="{Binding UseProcessorUtility}" OnContent="" OffContent="" HorizontalAlignment="Right" />
+            <StackPanel Grid.Row="3">
+              <TextBlock Text="{DynamicResource LblGpu}" TextWrapping="Wrap" />
+              <TextBlock Classes="muted small" Text="{DynamicResource HintGpu}" TextWrapping="Wrap" />
+            </StackPanel>
+            <ToggleSwitch Grid.Row="3" Grid.Column="1" IsChecked="{Binding GpuMonitoring}" OnContent="" OffContent="" HorizontalAlignment="Right" />
+            <StackPanel Grid.Row="4">
+              <TextBlock Text="{DynamicResource LblRecordHistory}" TextWrapping="Wrap" />
+              <TextBlock Classes="muted small" Text="{DynamicResource HintRecordHistory}" TextWrapping="Wrap" />
+            </StackPanel>
+            <ToggleSwitch Grid.Row="4" Grid.Column="1" IsChecked="{Binding RecordAppHistory}" OnContent="" OffContent="" HorizontalAlignment="Right" />
+            <StackPanel Grid.Row="5">
+              <TextBlock Text="{DynamicResource LblResolveHosts}" TextWrapping="Wrap" />
+              <TextBlock Classes="muted small" Text="{DynamicResource HintResolveHosts}" TextWrapping="Wrap" />
+            </StackPanel>
+            <ToggleSwitch Grid.Row="5" Grid.Column="1" IsChecked="{Binding ResolveHostNames}" OnContent="" OffContent="" HorizontalAlignment="Right" />
+            <TextBlock Grid.Row="6" Text="{DynamicResource LblConfirmEnd}" TextWrapping="Wrap" />
+            <ToggleSwitch Grid.Row="6" Grid.Column="1" IsChecked="{Binding ConfirmEndTask}" OnContent="" OffContent="" HorizontalAlignment="Right" />
+          </Grid>
+        </StackPanel>
+      </Border>
+
+      <!-- ====================================================== Alerts -->
+      <Border Classes="card">
+        <StackPanel Spacing="12">
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <PathIcon Data="{StaticResource IconBellAlert}" Width="20" Height="20" Foreground="{DynamicResource BrushAccentText}" />
+            <TextBlock Classes="h2" Text="{DynamicResource HdrAlerts}" />
+          </StackPanel>
+          <ctl:InfoText Text="{DynamicResource AlertsIntro}" />
+          <Grid Classes="settings" ColumnDefinitions="*,260" RowDefinitions="Auto,Auto,Auto,Auto,Auto">
+            <TextBlock Text="{DynamicResource LblAlertsEnabled}" TextWrapping="Wrap" />
+            <ToggleSwitch Grid.Column="1" IsChecked="{Binding AlertsEnabled}" OnContent="" OffContent="" HorizontalAlignment="Right" />
+            <TextBlock Grid.Row="1" Text="{DynamicResource LblAlertCpu}" TextWrapping="Wrap" IsEnabled="{Binding AlertsEnabled}" />
+            <Grid Grid.Row="1" Grid.Column="1" ColumnDefinitions="*,Auto" IsEnabled="{Binding AlertsEnabled}">
+              <Slider Minimum="50" Maximum="100" TickFrequency="5" IsSnapToTickEnabled="True" Value="{Binding AlertCpuPercent}" />
+              <TextBlock Grid.Column="1" Text="{Binding AlertCpuText}" MinWidth="44" TextAlignment="Right" VerticalAlignment="Center" />
+            </Grid>
+            <TextBlock Grid.Row="2" Text="{DynamicResource LblAlertMemory}" TextWrapping="Wrap" IsEnabled="{Binding AlertsEnabled}" />
+            <Grid Grid.Row="2" Grid.Column="1" ColumnDefinitions="*,Auto" IsEnabled="{Binding AlertsEnabled}">
+              <Slider Minimum="50" Maximum="100" TickFrequency="5" IsSnapToTickEnabled="True" Value="{Binding AlertMemoryPercent}" />
+              <TextBlock Grid.Column="1" Text="{Binding AlertMemoryText}" MinWidth="44" TextAlignment="Right" VerticalAlignment="Center" />
+            </Grid>
+            <TextBlock Grid.Row="3" Text="{DynamicResource LblAlertDuration}" TextWrapping="Wrap" IsEnabled="{Binding AlertsEnabled}" />
+            <ComboBox Grid.Row="3" Grid.Column="1" ItemsSource="{Binding AlertDurations}" SelectedItem="{Binding SelectedAlertDuration}" HorizontalAlignment="Stretch"
+                      ItemTemplate="{StaticResource ChoiceTemplate}" IsEnabled="{Binding AlertsEnabled}" />
+            <TextBlock Grid.Row="4" Text="{DynamicResource LblAlertCooldown}" TextWrapping="Wrap" IsEnabled="{Binding AlertsEnabled}" />
+            <ComboBox Grid.Row="4" Grid.Column="1" ItemsSource="{Binding AlertCooldowns}" SelectedItem="{Binding SelectedAlertCooldown}" HorizontalAlignment="Stretch"
+                      ItemTemplate="{StaticResource ChoiceTemplate}" IsEnabled="{Binding AlertsEnabled}" />
+          </Grid>
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Command="{Binding TestAlertCommand}">
+              <ctl:IconLabel Icon="{StaticResource IconBell}" Text="{DynamicResource BtnTestAlert}" />
+            </Button>
+          </StackPanel>
+        </StackPanel>
+      </Border>
+
+      <!-- ====================================================== Window & tray -->
+      <Border Classes="card">
+        <StackPanel Spacing="12">
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <PathIcon Data="{StaticResource IconTray}" Width="20" Height="20" Foreground="{DynamicResource BrushAccentText}" />
+            <TextBlock Classes="h2" Text="{DynamicResource HdrWindow}" />
+          </StackPanel>
+          <Grid Classes="settings" ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto">
+            <TextBlock Text="{DynamicResource LblAutostart}" TextWrapping="Wrap" />
+            <ToggleSwitch Grid.Column="1" IsChecked="{Binding Autostart}" OnContent="" OffContent="" />
+            <TextBlock Grid.Row="1" Text="{DynamicResource LblCloseToTray}" TextWrapping="Wrap" />
+            <ToggleSwitch Grid.Row="1" Grid.Column="1" IsChecked="{Binding CloseToTray}" OnContent="" OffContent="" />
+            <TextBlock Grid.Row="2" Text="{DynamicResource LblMinimizeToTray}" TextWrapping="Wrap" />
+            <ToggleSwitch Grid.Row="2" Grid.Column="1" IsChecked="{Binding MinimizeToTray}" OnContent="" OffContent="" />
+            <StackPanel Grid.Row="3">
+              <TextBlock Text="{DynamicResource LblKeepWindow}" TextWrapping="Wrap" />
+              <TextBlock Classes="muted small" Text="{DynamicResource HintKeepWindow}" TextWrapping="Wrap" />
+            </StackPanel>
+            <ToggleSwitch Grid.Row="3" Grid.Column="1" IsChecked="{Binding KeepWindowInTray}" OnContent="" OffContent="" />
+            <TextBlock Grid.Row="4" Text="{DynamicResource LblAlwaysOnTop}" TextWrapping="Wrap" />
+            <ToggleSwitch Grid.Row="4" Grid.Column="1" IsChecked="{Binding AlwaysOnTop}" OnContent="" OffContent="" />
+            <StackPanel Grid.Row="5">
+              <TextBlock Text="{DynamicResource LblTrimMemory}" TextWrapping="Wrap" />
+              <TextBlock Classes="muted small" Text="{DynamicResource HintTrimMemory}" TextWrapping="Wrap" />
+            </StackPanel>
+            <ToggleSwitch Grid.Row="5" Grid.Column="1" IsChecked="{Binding TrimMemoryInTray}" OnContent="" OffContent="" />
+          </Grid>
+        </StackPanel>
+      </Border>
+
+      <!-- ====================================================== Integration -->
+      <Border Classes="card">
+        <StackPanel Spacing="12">
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <PathIcon Data="{StaticResource IconLink}" Width="20" Height="20" Foreground="{DynamicResource BrushAccentText}" />
+            <TextBlock Classes="h2" Text="{DynamicResource HdrIntegration}" />
+          </StackPanel>
+          <Grid Classes="settings" ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
+            <StackPanel>
+              <TextBlock Text="{DynamicResource LblContextMenu}" TextWrapping="Wrap" />
+              <TextBlock Classes="muted small" Text="{DynamicResource HintContextMenu}" TextWrapping="Wrap" />
+            </StackPanel>
+            <ToggleSwitch Grid.Column="1" IsChecked="{Binding ContextMenu}" OnContent="" OffContent="" />
+            <StackPanel Grid.Row="1">
+              <TextBlock Text="{DynamicResource LblReplaceTaskManager}" TextWrapping="Wrap" />
+              <TextBlock Classes="muted small" Text="{DynamicResource HintReplaceTaskManager}" TextWrapping="Wrap" />
+            </StackPanel>
+            <ToggleSwitch Grid.Row="1" Grid.Column="1" IsChecked="{Binding ReplaceTaskManager}" IsEnabled="{Binding IsElevated}" OnContent="" OffContent="" />
+          </Grid>
+        </StackPanel>
+      </Border>
+
+      <!-- ====================================================== Expert mode (terminal server / Citrix) -->
+      <Border Classes="card">
+        <StackPanel Spacing="12">
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <PathIcon Data="{StaticResource IconExpert}" Width="20" Height="20" Foreground="{DynamicResource BrushAccentText}" />
+            <TextBlock Classes="h2" Text="{DynamicResource HdrExpert}" />
+          </StackPanel>
+          <ctl:InfoText Text="{DynamicResource ExpertIntro}" />
+          <Grid Classes="settings" ColumnDefinitions="*,Auto">
+            <TextBlock Text="{DynamicResource LblExpertMode}" TextWrapping="Wrap" />
+            <ToggleSwitch Grid.Column="1" IsChecked="{Binding ExpertMode}" OnContent="" OffContent="" />
+          </Grid>
+        </StackPanel>
+      </Border>
+
+      <!-- ====================================================== Administrator & data -->
+      <Border Classes="card">
+        <StackPanel Spacing="12">
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <PathIcon Data="{StaticResource IconShieldLock}" Width="20" Height="20" Foreground="{DynamicResource BrushAccentText}" />
+            <TextBlock Classes="h2" Text="{DynamicResource HdrAdmin}" />
+          </StackPanel>
+          <Border Classes="notice" IsVisible="{Binding IsElevated}">
+            <TextBlock Text="{DynamicResource AdminElevated}" TextWrapping="Wrap" />
+          </Border>
+          <Border Classes="notice moderate" IsVisible="{Binding !IsElevated}">
+            <Grid ColumnDefinitions="*,Auto">
+              <TextBlock Text="{DynamicResource AdminStandard}" TextWrapping="Wrap" VerticalAlignment="Center" />
+              <Button Grid.Column="1" Margin="12,0,0,0" Command="{Binding RestartElevatedCommand}">
+                <ctl:IconLabel Icon="{StaticResource IconShieldAlert}" Text="{DynamicResource BtnRestartElevated}" />
+              </Button>
+            </Grid>
+          </Border>
+          <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
+            <Button Command="{Binding OpenDataFolderCommand}">
+              <ctl:IconLabel Icon="{StaticResource IconFolderOpen}" Text="{DynamicResource BtnDataFolder}" />
+            </Button>
+            <Button Classes="danger" Command="{Binding ResetCommand}">
+              <ctl:IconLabel Icon="{StaticResource IconRestart}" Text="{DynamicResource ActReset}" />
+            </Button>
+          </StackPanel>
+        </StackPanel>
+      </Border>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

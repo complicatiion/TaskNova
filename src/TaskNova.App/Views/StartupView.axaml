@@ -1,0 +1,90 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ctl="using:TaskNova.App.Controls"
+             xmlns:vm="using:TaskNova.App.ViewModels"
+             x:Class="TaskNova.App.Views.StartupView"
+             x:DataType="vm:StartupViewModel">
+
+  <Grid RowDefinitions="Auto,*">
+    <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,12">
+      <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+        <ItemsControl Classes="pills" ItemsSource="{Binding Stats}" />
+        <Border Classes="badge moderate" IsVisible="{Binding NeedsElevation}" ToolTip.Tip="{DynamicResource TipStartupElevation}">
+          <TextBlock Text="{DynamicResource BadgeLimitedView}" />
+        </Border>
+        <Border Classes="badge info" IsVisible="{Binding IsLoading}">
+          <TextBlock Text="{DynamicResource StatusLoading}" />
+        </Border>
+      </StackPanel>
+      <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+        <Button Classes="tool" Command="{Binding LoadCommand}" AutomationProperties.Name="{DynamicResource BtnRefresh}">
+          <ToolTip.Tip><ctl:TipContent Title="{DynamicResource BtnRefresh}" Text="{DynamicResource TipRefreshDesc}" /></ToolTip.Tip>
+          <PathIcon Data="{StaticResource IconRefresh}" />
+        </Button>
+        <Button Classes="tool" Command="{Binding OpenLocationCommand}" AutomationProperties.Name="{DynamicResource ActOpenLocation}">
+          <ToolTip.Tip><ctl:TipContent Title="{DynamicResource ActOpenLocation}" Text="{DynamicResource TipOpenLocationDesc}" /></ToolTip.Tip>
+          <PathIcon Data="{StaticResource IconFolderOpen}" />
+        </Button>
+        <!-- On/off of the selected entry as a real switch (disabled without a selection) -->
+        <Border Classes="statpill" Padding="12,2,6,2" IsEnabled="{Binding HasSelection}" ToolTip.Tip="{DynamicResource TipStartupSwitch}">
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <TextBlock Text="{Binding SelectedStatusText}" FontSize="12" VerticalAlignment="Center" Foreground="{DynamicResource BrushTextSecondary}" />
+            <ToggleSwitch IsChecked="{Binding SelectedEnabled}" OnContent="" OffContent="" MinWidth="0" VerticalAlignment="Center"
+                          AutomationProperties.Name="{DynamicResource ActToggleStartup}" />
+          </StackPanel>
+        </Border>
+      </StackPanel>
+    </Grid>
+
+    <Border Grid.Row="1" Classes="tablecard">
+      <DockPanel>
+        <Border DockPanel.Dock="Top" Classes="thead">
+          <Grid ColumnDefinitions="*,200,130,150,120">
+            <TextBlock Grid.Column="0" Classes="th" Text="{DynamicResource ColName}" Margin="10,0" />
+            <TextBlock Grid.Column="1" Classes="th" Text="{DynamicResource ColPublisher}" Margin="10,0" />
+            <TextBlock Grid.Column="2" Classes="th" Text="{DynamicResource ColStatus}" Margin="10,0" />
+            <TextBlock Grid.Column="3" Classes="th" Text="{DynamicResource ColLocation}" Margin="10,0" />
+            <TextBlock Grid.Column="4" Classes="th" Text="{DynamicResource ColImpact}" Margin="10,0" />
+          </Grid>
+        </Border>
+        <ListBox Classes="table" AutoScrollToSelectedItem="False" ItemsSource="{Binding Items}" SelectedItem="{Binding Selected}"
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+          <ListBox.ItemTemplate>
+            <DataTemplate x:DataType="vm:StartupRow">
+              <Grid ColumnDefinitions="*,200,130,150,120" Background="Transparent">
+                <DockPanel Opacity="{Binding Missing, Converter={x:Static ctl:Converters.Dim}}">
+                  <Panel DockPanel.Dock="Left" Width="18" Height="18" Margin="10,0,0,0" VerticalAlignment="Center">
+                    <Image Source="{Binding Icon}" Width="16" Height="16" />
+                  </Panel>
+                  <PathIcon DockPanel.Dock="Right" Data="{StaticResource IconCheckDecagram}" Width="14" Height="14" Margin="0,0,8,0"
+                            Foreground="{DynamicResource BrushSafe}" IsVisible="{Binding Signed}" ToolTip.Tip="{DynamicResource TipSigned}" />
+                  <TextBlock Classes="cell" Margin="8,0,6,0" Text="{Binding Name}" ToolTip.Tip="{Binding Command}" />
+                </DockPanel>
+                <TextBlock Grid.Column="1" Classes="cell dim" Text="{Binding Publisher}" />
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6" Margin="10,0,0,0">
+                  <ToggleSwitch IsChecked="{Binding Enabled}" OnContent="" OffContent="" MinWidth="0" VerticalAlignment="Center" />
+                  <TextBlock Classes="cell" Margin="0" Text="{Binding StatusText}" FontSize="12" />
+                </StackPanel>
+                <TextBlock Grid.Column="3" Classes="cell dim" Text="{Binding LocationText}" />
+                <TextBlock Grid.Column="4" Classes="cell dim" Text="{Binding ImpactText}" ToolTip.Tip="{DynamicResource TipImpact}" />
+              </Grid>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+          <ListBox.ContextMenu>
+            <ContextMenu>
+              <MenuItem Header="{DynamicResource ActToggleStartup}" Command="{Binding ToggleCommand}">
+                <MenuItem.Icon><PathIcon Data="{StaticResource IconToggle}" /></MenuItem.Icon>
+              </MenuItem>
+              <MenuItem Header="{DynamicResource ActOpenLocation}" Command="{Binding OpenLocationCommand}">
+                <MenuItem.Icon><PathIcon Data="{StaticResource IconFolderOpen}" /></MenuItem.Icon>
+              </MenuItem>
+              <MenuItem Header="{DynamicResource ActCopyCommand}" Command="{Binding CopyCommandCommand}">
+                <MenuItem.Icon><PathIcon Data="{StaticResource IconCopy}" /></MenuItem.Icon>
+              </MenuItem>
+            </ContextMenu>
+          </ListBox.ContextMenu>
+        </ListBox>
+      </DockPanel>
+    </Border>
+  </Grid>
+</UserControl>

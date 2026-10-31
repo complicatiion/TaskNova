@@ -1,0 +1,280 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ctl="using:TaskNova.App.Controls"
+             xmlns:vm="using:TaskNova.App.ViewModels"
+             x:Class="TaskNova.App.Views.OverviewView"
+             x:DataType="vm:OverviewViewModel">
+
+  <UserControl.Resources>
+    <!-- Top consumer row: icon, name, bar, value -->
+    <DataTemplate x:Key="TopTemplate" x:DataType="vm:TopEntry">
+      <Button Classes="row" Cursor="Hand" CommandParameter="{Binding}"
+              Command="{Binding $parent[UserControl].((vm:OverviewViewModel)DataContext).OpenProcessCommand}">
+        <Grid ColumnDefinitions="Auto,*,Auto,Auto" Height="28">
+          <Panel Width="18" Height="18" VerticalAlignment="Center">
+            <Image Source="{Binding Row.Icon}" Width="16" Height="16" />
+            <PathIcon Data="{StaticResource IconApplicationOutline}" Width="15" Height="15" IsVisible="{Binding !Row.HasIcon}"
+                      Foreground="{DynamicResource BrushTextSecondary}" />
+          </Panel>
+          <TextBlock Grid.Column="1" Text="{Binding Row.DisplayName}" Margin="10,0" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+          <ProgressBar Grid.Column="2" Classes="usage topbar" Value="{Binding Percent}" Maximum="100" VerticalAlignment="Center" MinWidth="0" />
+          <TextBlock Grid.Column="3" Classes="topvalue" Text="{Binding Value}" TextAlignment="Right" VerticalAlignment="Center" FontWeight="SemiBold" />
+        </Grid>
+      </Button>
+    </DataTemplate>
+  </UserControl.Resources>
+
+  <UserControl.Styles>
+    <!-- Top lists: wide bar in large cards (maximized / full screen), narrow bar in a normal window so the names stay readable -->
+    <Style Selector="ProgressBar.topbar">
+      <Setter Property="Width" Value="90" />
+    </Style>
+    <Style Selector="TextBlock.topvalue">
+      <Setter Property="Width" Value="72" />
+    </Style>
+    <Style Selector="ItemsControl.compact ProgressBar.topbar">
+      <Setter Property="Width" Value="40" />
+    </Style>
+    <Style Selector="ItemsControl.compact TextBlock.topvalue">
+      <Setter Property="Width" Value="62" />
+    </Style>
+  </UserControl.Styles>
+
+  <!-- Fills the visible height (no scroll bar on normal screens); scrolls only when the window is very small -->
+  <ScrollViewer x:Name="Scroller" VerticalScrollBarVisibility="Auto">
+    <Grid x:Name="Layout" RowDefinitions="Auto,14,Auto,14,*" Margin="0,0,6,4">
+
+      <!-- Row 1: CPU and memory with ring gauges -->
+      <Grid ColumnDefinitions="*,16,*">
+        <Button Classes="cardlink" Command="{Binding OpenPerformanceCommand}" CommandParameter="cpu">
+          <Border Classes="kpitile">
+            <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,*">
+              <!-- Heading with the key figure pill right-aligned on the same line -->
+              <Grid Grid.ColumnSpan="2" ColumnDefinitions="Auto,Auto,*" Margin="0,0,0,10">
+                <PathIcon Data="{StaticResource IconChip}" Width="18" Height="18" Margin="0,0,8,0" Foreground="{DynamicResource BrushAccentText}" />
+                <TextBlock Grid.Column="1" Classes="h3" Text="{DynamicResource DevCpu}" VerticalAlignment="Center" />
+                <Border Grid.Column="2" Classes="pill accent" HorizontalAlignment="Right" VerticalAlignment="Center">
+                  <TextBlock Text="{Binding CpuSub}" />
+                </Border>
+              </Grid>
+              <Panel Grid.Row="1" Width="112" Height="112">
+                <ctl:RingGauge Value="{Binding CpuPercent}" Thickness="11" Stroke="{DynamicResource BrushBrandGradient}"
+                               Track="{DynamicResource BrushSurfaceRaised}" />
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                  <TextBlock Classes="kpivalue" Text="{Binding CpuText}" HorizontalAlignment="Center" />
+                  <TextBlock Classes="statlabel" Text="{DynamicResource LblUtilization}" HorizontalAlignment="Center" />
+                </StackPanel>
+              </Panel>
+              <Grid Grid.Row="1" Grid.Column="1" Margin="20,0,0,0" RowDefinitions="Auto,Auto,Auto,*" ColumnDefinitions="*,*">
+                <StackPanel Classes="statpair" Grid.Row="1" Margin="0,0,0,10">
+                  <TextBlock Classes="statlabel" Text="{DynamicResource StatProcesses}" />
+                  <TextBlock Classes="statvalue" Text="{Binding ProcessesText}" />
+                </StackPanel>
+                <StackPanel Classes="statpair" Grid.Row="1" Grid.Column="1" Margin="0,0,0,10">
+                  <TextBlock Classes="statlabel" Text="{DynamicResource StatThreads}" />
+                  <TextBlock Classes="statvalue" Text="{Binding ThreadsText}" />
+                </StackPanel>
+                <StackPanel Classes="statpair" Grid.Row="2">
+                  <TextBlock Classes="statlabel" Text="{DynamicResource StatHandles}" />
+                  <TextBlock Classes="statvalue" Text="{Binding HandlesText}" />
+                </StackPanel>
+                <StackPanel Classes="statpair" Grid.Row="2" Grid.Column="1">
+                  <TextBlock Classes="statlabel" Text="{DynamicResource StatUptime}" />
+                  <TextBlock Classes="statvalue" Text="{Binding UptimeText}" />
+                </StackPanel>
+                <Border Grid.Row="3" Grid.ColumnSpan="2" Classes="chartframe" Height="40" Margin="0,10,0,0" VerticalAlignment="Bottom">
+                  <ctl:SparkChart Series="{Binding Metrics.Cpu}" Maximum="100" Fill="{Binding ChartFill}"
+                                  Stroke="{DynamicResource BrushAccent}" />
+                </Border>
+              </Grid>
+            </Grid>
+          </Border>
+        </Button>
+
+        <Button Grid.Column="2" Classes="cardlink" Command="{Binding OpenPerformanceCommand}" CommandParameter="memory">
+          <Border Classes="kpitile">
+            <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,*">
+              <Grid Grid.ColumnSpan="2" ColumnDefinitions="Auto,Auto,*" Margin="0,0,0,10">
+                <PathIcon Data="{StaticResource IconMemory}" Width="18" Height="18" Margin="0,0,8,0" Foreground="{DynamicResource BrushAccentText}" />
+                <TextBlock Grid.Column="1" Classes="h3" Text="{DynamicResource DevMemory}" VerticalAlignment="Center" />
+                <Border Grid.Column="2" Classes="pill accent" HorizontalAlignment="Right" VerticalAlignment="Center">
+                  <TextBlock Text="{Binding MemoryUsedText}" />
+                </Border>
+              </Grid>
+              <Panel Grid.Row="1" Width="112" Height="112">
+                <ctl:RingGauge Value="{Binding MemoryPercent}" Thickness="11" Stroke="{DynamicResource BrushBrandGradient}"
+                               Track="{DynamicResource BrushSurfaceRaised}" />
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                  <TextBlock Classes="kpivalue" Text="{Binding MemoryText}" HorizontalAlignment="Center" />
+                  <TextBlock Classes="statlabel" Text="{DynamicResource LblInUse}" HorizontalAlignment="Center" />
+                </StackPanel>
+              </Panel>
+              <Grid Grid.Row="1" Grid.Column="1" Margin="20,0,0,0" RowDefinitions="Auto,Auto,Auto,*" ColumnDefinitions="*,*">
+                <StackPanel Classes="statpair" Grid.Row="1" Margin="0,0,0,10">
+                  <TextBlock Classes="statlabel" Text="{DynamicResource StatAvailable}" />
+                  <TextBlock Classes="statvalue" Text="{Binding MemoryAvailableText}" />
+                </StackPanel>
+                <StackPanel Classes="statpair" Grid.Row="1" Grid.Column="1" Margin="0,0,0,10">
+                  <TextBlock Classes="statlabel" Text="{DynamicResource StatCached}" />
+                  <TextBlock Classes="statvalue" Text="{Binding CacheText}" />
+                </StackPanel>
+                <StackPanel Classes="statpair" Grid.Row="2" Grid.ColumnSpan="2">
+                  <TextBlock Classes="statlabel" Text="{DynamicResource StatCommitted}" />
+                  <TextBlock Classes="statvalue" Text="{Binding CommitText}" />
+                </StackPanel>
+                <StackPanel Grid.Row="3" Grid.ColumnSpan="2" VerticalAlignment="Bottom" Margin="0,12,0,0" Spacing="6">
+                  <ctl:StackedBar Height="10" Total="{Binding MemoryTotal}" First="{Binding MemoryUsed}" Second="{Binding MemoryCache}"
+                                  FirstBrush="{DynamicResource BrushAccent}" SecondBrush="{DynamicResource BrushAccentSoft}"
+                                  Track="{DynamicResource BrushSurfaceRaised}" />
+                  <StackPanel Orientation="Horizontal" Spacing="14">
+                    <StackPanel Orientation="Horizontal" Spacing="5">
+                      <Ellipse Width="8" Height="8" Fill="{DynamicResource BrushAccent}" VerticalAlignment="Center" />
+                      <TextBlock Classes="statlabel" Text="{DynamicResource LblInUse}" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="5">
+                      <Ellipse Width="8" Height="8" Fill="{DynamicResource BrushAccentSoft}" VerticalAlignment="Center" />
+                      <TextBlock Classes="statlabel" Text="{DynamicResource StatCached}" />
+                    </StackPanel>
+                  </StackPanel>
+                </StackPanel>
+              </Grid>
+            </Grid>
+          </Border>
+        </Button>
+      </Grid>
+
+      <!-- Row 2: disk, network, GPU tiles with live charts -->
+      <Grid Grid.Row="2" ColumnDefinitions="*,16,*,16,*">
+        <Button Classes="cardlink" Command="{Binding OpenPerformanceCommand}" CommandParameter="disk">
+          <Border Classes="kpitile">
+            <StackPanel Spacing="6">
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <PathIcon Data="{StaticResource IconHarddisk}" Width="18" Height="18" Foreground="{DynamicResource BrushAccentText}" />
+                <TextBlock Classes="h3" Text="{DynamicResource TileDisk}" />
+              </StackPanel>
+              <TextBlock Classes="kpivalue" Text="{Binding DiskText}" />
+              <TextBlock Classes="muted small" Text="{Binding DiskSub}" TextTrimming="CharacterEllipsis" />
+              <Border Classes="chartframe" Height="46" Margin="0,4,0,0">
+                <ctl:SparkChart Series="{Binding Metrics.DiskTotal}" Maximum="100" Fill="{Binding ChartFill}" Stroke="{DynamicResource BrushAccent}" />
+              </Border>
+            </StackPanel>
+          </Border>
+        </Button>
+        <Button Grid.Column="2" Classes="cardlink" Command="{Binding OpenPerformanceCommand}" CommandParameter="network">
+          <Border Classes="kpitile">
+            <StackPanel Spacing="6">
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <PathIcon Data="{StaticResource IconLan}" Width="18" Height="18" Foreground="{DynamicResource BrushAccentText}" />
+                <TextBlock Classes="h3" Text="{DynamicResource TileNetwork}" />
+              </StackPanel>
+              <TextBlock Classes="kpivalue" Text="{Binding NetworkText}" />
+              <TextBlock Classes="muted small" Text="{Binding NetworkSub}" TextTrimming="CharacterEllipsis" />
+              <Border Classes="chartframe" Height="46" Margin="0,4,0,0">
+                <ctl:SparkChart Series="{Binding Metrics.NetworkTotal}" Maximum="NaN" Fill="{Binding ChartFill}" Stroke="{DynamicResource BrushAccent}" />
+              </Border>
+            </StackPanel>
+          </Border>
+        </Button>
+        <Button Grid.Column="4" Classes="cardlink" Command="{Binding OpenPerformanceCommand}" CommandParameter="gpu">
+          <Border Classes="kpitile">
+            <StackPanel Spacing="6">
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <PathIcon Data="{StaticResource IconExpansionCard}" Width="18" Height="18" Foreground="{DynamicResource BrushAccentText}" />
+                <TextBlock Classes="h3" Text="{DynamicResource DevGpu}" />
+              </StackPanel>
+              <TextBlock Classes="kpivalue" Text="{Binding GpuText}" />
+              <TextBlock Classes="muted small" Text="{Binding GpuSub}" TextTrimming="CharacterEllipsis" />
+              <Border Classes="chartframe" Height="46" Margin="0,4,0,0">
+                <ctl:SparkChart Series="{Binding Metrics.GpuTotal}" Maximum="100" Fill="{Binding ChartFill}" Stroke="{DynamicResource BrushAccent}" />
+              </Border>
+            </StackPanel>
+          </Border>
+        </Button>
+      </Grid>
+
+      <!-- Row 3: top processes (whole card opens the Processes page sorted by that column) and system facts -->
+      <Grid Grid.Row="4" x:Name="BottomRow" ColumnDefinitions="*,16,*,16,*">
+        <Button Classes="cardlink" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch"
+                Command="{Binding OpenTopCommand}" CommandParameter="cpu" ToolTip.Tip="{DynamicResource TipTopCpu}">
+          <Border Classes="kpitile">
+            <StackPanel Spacing="6">
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <PathIcon Data="{StaticResource IconFire}" Width="18" Height="18" Foreground="{DynamicResource BrushAccentText}" />
+                <TextBlock Classes="h3" Text="{DynamicResource TopCpu}" />
+              </StackPanel>
+              <ItemsControl x:Name="TopCpuList" ItemsSource="{Binding TopCpu}" ItemTemplate="{StaticResource TopTemplate}" />
+            </StackPanel>
+          </Border>
+        </Button>
+        <Button Grid.Column="2" Classes="cardlink" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch"
+                Command="{Binding OpenTopCommand}" CommandParameter="memory" ToolTip.Tip="{DynamicResource TipTopMemory}">
+          <Border Classes="kpitile">
+            <StackPanel Spacing="6">
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <PathIcon Data="{StaticResource IconMemory}" Width="18" Height="18" Foreground="{DynamicResource BrushAccentText}" />
+                <TextBlock Classes="h3" Text="{DynamicResource TopMemory}" />
+              </StackPanel>
+              <ItemsControl x:Name="TopMemoryList" ItemsSource="{Binding TopMemory}" ItemTemplate="{StaticResource TopTemplate}" />
+            </StackPanel>
+          </Border>
+        </Button>
+        <!-- System card: Windows "About" (context menu: msinfo32, Control Panel, advanced system properties) -->
+        <Button Grid.Column="4" Classes="cardlink" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch"
+                Command="{Binding OpenSystemInfoCommand}" ToolTip.Tip="{DynamicResource TipSystemCard}">
+          <Button.ContextMenu>
+            <ContextMenu>
+              <MenuItem Header="{DynamicResource ActSystemAbout}" Command="{Binding OpenSystemInfoCommand}">
+                <MenuItem.Icon><PathIcon Data="{StaticResource IconInfo}" /></MenuItem.Icon>
+              </MenuItem>
+              <MenuItem Header="{DynamicResource ActMsInfo}" Command="{Binding OpenSystemInfoCommand}" CommandParameter="msinfo">
+                <MenuItem.Icon><PathIcon Data="{StaticResource IconDesktopTower}" /></MenuItem.Icon>
+              </MenuItem>
+              <MenuItem Header="{DynamicResource ActSystemProperties}" Command="{Binding OpenSystemInfoCommand}" CommandParameter="properties">
+                <MenuItem.Icon><PathIcon Data="{StaticResource IconCog}" /></MenuItem.Icon>
+              </MenuItem>
+              <MenuItem Header="{DynamicResource ActControlPanel}" Command="{Binding OpenSystemInfoCommand}" CommandParameter="control">
+                <MenuItem.Icon><PathIcon Data="{StaticResource IconTune}" /></MenuItem.Icon>
+              </MenuItem>
+            </ContextMenu>
+          </Button.ContextMenu>
+          <Border Classes="kpitile">
+            <StackPanel Spacing="6">
+              <Grid ColumnDefinitions="Auto,*,Auto">
+                <PathIcon Data="{StaticResource IconDesktopTower}" Width="18" Height="18" Foreground="{DynamicResource BrushAccentText}" Margin="0,0,8,0" />
+                <TextBlock Grid.Column="1" Classes="h3" Text="{Binding ComputerName}" TextTrimming="CharacterEllipsis" />
+                <PathIcon Grid.Column="2" Data="{StaticResource IconOpenInNew}" Width="14" Height="14" Foreground="{DynamicResource BrushTextSecondary}" />
+              </Grid>
+              <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto">
+                <Grid.Styles>
+                  <Style Selector="TextBlock">
+                    <Setter Property="Margin" Value="0,2,0,2" />
+                    <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+                  </Style>
+                  <Style Selector="TextBlock.statlabel">
+                    <Setter Property="Margin" Value="0,3,12,3" />
+                  </Style>
+                </Grid.Styles>
+                <TextBlock Classes="statlabel" Text="{DynamicResource LblSystem}" />
+                <TextBlock Grid.Column="1" Text="{Binding OsText}" ToolTip.Tip="{Binding OsText}" />
+                <TextBlock Grid.Row="1" Classes="statlabel" Text="{DynamicResource LblKind}" />
+                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding MachineKind}" />
+                <TextBlock Grid.Row="2" Classes="statlabel" Text="{DynamicResource DevCpu}" />
+                <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding CpuModel}" ToolTip.Tip="{Binding CpuModel}" />
+                <TextBlock Grid.Row="3" Classes="statlabel" Text="{DynamicResource StatCores}" />
+                <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding CoresText}" />
+                <TextBlock Grid.Row="4" Classes="statlabel" Text="{DynamicResource DevMemory}" />
+                <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding RamText}" />
+                <TextBlock Grid.Row="5" Classes="statlabel" Text="{DynamicResource DevGpu}" />
+                <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding GpuNames}" ToolTip.Tip="{Binding GpuNames}" />
+                <TextBlock Grid.Row="6" Classes="statlabel" Text="{DynamicResource ColUser}" />
+                <TextBlock Grid.Row="6" Grid.Column="1" Text="{Binding UserText}" />
+                <TextBlock Grid.Row="7" Classes="statlabel" Text="{DynamicResource LblSessions}" />
+                <TextBlock Grid.Row="7" Grid.Column="1" Text="{Binding SessionsText}" />
+              </Grid>
+            </StackPanel>
+          </Border>
+        </Button>
+      </Grid>
+    </Grid>
+  </ScrollViewer>
+</UserControl>

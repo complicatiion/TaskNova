@@ -1,0 +1,118 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ctl="using:TaskNova.App.Controls"
+             xmlns:vm="using:TaskNova.App.ViewModels"
+             x:Class="TaskNova.App.Views.UsersView"
+             x:DataType="vm:UsersViewModel">
+
+  <Grid RowDefinitions="Auto,*">
+    <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,12">
+      <ItemsControl Classes="pills" ItemsSource="{Binding Stats}" />
+      <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+        <StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding IsExpert}">
+          <Button Classes="tool" Command="{Binding ShadowCommand}" CommandParameter="view" IsEnabled="{Binding CanShadow}"
+                  AutomationProperties.Name="{DynamicResource ActShadowView}">
+            <ToolTip.Tip><ctl:TipContent Title="{DynamicResource ActShadowView}" Text="{DynamicResource TipShadowDesc}" /></ToolTip.Tip>
+            <PathIcon Data="{StaticResource IconEye}" />
+          </Button>
+          <Button Classes="tool danger" Command="{Binding EndAllProcessesCommand}" IsEnabled="{Binding CanEndAll}"
+                  AutomationProperties.Name="{DynamicResource ActEndAllProcesses}">
+            <ToolTip.Tip><ctl:TipContent Title="{DynamicResource ActEndAllProcesses}" Text="{DynamicResource TipEndAllDesc}" /></ToolTip.Tip>
+            <PathIcon Data="{StaticResource IconDeleteSweep}" />
+          </Button>
+          <Border Width="1" Background="{DynamicResource BrushBorder}" Margin="2,6" />
+        </StackPanel>
+        <Button Classes="tool" Command="{Binding ShowProcessesCommand}" IsEnabled="{Binding HasSelection}" AutomationProperties.Name="{DynamicResource ActShowProcesses}">
+          <ToolTip.Tip><ctl:TipContent Title="{DynamicResource ActShowProcesses}" Text="{DynamicResource TipSessionProcessesDesc}" /></ToolTip.Tip>
+          <PathIcon Data="{StaticResource IconFormatListBulleted}" />
+        </Button>
+        <Button Classes="tool" Command="{Binding SendMessageCommand}" IsEnabled="{Binding HasSelection}" AutomationProperties.Name="{DynamicResource ActSendMessage}">
+          <ToolTip.Tip><ctl:TipContent Title="{DynamicResource ActSendMessage}" Text="{DynamicResource TipSendMessageDesc}" /></ToolTip.Tip>
+          <PathIcon Data="{StaticResource IconMessageText}" />
+        </Button>
+        <Button Classes="tool" Command="{Binding DisconnectCommand}" IsEnabled="{Binding HasSelection}" AutomationProperties.Name="{DynamicResource ActDisconnect}">
+          <ToolTip.Tip><ctl:TipContent Title="{DynamicResource ActDisconnect}" Text="{DynamicResource TipDisconnectDesc}" /></ToolTip.Tip>
+          <PathIcon Data="{StaticResource IconLanDisconnect}" />
+        </Button>
+        <Button Classes="tool danger" Command="{Binding LogOffCommand}" IsEnabled="{Binding CanLogOff}" AutomationProperties.Name="{DynamicResource ActLogOff}">
+          <ToolTip.Tip><ctl:TipContent Title="{DynamicResource ActLogOff}" Text="{DynamicResource TipLogOffDesc}" /></ToolTip.Tip>
+          <PathIcon Data="{StaticResource IconAccountArrowRight}" />
+        </Button>
+      </StackPanel>
+    </Grid>
+
+    <Border Grid.Row="1" Classes="tablecard">
+      <DockPanel>
+        <Border DockPanel.Dock="Top" Classes="thead">
+          <Grid ColumnDefinitions="*,70,110,100,170,140,90,80,100,90">
+            <TextBlock Grid.Column="0" Classes="th" Text="{DynamicResource ColUser}" Margin="10,0" />
+            <TextBlock Grid.Column="1" Classes="th" Text="{DynamicResource ColSession}" Margin="10,0" HorizontalAlignment="Right" />
+            <TextBlock Grid.Column="2" Classes="th" Text="{DynamicResource ColState}" Margin="10,0" />
+            <TextBlock Grid.Column="3" Classes="th" Text="{DynamicResource ColProtocol}" Margin="10,0" />
+            <TextBlock Grid.Column="4" Classes="th" Text="{DynamicResource ColClient}" Margin="10,0" />
+            <TextBlock Grid.Column="5" Classes="th" Text="{DynamicResource ColLogon}" Margin="10,0" />
+            <TextBlock Grid.Column="6" Classes="th" Text="{DynamicResource ColIdle}" Margin="10,0" HorizontalAlignment="Right" />
+            <TextBlock Grid.Column="7" Classes="th" Text="{DynamicResource ColCpu}" Margin="10,0" HorizontalAlignment="Right" />
+            <TextBlock Grid.Column="8" Classes="th" Text="{DynamicResource ColMemory}" Margin="10,0" HorizontalAlignment="Right" />
+            <TextBlock Grid.Column="9" Classes="th" Text="{DynamicResource ColProcesses}" Margin="10,0" HorizontalAlignment="Right" />
+          </Grid>
+        </Border>
+        <ListBox Classes="table" AutoScrollToSelectedItem="False" ItemsSource="{Binding Items}" SelectedItem="{Binding Selected}"
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+          <ListBox.ItemTemplate>
+            <DataTemplate x:DataType="vm:SessionRow">
+              <Grid ColumnDefinitions="*,70,110,100,170,140,90,80,100,90" Background="Transparent">
+                <StackPanel Orientation="Horizontal" Spacing="8" Margin="10,0,0,0">
+                  <PathIcon Data="{StaticResource IconAccountCircle}" Width="16" Height="16" Foreground="{DynamicResource BrushAccentText}" />
+                  <TextBlock Classes="cell" Margin="0" Text="{Binding UserText}" />
+                  <Border Classes="badge accent" IsVisible="{Binding IsOwn}">
+                    <TextBlock Text="{DynamicResource BadgeYou}" />
+                  </Border>
+                </StackPanel>
+                <TextBlock Grid.Column="1" Classes="cell num dim" Text="{Binding SessionId}" />
+                <TextBlock Grid.Column="2" Classes="cell" Text="{Binding StateText}" />
+                <TextBlock Grid.Column="3" Classes="cell" Text="{Binding ProtocolText}" />
+                <TextBlock Grid.Column="4" Classes="cell dim" Text="{Binding ClientText}" />
+                <TextBlock Grid.Column="5" Classes="cell dim" Text="{Binding LogonText}" />
+                <TextBlock Grid.Column="6" Classes="cell num" Text="{Binding IdleText}" />
+                <TextBlock Grid.Column="7" Classes="cell num" Text="{Binding CpuText}" />
+                <TextBlock Grid.Column="8" Classes="cell num" Text="{Binding MemoryText}" />
+                <TextBlock Grid.Column="9" Classes="cell num" Text="{Binding ProcessCount}" />
+              </Grid>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+          <ListBox.ContextMenu>
+            <ContextMenu>
+              <MenuItem Header="{DynamicResource ActShowProcesses}" Command="{Binding ShowProcessesCommand}" IsEnabled="{Binding HasSelection}">
+                <MenuItem.Icon><PathIcon Data="{StaticResource IconFormatListBulleted}" /></MenuItem.Icon>
+              </MenuItem>
+              <MenuItem Header="{DynamicResource ActSendMessage}" Command="{Binding SendMessageCommand}" IsEnabled="{Binding HasSelection}">
+                <MenuItem.Icon><PathIcon Data="{StaticResource IconMessageText}" /></MenuItem.Icon>
+              </MenuItem>
+              <MenuItem Header="{DynamicResource ActDisconnect}" Command="{Binding DisconnectCommand}" IsEnabled="{Binding HasSelection}">
+                <MenuItem.Icon><PathIcon Data="{StaticResource IconLanDisconnect}" /></MenuItem.Icon>
+              </MenuItem>
+              <MenuItem Header="{DynamicResource ActLogOff}" Command="{Binding LogOffCommand}" IsEnabled="{Binding CanLogOff}">
+                <MenuItem.Icon><PathIcon Data="{StaticResource IconAccountArrowRight}" /></MenuItem.Icon>
+              </MenuItem>
+              <!-- Expert mode (Settings): terminal server / Citrix administration -->
+              <Separator IsVisible="{Binding IsExpert}" />
+              <MenuItem Header="{DynamicResource ActShadowView}" Command="{Binding ShadowCommand}" CommandParameter="view"
+                        IsVisible="{Binding IsExpert}" IsEnabled="{Binding CanShadow}">
+                <MenuItem.Icon><PathIcon Data="{StaticResource IconEye}" /></MenuItem.Icon>
+              </MenuItem>
+              <MenuItem Header="{DynamicResource ActShadowControl}" Command="{Binding ShadowCommand}" CommandParameter="control"
+                        IsVisible="{Binding IsExpert}" IsEnabled="{Binding CanShadow}">
+                <MenuItem.Icon><PathIcon Data="{StaticResource IconCursorMove}" /></MenuItem.Icon>
+              </MenuItem>
+              <MenuItem Header="{DynamicResource ActEndAllProcesses}" Command="{Binding EndAllProcessesCommand}"
+                        IsVisible="{Binding IsExpert}" IsEnabled="{Binding CanEndAll}">
+                <MenuItem.Icon><PathIcon Data="{StaticResource IconCloseOctagon}" /></MenuItem.Icon>
+              </MenuItem>
+            </ContextMenu>
+          </ListBox.ContextMenu>
+        </ListBox>
+      </DockPanel>
+    </Border>
+  </Grid>
+</UserControl>

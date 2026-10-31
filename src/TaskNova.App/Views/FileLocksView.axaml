@@ -1,0 +1,101 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ctl="using:TaskNova.App.Controls"
+             xmlns:vm="using:TaskNova.App.ViewModels"
+             x:Class="TaskNova.App.Views.FileLocksView"
+             x:DataType="vm:FileLocksViewModel">
+
+  <Grid RowDefinitions="Auto,Auto,*">
+    <Border Classes="card" Margin="0,0,0,12">
+      <StackPanel Spacing="10">
+        <!-- Path field limited in width, so the buttons next to it keep their full text -->
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" MaxWidth="560" />
+            <ColumnDefinition Width="Auto" />
+          </Grid.ColumnDefinitions>
+          <TextBox Text="{Binding Path, Mode=TwoWay}" Watermark="{DynamicResource LocksWatermark}">
+            <TextBox.InnerLeftContent>
+              <PathIcon Data="{StaticResource IconFileLock}" Width="16" Height="16" Margin="10,0,6,0" Foreground="{DynamicResource BrushAccentText}" />
+            </TextBox.InnerLeftContent>
+            <TextBox.KeyBindings>
+              <KeyBinding Gesture="Enter" Command="{Binding FindCommand}" />
+            </TextBox.KeyBindings>
+          </TextBox>
+          <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" Margin="10,0,0,0">
+            <Button Command="{Binding BrowseFileCommand}" MinWidth="104">
+              <ctl:IconLabel Icon="{StaticResource IconFile}" Text="{DynamicResource BtnPickFile}" />
+            </Button>
+            <Button Command="{Binding BrowseFolderCommand}" MinWidth="104">
+              <ctl:IconLabel Icon="{StaticResource IconFolder}" Text="{DynamicResource BtnPickFolder}" />
+            </Button>
+            <Button Classes="primary" Command="{Binding FindCommand}" MinWidth="104">
+              <ctl:IconLabel Icon="{StaticResource IconMagnify}" Text="{DynamicResource BtnFindLocks}" />
+            </Button>
+          </StackPanel>
+        </Grid>
+      </StackPanel>
+    </Border>
+
+    <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Margin="0,0,0,12">
+      <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+        <TextBlock Classes="muted small" Text="{Binding Summary}" VerticalAlignment="Center" TextWrapping="Wrap" />
+        <Border Classes="badge info" IsVisible="{Binding IsBusy}">
+          <TextBlock Text="{DynamicResource StatusLoading}" />
+        </Border>
+      </StackPanel>
+      <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+        <Button Classes="tool" Command="{Binding ShowInProcessesCommand}" IsEnabled="{Binding HasSelection}" AutomationProperties.Name="{DynamicResource ActShowInProcesses}">
+          <ToolTip.Tip><ctl:TipContent Title="{DynamicResource ActShowInProcesses}" Text="{DynamicResource TipShowProcessesDesc}" /></ToolTip.Tip>
+          <PathIcon Data="{StaticResource IconFormatListBulleted}" />
+        </Button>
+        <Button Classes="tool danger" Command="{Binding EndProcessCommand}" IsEnabled="{Binding HasSelection}" AutomationProperties.Name="{DynamicResource ActEndTask}">
+          <ToolTip.Tip><ctl:TipContent Title="{DynamicResource ActEndTask}" Text="{DynamicResource TipEndDesc}" /></ToolTip.Tip>
+          <PathIcon Data="{StaticResource IconCloseOctagon}" />
+        </Button>
+      </StackPanel>
+    </Grid>
+
+    <Border Grid.Row="2" Classes="tablecard">
+      <DockPanel>
+        <Border DockPanel.Dock="Top" Classes="thead">
+          <Grid ColumnDefinitions="*,90,160,170,90">
+            <TextBlock Grid.Column="0" Classes="th" Text="{DynamicResource ColName}" Margin="10,0" />
+            <TextBlock Grid.Column="1" Classes="th" Text="PID" Margin="10,0" />
+            <TextBlock Grid.Column="2" Classes="th" Text="{DynamicResource ColType}" Margin="10,0" />
+            <TextBlock Grid.Column="3" Classes="th" Text="{DynamicResource ColUser}" Margin="10,0" />
+            <TextBlock Grid.Column="4" Classes="th" Text="{DynamicResource ColSession}" Margin="10,0" />
+          </Grid>
+        </Border>
+        <ListBox Classes="table" ItemsSource="{Binding Items}" SelectedItem="{Binding Selected}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+          <ListBox.ItemTemplate>
+            <DataTemplate x:DataType="vm:LockerRow">
+              <Grid ColumnDefinitions="*,90,160,170,90" Background="Transparent">
+                <DockPanel>
+                  <Panel DockPanel.Dock="Left" Width="18" Height="18" Margin="10,0,0,0" VerticalAlignment="Center">
+                    <Image Source="{Binding Icon}" Width="16" Height="16" />
+                  </Panel>
+                  <TextBlock Classes="cell" Margin="8,0,6,0" Text="{Binding Name}" ToolTip.Tip="{Binding ServiceText}" />
+                </DockPanel>
+                <TextBlock Grid.Column="1" Classes="cell num" Text="{Binding Pid}" />
+                <TextBlock Grid.Column="2" Classes="cell dim" Text="{Binding Kind}" />
+                <TextBlock Grid.Column="3" Classes="cell dim" Text="{Binding UserText}" />
+                <TextBlock Grid.Column="4" Classes="cell num dim" Text="{Binding Session}" />
+              </Grid>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+          <ListBox.ContextMenu>
+            <ContextMenu>
+              <MenuItem Header="{DynamicResource ActShowInProcesses}" Command="{Binding ShowInProcessesCommand}" IsEnabled="{Binding HasSelection}">
+                <MenuItem.Icon><PathIcon Data="{StaticResource IconFormatListBulleted}" /></MenuItem.Icon>
+              </MenuItem>
+              <MenuItem Header="{DynamicResource ActEndTask}" Command="{Binding EndProcessCommand}" IsEnabled="{Binding HasSelection}">
+                <MenuItem.Icon><PathIcon Data="{StaticResource IconCloseOctagon}" /></MenuItem.Icon>
+              </MenuItem>
+            </ContextMenu>
+          </ListBox.ContextMenu>
+        </ListBox>
+      </DockPanel>
+    </Border>
+  </Grid>
+</UserControl>

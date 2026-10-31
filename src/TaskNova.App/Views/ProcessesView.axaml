@@ -1,0 +1,219 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ctl="using:TaskNova.App.Controls"
+             xmlns:vm="using:TaskNova.App.ViewModels"
+             x:Class="TaskNova.App.Views.ProcessesView"
+             x:DataType="vm:ProcessesViewModel">
+
+  <!-- Column widths: header and rows use the same definitions -->
+  <Grid RowDefinitions="Auto,*">
+
+    <!-- Toolbar: view mode left, actions right (main action rightmost) -->
+    <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,0,0,12">
+      <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+        <ToggleButton Classes="chip" IsChecked="{Binding GroupChip}" ToolTip.Tip="{DynamicResource TipGroupMode}">
+          <ctl:IconLabel Icon="{StaticResource IconViewDashboard}" IconSize="14" Text="{DynamicResource ModeGroups}" />
+        </ToggleButton>
+        <ToggleButton Classes="chip" IsChecked="{Binding TreeChip}" ToolTip.Tip="{DynamicResource TipTreeMode}">
+          <ctl:IconLabel Icon="{StaticResource IconFileTree}" IconSize="14" Text="{DynamicResource ModeTree}" />
+        </ToggleButton>
+        <ItemsControl Classes="pills" ItemsSource="{Binding Stats}" Margin="12,0,0,0" />
+      </StackPanel>
+
+      <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
+        <Button Classes="tool" Command="{Binding GoToDetailsCommand}" IsEnabled="{Binding HasSelection}" AutomationProperties.Name="{DynamicResource ActDetails}">
+          <ToolTip.Tip><ctl:TipContent Title="{DynamicResource ActDetails}" Text="{DynamicResource TipDetailsDesc}" /></ToolTip.Tip>
+          <PathIcon Data="{StaticResource IconFormatListBulleted}" />
+        </Button>
+        <Button Classes="tool" Command="{Binding ToggleSuspendCommand}" IsEnabled="{Binding HasSelection}" AutomationProperties.Name="{Binding SuspendText}">
+          <ToolTip.Tip><ctl:TipContent Title="{Binding SuspendText}" Text="{DynamicResource TipSuspendDesc}" /></ToolTip.Tip>
+          <PathIcon Data="{Binding SuspendIcon}" />
+        </Button>
+        <Button Classes="tool danger" Command="{Binding EndTaskCommand}" IsEnabled="{Binding HasSelection}" AutomationProperties.Name="{DynamicResource ActEndTask}">
+          <ToolTip.Tip><ctl:TipContent Title="{DynamicResource ActEndTask}" Text="{DynamicResource TipEndDesc}" /></ToolTip.Tip>
+          <PathIcon Data="{StaticResource IconCloseOctagon}" />
+        </Button>
+      </StackPanel>
+    </Grid>
+
+    <Border Grid.Row="1" Classes="tablecard">
+      <DockPanel>
+        <!-- Header -->
+        <Border DockPanel.Dock="Top" Classes="thead">
+          <Grid ColumnDefinitions="*,96,80,104,100,76,74">
+            <Button Classes="th" Command="{Binding SortCommand}" CommandParameter="name"
+                    Classes.sorted="{Binding SortColumn, Converter={x:Static ctl:Converters.EqualsParameter}, ConverterParameter=name}"
+                    Classes.ascending="{Binding !SortDescending}">
+              <StackPanel Orientation="Horizontal" Spacing="4">
+                <TextBlock Classes="th" Text="{DynamicResource ColName}" Margin="26,0,0,0" />
+                <PathIcon Data="{StaticResource IconChevronDown}" />
+              </StackPanel>
+            </Button>
+            <Button Grid.Column="1" Classes="th" Command="{Binding SortCommand}" CommandParameter="status"
+                    Classes.sorted="{Binding SortColumn, Converter={x:Static ctl:Converters.EqualsParameter}, ConverterParameter=status}"
+                    Classes.ascending="{Binding !SortDescending}">
+              <StackPanel Orientation="Horizontal" Spacing="4">
+                <TextBlock Classes="th" Text="{DynamicResource ColStatus}" />
+                <PathIcon Data="{StaticResource IconChevronDown}" />
+              </StackPanel>
+            </Button>
+            <Button Grid.Column="2" Classes="th num" Command="{Binding SortCommand}" CommandParameter="cpu"
+                    Classes.sorted="{Binding SortColumn, Converter={x:Static ctl:Converters.EqualsParameter}, ConverterParameter=cpu}"
+                    Classes.ascending="{Binding !SortDescending}">
+              <StackPanel Orientation="Horizontal" Spacing="4">
+                <PathIcon Data="{StaticResource IconChevronDown}" />
+                <TextBlock Classes="th" Text="{DynamicResource ColCpu}" />
+              </StackPanel>
+            </Button>
+            <Button Grid.Column="3" Classes="th num" Command="{Binding SortCommand}" CommandParameter="memory"
+                    Classes.sorted="{Binding SortColumn, Converter={x:Static ctl:Converters.EqualsParameter}, ConverterParameter=memory}"
+                    Classes.ascending="{Binding !SortDescending}">
+              <StackPanel Orientation="Horizontal" Spacing="4">
+                <PathIcon Data="{StaticResource IconChevronDown}" />
+                <TextBlock Classes="th" Text="{DynamicResource ColMemory}" />
+              </StackPanel>
+            </Button>
+            <Button Grid.Column="4" Classes="th num" Command="{Binding SortCommand}" CommandParameter="io"
+                    Classes.sorted="{Binding SortColumn, Converter={x:Static ctl:Converters.EqualsParameter}, ConverterParameter=io}"
+                    Classes.ascending="{Binding !SortDescending}" ToolTip.Tip="{DynamicResource TipIoColumn}">
+              <StackPanel Orientation="Horizontal" Spacing="4">
+                <PathIcon Data="{StaticResource IconChevronDown}" />
+                <TextBlock Classes="th" Text="{DynamicResource ColIo}" />
+              </StackPanel>
+            </Button>
+            <Button Grid.Column="5" Classes="th num" Command="{Binding SortCommand}" CommandParameter="gpu"
+                    Classes.sorted="{Binding SortColumn, Converter={x:Static ctl:Converters.EqualsParameter}, ConverterParameter=gpu}"
+                    Classes.ascending="{Binding !SortDescending}">
+              <StackPanel Orientation="Horizontal" Spacing="4">
+                <PathIcon Data="{StaticResource IconChevronDown}" />
+                <TextBlock Classes="th" Text="{DynamicResource ColGpu}" />
+              </StackPanel>
+            </Button>
+            <Button Grid.Column="6" Classes="th num" Command="{Binding SortCommand}" CommandParameter="pid"
+                    Classes.sorted="{Binding SortColumn, Converter={x:Static ctl:Converters.EqualsParameter}, ConverterParameter=pid}"
+                    Classes.ascending="{Binding !SortDescending}">
+              <StackPanel Orientation="Horizontal" Spacing="4">
+                <PathIcon Data="{StaticResource IconChevronDown}" />
+                <TextBlock Classes="th" Text="PID" />
+              </StackPanel>
+            </Button>
+          </Grid>
+        </Border>
+
+        <!-- Rows: virtualized, group headers and processes in one list -->
+        <ListBox x:Name="List" Classes="table" AutoScrollToSelectedItem="False" ItemsSource="{Binding Items}" SelectedItem="{Binding SelectedItem}"
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+          <ListBox.KeyBindings>
+            <KeyBinding Gesture="Delete" Command="{Binding EndTaskCommand}" />
+            <KeyBinding Gesture="Ctrl+C" Command="{Binding CopyCommand}" />
+          </ListBox.KeyBindings>
+          <ListBox.DataTemplates>
+            <DataTemplate DataType="vm:GroupRow">
+              <Grid ColumnDefinitions="Auto,*" Background="{DynamicResource BrushSurfaceRaised}">
+                <ToggleButton Classes="expander" IsChecked="{Binding IsExpanded}" Margin="6,0,4,0" VerticalAlignment="Center">
+                  <PathIcon Data="{StaticResource IconChevronRight}" />
+                </ToggleButton>
+                <TextBlock Grid.Column="1" Classes="grouptitle" Text="{Binding Header}" />
+              </Grid>
+            </DataTemplate>
+            <DataTemplate DataType="vm:ProcessRow">
+              <Grid ColumnDefinitions="*,96,80,104,100,76,74" Background="Transparent">
+                <DockPanel Margin="{Binding Indent}" LastChildFill="True">
+                  <Panel DockPanel.Dock="Left" Width="22">
+                    <ToggleButton Classes="expander" IsChecked="{Binding IsExpanded}" IsVisible="{Binding HasChildren}" VerticalAlignment="Center">
+                      <PathIcon Data="{StaticResource IconChevronRight}" />
+                    </ToggleButton>
+                  </Panel>
+                  <Panel DockPanel.Dock="Left" Width="18" Height="18" Margin="2,0,0,0" VerticalAlignment="Center">
+                    <Image Source="{Binding Icon}" Width="16" Height="16" />
+                    <PathIcon Data="{StaticResource IconApplicationOutline}" Width="15" Height="15" IsVisible="{Binding !HasIcon}"
+                              Foreground="{DynamicResource BrushTextSecondary}" />
+                  </Panel>
+                  <PathIcon DockPanel.Dock="Right" Data="{StaticResource IconShieldAlert}" Width="15" Height="15" Margin="0,0,8,0"
+                            Foreground="{DynamicResource BrushModerate}" IsVisible="{Binding HasWarning}" ToolTip.Tip="{Binding WarningTip}" />
+                  <TextBlock Classes="cell" Margin="8,0,6,0" Text="{Binding DisplayName}" ToolTip.Tip="{Binding Name}" />
+                </DockPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4" Margin="10,0,0,0" IsVisible="{Binding IsSuspended}">
+                  <PathIcon Data="{StaticResource IconSnowflake}" Width="13" Height="13" Foreground="{DynamicResource BrushInfo}" />
+                  <TextBlock Classes="cell" Margin="0" Text="{Binding StatusText}" Foreground="{DynamicResource BrushInfo}" FontSize="12" />
+                </StackPanel>
+                <Border Grid.Column="2" Classes="heat" Background="{Binding CpuHeat}">
+                  <TextBlock Classes="cell num" Text="{Binding CpuText}" />
+                </Border>
+                <Border Grid.Column="3" Classes="heat" Background="{Binding MemoryHeat}">
+                  <TextBlock Classes="cell num" Text="{Binding MemoryText}" />
+                </Border>
+                <Border Grid.Column="4" Classes="heat" Background="{Binding IoHeat}">
+                  <TextBlock Classes="cell num" Text="{Binding IoText}" />
+                </Border>
+                <Border Grid.Column="5" Classes="heat" Background="{Binding GpuHeat}">
+                  <TextBlock Classes="cell num" Text="{Binding GpuText}" />
+                </Border>
+                <TextBlock Grid.Column="6" Classes="cell num dim" Text="{Binding Pid}" />
+              </Grid>
+            </DataTemplate>
+          </ListBox.DataTemplates>
+
+          <ListBox.ContextMenu>
+            <ContextMenu>
+              <MenuItem Header="{DynamicResource ActEndTask}" Command="{Binding EndTaskCommand}" IsEnabled="{Binding HasSelection}">
+                <MenuItem.Icon><PathIcon Data="{StaticResource IconCloseOctagon}" /></MenuItem.Icon>
+              </MenuItem>
+              <MenuItem Header="{DynamicResource ActEndTree}" Command="{Binding EndTreeCommand}" IsEnabled="{Binding HasSelection}">
+                <MenuItem.Icon><PathIcon Data="{StaticResource IconFileTree}" /></MenuItem.Icon>
+              </MenuItem>
+              <Separator />
+              <MenuItem Header="{Binding SuspendText}" Command="{Binding ToggleSuspendCommand}" IsEnabled="{Binding HasSelection}">
+                <MenuItem.Icon><PathIcon Data="{Binding SuspendIcon}" /></MenuItem.Icon>
+              </MenuItem>
+              <MenuItem Header="{DynamicResource ActPriority}" IsEnabled="{Binding HasSelection}">
+                <MenuItem.Icon><PathIcon Data="{StaticResource IconSpeedometer}" /></MenuItem.Icon>
+                <MenuItem Header="{DynamicResource PriorityRealtime}" Command="{Binding SetPriorityCommand}" CommandParameter="Realtime" />
+                <MenuItem Header="{DynamicResource PriorityHigh}" Command="{Binding SetPriorityCommand}" CommandParameter="High" />
+                <MenuItem Header="{DynamicResource PriorityAboveNormal}" Command="{Binding SetPriorityCommand}" CommandParameter="AboveNormal" />
+                <MenuItem Header="{DynamicResource PriorityNormal}" Command="{Binding SetPriorityCommand}" CommandParameter="Normal" />
+                <MenuItem Header="{DynamicResource PriorityBelowNormal}" Command="{Binding SetPriorityCommand}" CommandParameter="BelowNormal" />
+                <MenuItem Header="{DynamicResource PriorityIdle}" Command="{Binding SetPriorityCommand}" CommandParameter="Idle" />
+              </MenuItem>
+              <MenuItem Header="{DynamicResource ActAffinity}" Command="{Binding AffinityCommand}" IsEnabled="{Binding HasSelection}">
+                <MenuItem.Icon><PathIcon Data="{StaticResource IconChip}" /></MenuItem.Icon>
+              </MenuItem>
+              <MenuItem Header="{DynamicResource ActEfficiency}" Command="{Binding EfficiencyCommand}" IsEnabled="{Binding HasSelection}">
+                <MenuItem.Icon><PathIcon Data="{StaticResource IconLeaf}" /></MenuItem.Icon>
+              </MenuItem>
+              <MenuItem Header="{DynamicResource ActDump}" Command="{Binding DumpCommand}" IsEnabled="{Binding HasSelection}">
+                <MenuItem.Icon><PathIcon Data="{StaticResource IconSave}" /></MenuItem.Icon>
+              </MenuItem>
+              <MenuItem Header="{DynamicResource ActWaitChain}" Command="{Binding WaitChainCommand}" IsEnabled="{Binding HasSelection}">
+                <MenuItem.Icon><PathIcon Data="{StaticResource IconTimerSand}" /></MenuItem.Icon>
+              </MenuItem>
+              <MenuItem Header="{DynamicResource ActRestartProcess}" Command="{Binding RestartProcessCommand}" IsEnabled="{Binding HasSelection}">
+                <MenuItem.Icon><PathIcon Data="{StaticResource IconRestart}" /></MenuItem.Icon>
+              </MenuItem>
+              <Separator />
+              <MenuItem Header="{DynamicResource ActOpenLocation}" Command="{Binding OpenLocationCommand}" IsEnabled="{Binding HasSelection}">
+                <MenuItem.Icon><PathIcon Data="{StaticResource IconFolderOpen}" /></MenuItem.Icon>
+              </MenuItem>
+              <MenuItem Header="{DynamicResource ActProcessWindow}" Command="{Binding ProcessWindowCommand}" IsEnabled="{Binding HasSelection}">
+                <MenuItem.Icon><PathIcon Data="{StaticResource IconWindowRestore}" /></MenuItem.Icon>
+              </MenuItem>
+              <MenuItem Header="{DynamicResource ActProperties}" Command="{Binding PropertiesCommand}" IsEnabled="{Binding HasSelection}">
+                <MenuItem.Icon><PathIcon Data="{StaticResource IconInfo}" /></MenuItem.Icon>
+              </MenuItem>
+              <MenuItem Header="{DynamicResource ActCopyDetails}" Command="{Binding CopyCommand}" IsEnabled="{Binding HasSelection}">
+                <MenuItem.Icon><PathIcon Data="{StaticResource IconCopy}" /></MenuItem.Icon>
+              </MenuItem>
+              <Separator />
+              <MenuItem Header="{DynamicResource ActDetails}" Command="{Binding GoToDetailsCommand}" IsEnabled="{Binding HasSelection}">
+                <MenuItem.Icon><PathIcon Data="{StaticResource IconFormatListBulleted}" /></MenuItem.Icon>
+              </MenuItem>
+              <MenuItem Header="{DynamicResource ActServices}" Command="{Binding GoToServicesCommand}" IsEnabled="{Binding HasSelection}">
+                <MenuItem.Icon><PathIcon Data="{StaticResource IconCogs}" /></MenuItem.Icon>
+              </MenuItem>
+            </ContextMenu>
+          </ListBox.ContextMenu>
+        </ListBox>
+      </DockPanel>
+    </Border>
+  </Grid>
+</UserControl>

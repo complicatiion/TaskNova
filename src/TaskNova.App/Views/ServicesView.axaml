@@ -1,0 +1,142 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ctl="using:TaskNova.App.Controls"
+             xmlns:vm="using:TaskNova.App.ViewModels"
+             x:Class="TaskNova.App.Views.ServicesView"
+             x:DataType="vm:ServicesViewModel">
+
+  <Grid RowDefinitions="Auto,*">
+    <!-- Filter chips left, actions right (main action rightmost) -->
+    <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,0,0,12">
+      <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+        <ToggleButton Classes="chip" IsChecked="{Binding FilterAll}" Content="{DynamicResource FilterAll}" />
+        <ToggleButton Classes="chip" IsChecked="{Binding FilterRunning}" Content="{DynamicResource FilterRunning}" />
+        <ToggleButton Classes="chip" IsChecked="{Binding FilterStopped}" Content="{DynamicResource FilterStopped}" />
+        <ItemsControl Classes="pills" ItemsSource="{Binding Stats}" Margin="10,0,0,0" />
+      </StackPanel>
+      <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
+        <Button Classes="tool" Command="{Binding OpenServicesConsoleCommand}" AutomationProperties.Name="{DynamicResource ActServicesConsole}">
+          <ToolTip.Tip><ctl:TipContent Title="{DynamicResource ActServicesConsole}" Text="{DynamicResource TipServicesConsole}" /></ToolTip.Tip>
+          <PathIcon Data="{StaticResource IconConsole}" />
+        </Button>
+        <Button Classes="tool" Command="{Binding RestartCommand}" IsEnabled="{Binding HasSelection}" AutomationProperties.Name="{DynamicResource TipServiceRestart}">
+          <ToolTip.Tip><ctl:TipContent Title="{DynamicResource TipServiceRestart}" Text="{DynamicResource TipServiceRestartDesc}" /></ToolTip.Tip>
+          <PathIcon Data="{StaticResource IconRestart}" />
+        </Button>
+        <Button Classes="tool" Command="{Binding StopCommand}" IsEnabled="{Binding HasSelection}" AutomationProperties.Name="{DynamicResource TipServiceStop}">
+          <ToolTip.Tip><ctl:TipContent Title="{DynamicResource TipServiceStop}" Text="{DynamicResource TipServiceStopDesc}" /></ToolTip.Tip>
+          <PathIcon Data="{StaticResource IconStop}" />
+        </Button>
+        <Button Classes="tool primary" Command="{Binding StartCommand}" IsEnabled="{Binding HasSelection}" AutomationProperties.Name="{DynamicResource TipServiceStart}">
+          <ToolTip.Tip><ctl:TipContent Title="{DynamicResource TipServiceStart}" Text="{DynamicResource TipServiceStartDesc}" /></ToolTip.Tip>
+          <PathIcon Data="{StaticResource IconPlay}" />
+        </Button>
+      </StackPanel>
+    </Grid>
+
+    <Grid Grid.Row="1" ColumnDefinitions="*,16,320">
+      <Border Classes="tablecard">
+        <DockPanel>
+          <Border DockPanel.Dock="Top" Classes="thead">
+            <Grid ColumnDefinitions="200,*,74,120,150">
+              <TextBlock Classes="th" Text="{DynamicResource ColName}" Margin="10,0" />
+              <TextBlock Grid.Column="1" Classes="th" Text="{DynamicResource ColDisplayName}" Margin="10,0" />
+              <TextBlock Grid.Column="2" Classes="th" Text="PID" Margin="10,0" HorizontalAlignment="Right" />
+              <TextBlock Grid.Column="3" Classes="th" Text="{DynamicResource ColStatus}" Margin="10,0" />
+              <TextBlock Grid.Column="4" Classes="th" Text="{DynamicResource ColStartType}" Margin="10,0" />
+            </Grid>
+          </Border>
+          <ListBox Classes="table" AutoScrollToSelectedItem="False" ItemsSource="{Binding Items}" SelectedItem="{Binding Selected}"
+                   ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+            <ListBox.ItemTemplate>
+              <DataTemplate x:DataType="vm:ServiceRow">
+                <Grid ColumnDefinitions="200,*,74,120,150" Background="Transparent">
+                  <StackPanel Orientation="Horizontal" Spacing="8" Margin="10,0,0,0">
+                    <PathIcon Data="{StaticResource IconCogs}" Width="14" Height="14" Foreground="{DynamicResource BrushAccentText}" />
+                    <TextBlock Classes="cell" Margin="0" Text="{Binding Name}" />
+                  </StackPanel>
+                  <TextBlock Grid.Column="1" Classes="cell" Text="{Binding DisplayName}" ToolTip.Tip="{Binding Description}" />
+                  <TextBlock Grid.Column="2" Classes="cell num dim" Text="{Binding PidText}" />
+                  <Border Grid.Column="3" Margin="10,0,0,0" Classes="badge"
+                          Classes.safe="{Binding IsRunning}"
+                          Classes.moderate="{Binding StateClass, Converter={x:Static ctl:Converters.EqualsParameter}, ConverterParameter=moderate}">
+                    <TextBlock Text="{Binding StateText}" />
+                  </Border>
+                  <TextBlock Grid.Column="4" Classes="cell dim" Text="{Binding StartText}" />
+                </Grid>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+            <ListBox.ContextMenu>
+              <ContextMenu>
+                <MenuItem Header="{DynamicResource ActStart}" Command="{Binding StartCommand}" IsEnabled="{Binding HasSelection}">
+                  <MenuItem.Icon><PathIcon Data="{StaticResource IconPlay}" /></MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="{DynamicResource ActStop}" Command="{Binding StopCommand}" IsEnabled="{Binding HasSelection}">
+                  <MenuItem.Icon><PathIcon Data="{StaticResource IconStop}" /></MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="{DynamicResource ActRestart}" Command="{Binding RestartCommand}" IsEnabled="{Binding HasSelection}">
+                  <MenuItem.Icon><PathIcon Data="{StaticResource IconRestart}" /></MenuItem.Icon>
+                </MenuItem>
+                <Separator />
+                <MenuItem Header="{DynamicResource ActDetails}" Command="{Binding GoToProcessCommand}" IsEnabled="{Binding HasSelection}">
+                  <MenuItem.Icon><PathIcon Data="{StaticResource IconFormatListBulleted}" /></MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="{DynamicResource ActCopyName}" Command="{Binding CopyNameCommand}" IsEnabled="{Binding HasSelection}">
+                  <MenuItem.Icon><PathIcon Data="{StaticResource IconCopy}" /></MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="{DynamicResource ActServicesConsole}" Command="{Binding OpenServicesConsoleCommand}">
+                  <MenuItem.Icon><PathIcon Data="{StaticResource IconOpenInNew}" /></MenuItem.Icon>
+                </MenuItem>
+              </ContextMenu>
+            </ListBox.ContextMenu>
+          </ListBox>
+        </DockPanel>
+      </Border>
+
+      <!-- Details of the selected service -->
+      <Border Grid.Column="2" Classes="card">
+        <Panel>
+          <TextBlock Classes="muted" Text="{DynamicResource ServicesSelectHint}" TextWrapping="Wrap" IsVisible="{Binding !HasSelection}" />
+          <ScrollViewer IsVisible="{Binding HasSelection}" VerticalScrollBarVisibility="Auto">
+            <StackPanel Spacing="12">
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <PathIcon Data="{StaticResource IconCogs}" Width="20" Height="20" Foreground="{DynamicResource BrushAccentText}" />
+                <TextBlock Classes="h3" Text="{Binding Selected.DisplayName}" TextWrapping="Wrap" MaxWidth="250" />
+              </StackPanel>
+              <SelectableTextBlock Text="{Binding Selected.Description}" TextWrapping="Wrap" Classes="muted" />
+              <StackPanel Spacing="4">
+                <TextBlock Classes="label" Text="{DynamicResource ColStartType}" />
+                <ComboBox ItemsSource="{Binding StartModes}" SelectedItem="{Binding SelectedStartMode}" HorizontalAlignment="Stretch">
+                  <ComboBox.ItemTemplate>
+                    <DataTemplate x:DataType="vm:StartModeOption">
+                      <TextBlock Text="{Binding Title}" />
+                    </DataTemplate>
+                  </ComboBox.ItemTemplate>
+                </ComboBox>
+              </StackPanel>
+              <StackPanel Spacing="2">
+                <TextBlock Classes="label" Text="{DynamicResource ColPath}" />
+                <SelectableTextBlock Classes="mono" Text="{Binding DetailPath}" TextWrapping="Wrap" FontSize="12" />
+              </StackPanel>
+              <StackPanel Spacing="2">
+                <TextBlock Classes="label" Text="{DynamicResource ColAccount}" />
+                <SelectableTextBlock Text="{Binding DetailAccount}" TextWrapping="Wrap" />
+              </StackPanel>
+              <StackPanel Spacing="2">
+                <TextBlock Classes="label" Text="{DynamicResource LblDependsOn}" />
+                <SelectableTextBlock Text="{Binding DetailDependencies}" TextWrapping="Wrap" />
+              </StackPanel>
+              <StackPanel Spacing="2">
+                <TextBlock Classes="label" Text="{DynamicResource LblDependents}" />
+                <SelectableTextBlock Text="{Binding DetailDependents}" TextWrapping="Wrap" />
+              </StackPanel>
+              <Button Command="{Binding GoToProcessCommand}" HorizontalAlignment="Left">
+                <ctl:IconLabel Icon="{StaticResource IconFormatListBulleted}" Text="{DynamicResource ActGoToProcess}" />
+              </Button>
+            </StackPanel>
+          </ScrollViewer>
+        </Panel>
+      </Border>
+    </Grid>
+  </Grid>
+</UserControl>

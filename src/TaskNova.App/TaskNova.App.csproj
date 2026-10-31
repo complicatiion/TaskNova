@@ -1,0 +1,59 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>TaskNova.App</RootNamespace>
+    <!-- The executable is tasknova.exe -->
+    <AssemblyName>tasknova</AssemblyName>
+    <AssemblyTitle>TaskNova</AssemblyTitle>
+    <Description>TaskNova – fast, modern task manager for Windows</Description>
+    <ApplicationIcon>Assets\tasknova.ico</ApplicationIcon>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <!-- Compiled bindings everywhere: no reflection per cell and tick, required for Native AOT -->
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <BuiltInComInteropSupport>false</BuiltInComInteropSupport>
+    <!-- Lower idle memory: workstation GC that returns memory to Windows eagerly -->
+    <ServerGarbageCollection>false</ServerGarbageCollection>
+    <ConcurrentGarbageCollection>false</ConcurrentGarbageCollection>
+    <TieredPGO>true</TieredPGO>
+    <InvariantGlobalization>false</InvariantGlobalization>
+    <UseSystemResourceKeys>false</UseSystemResourceKeys>
+  </PropertyGroup>
+
+  <!-- Release publish: Native AOT by default (lowest memory and fastest start, needs the VS "Desktop development with C++"
+       workload). build\publish.ps1 -NoAot or -p:PublishAot=false publishes a regular self-contained build instead.
+       No single-file compression: a compressed bundle is unpacked into memory at every start (+ RAM). -->
+  <PropertyGroup Condition="'$(PublishAot)' == ''">
+    <PublishAot>true</PublishAot>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <RuntimeHostConfigurationOption Include="System.GC.ConserveMemory" Value="7" />
+    <RuntimeHostConfigurationOption Include="System.GC.RetainVM" Value="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AvaloniaResource Include="Assets\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" />
+    <PackageReference Include="Avalonia.Desktop" />
+    <PackageReference Include="Avalonia.Themes.Fluent" />
+    <PackageReference Include="Avalonia.Fonts.Inter" />
+    <PackageReference Include="Avalonia.Diagnostics" Condition="'$(Configuration)' == 'Debug'" />
+    <PackageReference Include="CommunityToolkit.Mvvm" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TaskNova.Core\TaskNova.Core.csproj" />
+    <ProjectReference Include="..\TaskNova.Platform.Windows\TaskNova.Platform.Windows.csproj" />
+  </ItemGroup>
+
+  <!-- Shipped next to the app: licenses (About page) and README -->
+  <ItemGroup>
+    <None Include="..\..\licenses\**\*" Link="licenses\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <None Include="..\..\README.md" Link="README.md" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

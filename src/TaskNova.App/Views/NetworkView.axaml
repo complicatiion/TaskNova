@@ -1,0 +1,99 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ctl="using:TaskNova.App.Controls"
+             xmlns:vm="using:TaskNova.App.ViewModels"
+             x:Class="TaskNova.App.Views.NetworkView"
+             x:DataType="vm:NetworkViewModel">
+
+  <Grid RowDefinitions="Auto,Auto,*">
+    <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,12">
+      <ItemsControl Classes="pills" ItemsSource="{Binding Stats}" />
+      <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+        <ToggleButton Classes="chip" IsChecked="{Binding ShowListening}">
+          <ctl:IconLabel Icon="{StaticResource IconEarth}" IconSize="14" Text="{DynamicResource ChipListening}" />
+        </ToggleButton>
+        <ToggleButton Classes="chip" IsChecked="{Binding ShowUdp}">
+          <ctl:IconLabel Icon="{StaticResource IconSwapVertical}" IconSize="14" Text="UDP" />
+        </ToggleButton>
+        <Button Classes="tool" Command="{Binding GoToProcessesCommand}" IsEnabled="{Binding HasSelection}" AutomationProperties.Name="{DynamicResource ActShowInProcesses}">
+          <ToolTip.Tip><ctl:TipContent Title="{DynamicResource ActShowInProcesses}" Text="{DynamicResource TipShowProcessesDesc}" /></ToolTip.Tip>
+          <PathIcon Data="{StaticResource IconApplicationOutline}" />
+        </Button>
+        <Button Classes="tool" Command="{Binding GoToProcessCommand}" IsEnabled="{Binding HasSelection}" AutomationProperties.Name="{DynamicResource ActDetails}">
+          <ToolTip.Tip><ctl:TipContent Title="{DynamicResource ActDetails}" Text="{DynamicResource TipDetailsDesc}" /></ToolTip.Tip>
+          <PathIcon Data="{StaticResource IconFormatListBulleted}" />
+        </Button>
+      </StackPanel>
+    </Grid>
+    <!-- Adapter cards: 2 per row in a normal window, more when the page is wide (columns set from code) -->
+    <ItemsControl Grid.Row="1" x:Name="AdapterList" ItemsSource="{Binding Adapters}" Margin="0,0,-12,0">
+      <ItemsControl.ItemsPanel>
+        <ItemsPanelTemplate>
+          <UniformGrid Columns="2" />
+        </ItemsPanelTemplate>
+      </ItemsControl.ItemsPanel>
+      <ItemsControl.ItemTemplate>
+        <DataTemplate x:DataType="vm:AdapterCard">
+          <Border Classes="kpitile" Margin="0,0,12,12" Padding="14,12">
+            <Grid ColumnDefinitions="Auto,*">
+              <PathIcon Data="{Binding Icon}" Width="20" Height="20" Foreground="{DynamicResource BrushAccentText}" Margin="0,0,10,0" />
+              <StackPanel Grid.Column="1">
+                <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding Description}" />
+                <TextBlock Classes="muted small" Text="{Binding Throughput}" />
+              </StackPanel>
+            </Grid>
+          </Border>
+        </DataTemplate>
+      </ItemsControl.ItemTemplate>
+    </ItemsControl>
+    <Border Grid.Row="2" Classes="tablecard">
+      <DockPanel>
+        <Border DockPanel.Dock="Top" Classes="thead">
+          <Grid ColumnDefinitions="*,70,80,190,220,120,200">
+            <TextBlock Grid.Column="0" Classes="th" Text="{DynamicResource ColProcess}" Margin="10,0" />
+            <TextBlock Grid.Column="1" Classes="th" Text="PID" Margin="10,0" HorizontalAlignment="Right" />
+            <TextBlock Grid.Column="2" Classes="th" Text="{DynamicResource ColProtocol}" Margin="10,0" />
+            <TextBlock Grid.Column="3" Classes="th" Text="{DynamicResource ColLocal}" Margin="10,0" />
+            <TextBlock Grid.Column="4" Classes="th" Text="{DynamicResource ColRemote}" Margin="10,0" />
+            <TextBlock Grid.Column="5" Classes="th" Text="{DynamicResource ColState}" Margin="10,0" />
+            <TextBlock Grid.Column="6" Classes="th" Text="{DynamicResource ColRemoteHost}" Margin="10,0" />
+          </Grid>
+        </Border>
+        <ListBox x:Name="ConnectionList" Classes="table" AutoScrollToSelectedItem="False" ItemsSource="{Binding Items}" SelectedItem="{Binding Selected}"
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+          <ListBox.ItemTemplate>
+            <DataTemplate x:DataType="vm:ConnectionRow">
+              <Grid ColumnDefinitions="*,70,80,190,220,120,200" Background="Transparent">
+                <DockPanel>
+                  <Panel DockPanel.Dock="Left" Width="18" Height="18" Margin="10,0,0,0" VerticalAlignment="Center">
+                    <Image Source="{Binding Icon}" Width="16" Height="16" />
+                  </Panel>
+                  <TextBlock Classes="cell" Margin="8,0,6,0" Text="{Binding ProcessName}" />
+                </DockPanel>
+                <TextBlock Grid.Column="1" Classes="cell num dim" Text="{Binding Pid}" />
+                <TextBlock Grid.Column="2" Classes="cell" Text="{Binding Protocol}" />
+                <TextBlock Grid.Column="3" Classes="cell" Text="{Binding Local}" FontFamily="{DynamicResource MonoFont}" FontSize="12" />
+                <TextBlock Grid.Column="4" Classes="cell" Text="{Binding Remote}" FontFamily="{DynamicResource MonoFont}" FontSize="12" />
+                <TextBlock Grid.Column="5" Classes="cell dim" Text="{Binding State}" />
+                <TextBlock Grid.Column="6" Classes="cell dim" Text="{Binding RemoteHost}" />
+              </Grid>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+          <ListBox.ContextMenu>
+            <ContextMenu>
+              <MenuItem Header="{DynamicResource ActShowInProcesses}" Command="{Binding GoToProcessesCommand}" IsEnabled="{Binding HasSelection}">
+                <MenuItem.Icon><PathIcon Data="{StaticResource IconApplicationOutline}" /></MenuItem.Icon>
+              </MenuItem>
+              <MenuItem Header="{DynamicResource ActDetails}" Command="{Binding GoToProcessCommand}" IsEnabled="{Binding HasSelection}">
+                <MenuItem.Icon><PathIcon Data="{StaticResource IconFormatListBulleted}" /></MenuItem.Icon>
+              </MenuItem>
+              <MenuItem Header="{DynamicResource ActCopyRow}" Command="{Binding CopyRowCommand}" IsEnabled="{Binding HasSelection}">
+                <MenuItem.Icon><PathIcon Data="{StaticResource IconCopy}" /></MenuItem.Icon>
+              </MenuItem>
+            </ContextMenu>
+          </ListBox.ContextMenu>
+        </ListBox>
+      </DockPanel>
+    </Border>
+  </Grid>
+</UserControl>

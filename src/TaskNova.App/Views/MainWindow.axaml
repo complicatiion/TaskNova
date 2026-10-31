@@ -1,0 +1,165 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ctl="using:TaskNova.App.Controls"
+        xmlns:vm="using:TaskNova.App.ViewModels"
+        x:Class="TaskNova.App.Views.MainWindow"
+        x:DataType="vm:MainViewModel"
+        Title="TaskNova"
+        Icon="/Assets/tasknova.ico"
+        Background="{DynamicResource BrushBgApp}"
+        Width="1180" Height="760"
+        MinWidth="860" MinHeight="540"
+        WindowStartupLocation="CenterScreen">
+
+  <Window.KeyBindings>
+    <KeyBinding Gesture="Ctrl+F" Command="{Binding FocusSearchCommand}" />
+    <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />
+    <KeyBinding Gesture="Ctrl+P" Command="{Binding TogglePauseCommand}" />
+    <KeyBinding Gesture="Ctrl+M" Command="{Binding ToggleMiniMonitorCommand}" />
+    <KeyBinding Gesture="F11" Command="{Binding ToggleDashboardCommand}" />
+    <KeyBinding Gesture="Ctrl+N" Command="{Binding RunTaskCommand}" />
+  </Window.KeyBindings>
+
+  <Window.Resources>
+    <!-- Sidebar entry: marker, icon, title (title hidden when collapsed) -->
+    <DataTemplate x:Key="NavItemTemplate" x:DataType="vm:NavItem">
+      <Grid ColumnDefinitions="Auto,Auto,*" ToolTip.Tip="{Binding Title}">
+        <Border Classes="marker" />
+        <PathIcon Grid.Column="1" Data="{Binding Icon}" Width="20" Height="20" />
+        <TextBlock Grid.Column="2" Classes="navtitle" Text="{Binding Title}" VerticalAlignment="Center" Margin="14,0,0,0"
+                   TextTrimming="CharacterEllipsis" />
+      </Grid>
+    </DataTemplate>
+  </Window.Resources>
+
+  <!-- UI size (Settings › Appearance): the whole window content is scaled; the factor is set from code. -->
+  <LayoutTransformControl x:Name="ScaleHost">
+  <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,*">
+
+    <!-- Sidebar: collapsible via the logo -->
+    <Border Grid.RowSpan="2"
+            IsVisible="{Binding ChromeVisible}"
+            Classes="sidebar"
+            Classes.collapsed="{Binding IsSidebarCollapsed}"
+            Width="{Binding SidebarWidth}"
+            Background="{DynamicResource BrushBgSidebar}"
+            BorderBrush="{DynamicResource BrushBorder}"
+            BorderThickness="0,0,1,0">
+      <DockPanel>
+        <Button DockPanel.Dock="Top" Classes="logo" Margin="10,12,10,14" Command="{Binding ToggleSidebarCommand}"
+                ToolTip.Tip="{DynamicResource TipToggleSidebar}">
+          <StackPanel Orientation="Horizontal" Spacing="12">
+            <Panel Width="34" Height="34">
+              <Border Classes="logoglow" Margin="3" />
+              <Border Classes="logo" />
+            </Panel>
+            <TextBlock Classes="brand" Text="TaskNova" FontSize="19" FontWeight="Bold" VerticalAlignment="Center" />
+          </StackPanel>
+        </Button>
+
+        <ListBox DockPanel.Dock="Bottom" Classes="nav" Margin="10,0,10,14"
+                 ItemsSource="{Binding BottomGroup.Items}"
+                 SelectedItem="{Binding BottomGroup.Selected}"
+                 ItemTemplate="{StaticResource NavItemTemplate}" />
+        <Border DockPanel.Dock="Bottom" Classes="divider" Margin="16,8" />
+
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+          <ItemsControl ItemsSource="{Binding NavGroups}" Margin="10,0">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:NavGroup">
+                <StackPanel>
+                  <Border Classes="divider navdivider" IsVisible="{Binding HasTitle}" />
+                  <TextBlock Classes="section" Text="{Binding Title}" Margin="12,10,0,4" IsVisible="{Binding HasTitle}" />
+                  <ListBox Classes="nav" ItemsSource="{Binding Items}" SelectedItem="{Binding Selected}"
+                           ItemTemplate="{StaticResource NavItemTemplate}" />
+                </StackPanel>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </ScrollViewer>
+      </DockPanel>
+    </Border>
+
+    <!-- Header: page title, search, live CPU/memory, pause, mini monitor, elevation -->
+    <Border Grid.Column="1" Padding="24,12,18,12" BorderBrush="{DynamicResource BrushBorder}" BorderThickness="0,0,0,1"
+            IsVisible="{Binding ChromeVisible}">
+      <Grid ColumnDefinitions="Auto,Auto,*,Auto">
+        <PathIcon Data="{Binding CurrentPageIcon}" Width="22" Height="22" Margin="0,0,10,0" Foreground="{DynamicResource BrushAccentText}" />
+        <TextBlock Grid.Column="1" Classes="h1" Text="{Binding CurrentPage.Title}" VerticalAlignment="Center" Margin="0,0,20,0" />
+
+        <TextBox Grid.Column="2" x:Name="SearchBox" Classes="search" MaxWidth="440" HorizontalAlignment="Stretch"
+                 IsVisible="{Binding SearchVisible}"
+                 Text="{Binding SearchText, Mode=TwoWay}"
+                 Watermark="{Binding SearchHint}">
+          <TextBox.InnerLeftContent>
+            <PathIcon Data="{StaticResource IconMagnify}" Width="16" Height="16" Margin="10,0,6,0"
+                      Foreground="{DynamicResource BrushAccentText}" />
+          </TextBox.InnerLeftContent>
+          <TextBox.InnerRightContent>
+            <Button Classes="icon small" Command="{Binding ClearSearchCommand}" ToolTip.Tip="{DynamicResource TipClearSearch}"
+                    IsVisible="{Binding SearchText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+              <PathIcon Data="{StaticResource IconClose}" />
+            </Button>
+          </TextBox.InnerRightContent>
+          <TextBox.KeyBindings>
+            <KeyBinding Gesture="Escape" Command="{Binding ClearSearchCommand}" />
+          </TextBox.KeyBindings>
+        </TextBox>
+
+        <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center" Margin="16,0,0,0">
+          <Border Classes="metricpill" ToolTip.Tip="{DynamicResource TipCpuPill}">
+            <StackPanel Orientation="Horizontal" Spacing="6">
+              <PathIcon Data="{StaticResource IconChip}" Width="14" Height="14" Foreground="{DynamicResource BrushAccentText}" />
+              <TextBlock Text="{Binding CpuText}" Classes="small" FontWeight="SemiBold" VerticalAlignment="Center" MinWidth="34" />
+            </StackPanel>
+          </Border>
+          <Border Classes="metricpill" ToolTip.Tip="{DynamicResource TipMemoryPill}">
+            <StackPanel Orientation="Horizontal" Spacing="6">
+              <PathIcon Data="{StaticResource IconMemory}" Width="14" Height="14" Foreground="{DynamicResource BrushAccentText}" />
+              <TextBlock Text="{Binding MemoryText}" Classes="small" FontWeight="SemiBold" VerticalAlignment="Center" MinWidth="34" />
+            </StackPanel>
+          </Border>
+          <Button Classes="icon" Command="{Binding RunTaskCommand}" ToolTip.Tip="{DynamicResource TipRunTask}">
+            <PathIcon Data="{StaticResource IconPlaylistPlus}" />
+          </Button>
+          <Button Classes="icon" Command="{Binding TogglePauseCommand}" ToolTip.Tip="{Binding PauseTip}">
+            <PathIcon Data="{Binding PauseIcon}" />
+          </Button>
+          <Button Classes="icon" Command="{Binding ToggleMiniMonitorCommand}" ToolTip.Tip="{DynamicResource TipMiniMonitor}">
+            <PathIcon Data="{StaticResource IconMonitorDashboard}" />
+          </Button>
+          <Button Classes="icon" Command="{Binding ToggleDashboardCommand}" ToolTip.Tip="{DynamicResource TipDashboard}">
+            <PathIcon Data="{StaticResource IconFullscreen}" />
+          </Button>
+          <Button Classes="icon" Command="{Binding RestartElevatedCommand}" IsVisible="{Binding !IsElevated}"
+                  ToolTip.Tip="{DynamicResource TipRestartElevated}">
+            <PathIcon Data="{StaticResource IconShieldAlert}" Foreground="{DynamicResource BrushModerate}" />
+          </Button>
+        </StackPanel>
+      </Grid>
+    </Border>
+
+    <!-- Content -->
+    <Grid Grid.Row="1" Grid.Column="1">
+      <ctl:PageHost Page="{Binding CurrentPage}" Margin="20,16,18,16" />
+
+      <!-- Dashboard mode: small exit button top right (also Esc / F11) -->
+      <Button Classes="icon" IsVisible="{Binding IsDashboard}" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,6,8,0"
+              Opacity="0.55" Command="{Binding ExitDashboardCommand}" ToolTip.Tip="{DynamicResource TipExitDashboard}">
+        <PathIcon Data="{StaticResource IconClose}" />
+      </Button>
+
+      <Border x:Name="ToastHost" Classes="toast" Classes.error="{Binding ToastIsError}" IsVisible="{Binding HasToast}"
+              HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="24,0,24,22" MinWidth="240" MaxWidth="480">
+        <Grid ColumnDefinitions="Auto,*,Auto">
+          <PathIcon Classes="toastIcon" Width="18" Height="18" Margin="0,0,12,0" VerticalAlignment="Center" />
+          <TextBlock Grid.Column="1" Text="{Binding Toast}" TextWrapping="Wrap" VerticalAlignment="Center" LineHeight="20" />
+          <Button Grid.Column="2" Classes="icon small" Margin="12,0,0,0" VerticalAlignment="Center" Command="{Binding CloseToastCommand}">
+            <PathIcon Data="{StaticResource IconClose}" />
+          </Button>
+        </Grid>
+      </Border>
+    </Grid>
+  </Grid>
+  </LayoutTransformControl>
+</Window>

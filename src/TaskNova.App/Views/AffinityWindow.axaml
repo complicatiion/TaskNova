@@ -1,0 +1,34 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ctl="using:TaskNova.App.Controls"
+        x:Class="TaskNova.App.Views.AffinityWindow"
+        Icon="/Assets/tasknova.ico"
+        Width="520" Height="480"
+        MinWidth="420" MinHeight="320"
+        ShowInTaskbar="False"
+        WindowStartupLocation="CenterOwner">
+  <DockPanel Margin="22">
+    <StackPanel DockPanel.Dock="Top" Spacing="6" Margin="0,0,0,12">
+      <StackPanel Orientation="Horizontal" Spacing="8">
+        <PathIcon Data="{StaticResource IconChip}" Width="22" Height="22" Foreground="{DynamicResource BrushAccentText}" />
+        <TextBlock x:Name="HeaderText" Classes="h2" TextTrimming="CharacterEllipsis" />
+      </StackPanel>
+      <TextBlock Classes="muted small" Text="{DynamicResource AffinityHint}" TextWrapping="Wrap" />
+      <CheckBox x:Name="AllBox" Content="{DynamicResource AffinityAll}" Margin="0,6,0,0" />
+    </StackPanel>
+    <!-- Cancel left, main action right -->
+    <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right" Margin="0,14,0,0">
+      <Button Click="OnCancel" IsCancel="True" Classes="fixed">
+        <ctl:IconLabel Icon="{StaticResource IconClose}" Text="{DynamicResource BtnCancel}" />
+      </Button>
+      <Button x:Name="ConfirmButton" Click="OnConfirm" Classes="primary fixed" IsDefault="True">
+        <ctl:IconLabel Icon="{StaticResource IconCheck}" Text="{DynamicResource BtnApply}" />
+      </Button>
+    </StackPanel>
+    <Border Classes="card" Padding="12">
+      <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <WrapPanel x:Name="CpuPanel" Orientation="Horizontal" />
+      </ScrollViewer>
+    </Border>
+  </DockPanel>
+</Window>

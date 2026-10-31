@@ -1,0 +1,40 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ctl="using:TaskNova.App.Controls"
+        x:Class="TaskNova.App.Views.RunTaskWindow"
+        Title="{DynamicResource RunTitle}"
+        Icon="/Assets/tasknova.ico"
+        Width="540"
+        SizeToContent="Height"
+        CanResize="False"
+        ShowInTaskbar="False"
+        WindowStartupLocation="CenterOwner">
+  <Border Padding="24">
+    <StackPanel Spacing="14">
+      <StackPanel Orientation="Horizontal" Spacing="10">
+        <PathIcon Data="{StaticResource IconConsole}" Width="22" Height="22" Foreground="{DynamicResource BrushAccentText}" />
+        <TextBlock Classes="h2" Text="{DynamicResource RunTitle}" VerticalAlignment="Center" />
+      </StackPanel>
+      <ctl:InfoText Text="{DynamicResource RunIntro}" />
+      <Grid ColumnDefinitions="*,Auto">
+        <AutoCompleteBox x:Name="CommandBox" FilterMode="ContainsOrdinal" MinimumPrefixLength="0" Watermark="{DynamicResource RunWatermark}" />
+        <Button Grid.Column="1" Margin="8,0,0,0" Click="OnBrowse">
+          <ctl:IconLabel Icon="{StaticResource IconFolderOpen}" Text="{DynamicResource BtnBrowse}" />
+        </Button>
+      </Grid>
+      <StackPanel Orientation="Horizontal" Spacing="10">
+        <ToggleSwitch x:Name="ElevatedSwitch" OnContent="" OffContent="" MinWidth="0" VerticalAlignment="Center" />
+        <TextBlock x:Name="ElevatedText" Text="{DynamicResource RunElevated}" VerticalAlignment="Center" TextWrapping="Wrap" MaxWidth="420" />
+      </StackPanel>
+      <!-- Cancel left, main action right -->
+      <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right" Margin="0,6,0,0">
+        <Button Click="OnCancel" IsCancel="True" Classes="fixed">
+          <ctl:IconLabel Icon="{StaticResource IconClose}" Text="{DynamicResource BtnCancel}" />
+        </Button>
+        <Button x:Name="RunButton" Click="OnRun" Classes="primary fixed" IsDefault="True">
+          <ctl:IconLabel Icon="{StaticResource IconPlay}" Text="{DynamicResource BtnRun}" />
+        </Button>
+      </StackPanel>
+    </StackPanel>
+  </Border>
+</Window>

@@ -1,0 +1,37 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ctl="using:TaskNova.App.Controls"
+             xmlns:vm="using:TaskNova.App.ViewModels"
+             x:Class="TaskNova.App.Views.SystemReportView"
+             x:DataType="vm:SystemReportViewModel">
+
+  <ScrollViewer VerticalScrollBarVisibility="Auto">
+    <!-- Same card width on every tool page, independent of the content: a star column of at most 820 px -->
+    <Grid Margin="0,0,8,12">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*" MaxWidth="820" />
+        <ColumnDefinition Width="Auto" />
+      </Grid.ColumnDefinitions>
+    <StackPanel Spacing="16">
+      <Border Classes="card">
+        <StackPanel Spacing="14">
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <PathIcon Data="{StaticResource IconReport}" Width="20" Height="20" Foreground="{DynamicResource BrushAccentText}" />
+            <TextBlock Classes="h2" Text="{DynamicResource HdrReport}" />
+          </StackPanel>
+          <ToggleSwitch IsChecked="{Binding IncludeSessions}" OnContent="{DynamicResource LblReportSessions}" OffContent="{DynamicResource LblReportSessions}" />
+          <ToggleSwitch IsChecked="{Binding IncludeServices}" OnContent="{DynamicResource LblReportServices}" OffContent="{DynamicResource LblReportServices}" />
+          <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
+            <Button Command="{Binding OpenLastCommand}" IsEnabled="{Binding LastFile, Converter={x:Static ObjectConverters.IsNotNull}}">
+              <ctl:IconLabel Icon="{StaticResource IconFolderOpen}" Text="{DynamicResource ActOpenLocation}" />
+            </Button>
+            <Button Classes="primary" Command="{Binding ExportCommand}" IsEnabled="{Binding !IsBusy}">
+              <ctl:IconLabel Icon="{StaticResource IconExport}" Text="{DynamicResource BtnExportReport}" />
+            </Button>
+          </StackPanel>
+        </StackPanel>
+      </Border>
+    </StackPanel>
+    </Grid>
+  </ScrollViewer>
+</UserControl>

@@ -1,0 +1,16 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <!-- Theme and accent brushes (BrushBgApp, BrushAccent, BrushAccentText …) are created at runtime by
+       Services/AppearanceService from TaskNova.Core.Appearance (ThemePalette + AccentPalette), so the custom accent,
+       the "system" theme and the shadow theme all use one code path. Only static resources live here. -->
+
+  <!-- Cancel of a running operation and red delete glyphs: same red in every theme (white text 6.5:1) -->
+  <SolidColorBrush x:Key="BrushCancel" Color="#B91C1C" />
+  <SolidColorBrush x:Key="BrushCancelHover" Color="#DC2626" />
+  <SolidColorBrush x:Key="BrushCancelPressed" Color="#991B1B" />
+
+  <FontFamily x:Key="MonoFont">Cascadia Mono, Consolas, Courier New</FontFamily>
+
+
+</ResourceDictionary>
