@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>TaskNova.Platform.Windows</RootNamespace>
+    <AssemblyName>TaskNova.Platform.Windows</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="TaskNova.Core.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TaskNova.Core\TaskNova.Core.csproj" />
+  </ItemGroup>
+
+</Project>

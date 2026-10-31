@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>TaskNova.Core</RootNamespace>
+    <AssemblyName>TaskNova.Core</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="TaskNova.Core.Tests" />
+  </ItemGroup>
+
+</Project>
