@@ -2,25 +2,21 @@
 
 ## Disclaimer
 
-PortShield is provided **“as is”**, without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose and non-infringement (see the MIT License in [LICENSE.md](LICENSE.md)).
+TaskNova is provided **“as is”**, without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose and non-infringement (see the MIT License in [LICENSE.md](LICENSE.md)).
 
-To the extent permitted by applicable law, the author is not liable for any damages arising from the use of PortShield, including loss of network access, interrupted operation, failed updates, blocked or unblocked connections, or security incidents. Mandatory statutory liability (e.g. for intent or gross negligence, fraudulently concealed defects, or under product liability law) remains unaffected.
+To the extent permitted by applicable law, the author is not liable for any damages arising from the use of TaskNova, including data loss, system or application malfunctions, or interrupted operation. Mandatory statutory liability (e.g. for intent or gross negligence, fraudulently concealed defects, or under product liability law) remains unaffected.
 
-## Firewall changes
+## Ending, suspending and changing processes
 
-PortShield changes the Windows Firewall only after an explicit action of the user; bulk changes (adding programs, imports, rule sets) are listed in a review dialog first. Before deleting rules, imports, rule sets, whitelist mode, resets and restores, PortShield takes a snapshot (configurable). Please note:
-
-- **Block always wins.** An allow rule cannot override a block rule of the Windows Firewall.
-- **Kill switch and whitelist mode** can cut off network access completely – also remote desktop sessions when the LAN is not excluded.
-- **Resetting the firewall** removes all own rules of the computer, not only PortShield's.
-- **Group policies** of an organization take precedence. Local rules can be ignored by policy; changes to locally managed settings may only be made with the administrator's consent.
-- **Other firewall products** may turn the Windows Firewall off; PortShield's rules then have no effect.
-- PortShield does **not** inspect traffic and is **not** an antivirus product. A firewall rule restricts a program's network access; it does not make an untrusted program safe.
+Ending a process or process tree discards its unsaved data. Ending critical Windows processes (e.g. `csrss.exe`, `wininit.exe`, `smss.exe`) makes Windows unusable or shuts it down immediately – TaskNova warns before it does this. Suspending a process freezes it until it is resumed; realtime priority can block the whole system.
 
 ## Operator responsibility
 
-The operator is responsible for the rules they create, change or delete, for the use of exports in other systems (group policy, Intune, security products) and for compliance with company policies and applicable law.
+TaskNova is a tool for users and administrators. The operator is responsible for:
 
-## Contact
-
-Sven Klocke · sksdesign | complicatiion · [sksdesign.de](https://sksdesign.de)
+- ending, suspending and re-prioritizing processes and changing their processor affinity,
+- starting, stopping and restarting services and changing their startup type (stopping a service can interrupt programs or users that depend on it),
+- disconnecting and signing out user sessions and sending messages to them on terminal servers (inform the users concerned),
+- switching startup entries on or off,
+- replacing the Windows Task Manager (Image File Execution Options) and the desktop context menu entry,
+- compliance with company policies and applicable data protection law (the Users and Network pages show user names, client names and addresses of this machine).

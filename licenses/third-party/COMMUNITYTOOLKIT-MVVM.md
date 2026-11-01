@@ -5,7 +5,7 @@
 | Version | 8.4.0 |
 | License | MIT |
 | Source | https://github.com/CommunityToolkit/dotnet |
-| Use in CLEANit | MVVM base classes and source generators in the user interface |
+| Use in TaskNova | MVVM base classes and source generators in the user interface |
 
 ## License text
 

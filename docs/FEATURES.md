@@ -1,92 +1,110 @@
-# Features – PortShield 0.0.4
+# Features
 
-## Rules
+## Overview
+- Fills the window without a scroll bar on normal screens (scrolls only in very small windows).
+- CPU and memory as ring gauges with key figures (processes, threads, handles, up time, available, cached, committed); kernel share/clock and "used / total" memory in centered accent pills.
+- Memory composition bar (in use / cached).
+- Tiles for disk (busiest disk), network (total throughput) and GPU (busiest adapter) with live charts; click opens the device on the Performance page.
+- Top 5 processes by CPU and by memory; click on a process opens it, click on the card opens the Processes page sorted by that column.
+- System facts: computer, Windows edition and build, server/workstation, virtual machine, CPU model, sockets/cores/logical processors, RAM, GPUs, user, sessions. Click opens Windows Settings › System › About (msinfo32 where the Settings app is missing); right-click: msinfo32, advanced system properties, Control Panel.
 
-| Feature | Details |
-| --- | --- |
-| Outbound / inbound lists | PortShield rules; switch *Also other program rules* shows Windows and third-party program rules too |
-| Columns | action, name (+ origin), program (+ folder, *missing* badge), addresses, profiles, enabled, publisher – sortable, resizable, movable |
-| Filters | search (name, path, publisher), all / blocked / allowed / disabled / program missing |
-| Multi-selection | Shift/Ctrl, Ctrl+A, invert (Ctrl+I); right click selects the row |
-| Allow temporarily | blocked PortShield rules for 15 / 30 / 60 / 120 min, badge “allowed until …”, block again now; restored by the app, at start and by a one-shot SYSTEM task (also at boot) |
-| Actions | block, allow, enable, disable, delete (confirmation, snapshot), rename (F2), addresses all / internet only, profiles all / public / private+domain, copy path, open location, file properties, run program, export selection |
-| Add | files (multi), folder (recursive, without installers), running programs, Explorer context menu, tray (no drag & drop: Windows blocks it from Explorer into elevated apps) |
-| Review dialog | direction out / in / both, block / allow, all addresses / internet only, profiles, enabled; status per program; summary; nothing written before *Create rules* |
-| Duplicates | existing PortShield rule for the same program and direction is updated instead of duplicated |
-| Protection | core Windows processes, PortShield, own list – never blocked |
+## Processes
+- **Groups** (default): *Apps* (own a visible top-level window), *Background processes*, *Windows processes* (kernel pseudo processes, critical processes, executables under the Windows folder). Groups collapse; the state is remembered.
+- **Tree**: parent → child by parent process id; a parent only counts when it started before the child (re-used ids never create wrong trees). Search keeps the matches and their ancestors visible.
+- Columns: name (description like the Windows Task Manager, image name as tooltip), status (suspended), CPU, memory (private working set), I/O (bytes/s), GPU, PID. Sorted by clicking the header; value columns re-sort live.
+- Heat cells: accent tint by value (CPU %, share of RAM, MB/s, GPU %).
+- Security shield: unsigned (embedded or catalog signature checked offline), user-writable location, missing file, Windows name outside the Windows folder.
+- Actions (toolbar, right-click, keyboard): end task (Del), end process tree, restart process, suspend/resume, efficiency mode (EcoQoS + idle priority), priority (incl. realtime warning), affinity, create dump file (full memory dump), analyze wait chain (Wait Chain Traversal, deadlock detection), process window (facts, live CPU/memory charts, loaded modules), open file location, Explorer properties, copy details (Ctrl+C), go to details, go to services.
+- Protection: critical processes (csrss, wininit, smss, services, lsass, winlogon …) need an extra confirmation; TaskNova cannot suspend itself or critical processes. "Don't ask again" in the end-task confirmation.
 
-## Firewall
+## Performance
+- Devices on the left with mini charts: CPU, memory, every physical disk, every network adapter that is up, every GPU.
+- Big chart with grid; second series dashed (CPU kernel time, network send).
+- CPU: overall or one small chart per logical processor (one control draws all cores).
+- Figures: utilization, current and base clock, processes, threads, handles, up time, sockets, cores, logical processors, VM; memory in use, available, committed, cached, paged/non-paged pool; disk active time, read/write, response time; network send/receive, link speed, adapter, IPv4; GPU utilization, dedicated/shared memory, busiest engines.
 
-| Feature | Details |
-| --- | --- |
-| Overview | protection state, active network profile, profiles with defaults, group policy badges |
-| Notices | no admin rights, service stopped, local rules ignored by GPO, profile off, third-party firewall, GPO-managed, rules changed outside PortShield, temporarily allowed rules, watched rule sets with new programs |
-| Integrity check | record of PortShield's rules after every own change (`baseline.json`); missing / changed rules (name, program, service, direction, action, state, profiles, addresses) → restore (same id, snapshot) or accept |
-| Kill switch | block rules without program (out + in), internet only or complete; sidebar, overview, tray, CLI |
-| Whitelist mode | outbound default *Block* on all profiles (snapshot first) |
-| Profiles | turn the firewall of a profile on/off (confirmation) |
-| Reset | `netsh advfirewall reset` (snapshot first) |
-| wf.msc | opens *Windows Defender Firewall with Advanced Security* |
+## App history
+- CPU time, I/O and run time per program (by image name), with description and path once known.
+- Recorded from the process deltas while TaskNova runs (in the tray every 5 s); saved every 5 minutes and on exit.
+- Sort by name, CPU time, I/O, run time, last seen; delete the history.
 
-## Scan
+## Network
+- Adapter cards with live send/receive: 2 per row in a normal window, up to 5 on wide windows.
+- "Show in processes" / "Details" for the selected connection; double-click opens the process on the Processes page.
+- TCP (v4/v6) connections and UDP endpoints with process, protocol, local/remote address, state; filters for listening and UDP; optional reverse DNS (cached, max. 8 parallel lookups).
 
-| Feature | Details |
-| --- | --- |
-| Origins | PortShield · other tools (Firewall App Blocker, wf.msc, installers) · Windows · group policy (registry, read only) |
-| Findings | program missing, duplicates (same program, service, direction, action), conflicts (allow and block), disabled |
-| Adopt | marker `[ps:id]` in the description, optionally rename to the PortShield scheme; snapshot first; Windows and GPO rules excluded |
-| Merge duplicates | one rule per program, direction and action stays (PortShield's preferred); snapshot first |
-| Further actions | enable, disable, delete, export (CSV, JSON, HTML, PowerShell) |
+## Details
+- All processes incl. System Idle Process; 20 columns; horizontal scrolling with synchronized header; same actions as on the Processes page.
 
-## Connections
+## Startup apps
+- HKCU/HKLM Run (incl. WOW6432Node), user and common startup folder (shortcuts parsed without COM), scheduled tasks with logon/boot trigger outside `\Microsoft\`.
+- Publisher from the signature or version info, signed badge, missing target dimmed.
+- Switch on/off like the Windows Task Manager (`StartupApproved`), tasks via schtasks; open location; copy command.
 
-| Feature | Details |
-| --- | --- |
-| Source | Security log, event 5157 (Windows Filtering Platform blocked a connection), via `wevtutil`; device paths mapped to drive letters |
-| Recording | audit policy *Filtering Platform Connection – Failure* on/off (audit API with subcategory GUID `{0CCE9226-69AE-11D9-BED3-505054503030}`); state pill; success auditing stays as it is |
-| List | grouped by program, direction, remote address, remote port, protocol – count, first/last seen; newest 5,000 events |
-| Filters | 1 h / 24 h / 7 days, out / in / both, internet only (hides LAN, loopback, link-local, multicast/broadcast), search |
-| Actions | block or allow program (review), copy address, open location |
+## Users
+- All sessions with a user (console, RDP, Citrix ICA): state, client name and address, sign-in time, idle time, CPU, memory, process count; own session marked.
+- Disconnect, sign out (confirmation), send message (dialog in the session), show the session's processes (Details, `session:N`).
 
-## Service rules
+## Services
+- All Win32 services incl. per-user service instances: name, display name, PID, status, startup type.
+- Filters: all / running / stopped; search by name, description, PID.
+- Start, stop (asks before stopping running dependents), restart; startup type automatic / automatic (delayed) / manual / disabled.
+- Detail panel: description (indirect strings resolved), binary path, account, depends on, needed by.
 
-Rules for one Windows service inside `svchost.exe` (e.g. `DiagTrack`) – in rule sets, imports and all exports. svchost.exe without a service stays protected.
+## Navigation & lists
+- Back / forward through the visited pages (header, dashboard bar, Alt+← / Alt+→, mouse side buttons; up to 50 steps).
+- Every list sorts by header click (again = other direction), remembered per list; ties are sorted by name.
+- Filter chips: Processes (all / suspended / efficiency), Startup apps (all / enabled / disabled), Users (all / active / disconnected), Services (all / running / stopped).
+- Processes and Details: resizable columns (drag the header edge, double-click = default), show / hide columns (right-click the header), reset.
+- Quick jump: type the first letters of a name in any list.
 
-## Rules (rule sets)
+## Run new task
+- Ctrl+N, header button or tray menu; programs, documents, folders, URLs, `.msc`; optional administrator rights; history of the last 12 commands; browse dialog.
 
-Presets (Adobe, TechSmith Snagit, Maxon Cinema 4D, Windows telemetry with service rules) and own sets in `%ProgramData%\PortShield\rulesets`; `%Variables%`, `*` and `**` (any sub folder depth) wildcards; editor for own sets (programs, folders, patterns, services, direction out/in/both, action, scope, *check paths*), copy of presets; *programs on this PC* counter; apply with review and snapshot; save current rules, import, export, delete (presets are hidden, a reset shows them again); **watch** applied sets for new programs (ignore list per set).
+## Alerts
+- Off by default. CPU or memory above a limit (50–100 %) for 10 s – 5 min shows a small notification window bottom right (not activated, closes after 10 s, hover keeps it). Cooldown 5–60 min per kind. Click opens the Processes page sorted by CPU / memory.
 
-## Import & export
+## Expert mode
+- Off by default (Settings › Expert mode). Users page: end all processes of a session (Windows session processes and TaskNova stay; the user stays signed in), RDP shadowing view / control via `mstsc /shadow` (not for Citrix ICA sessions – use Citrix Director).
+- Logon mode of an RD Session Host: allow, drain, drain until restart, disable (`change logon`; state read from the registry).
+- Sign out all disconnected sessions of other users (optionally only after 2 h idle), message to all sessions.
+- "Per user" view: one row per user with sessions, CPU, memory and processes added up.
 
-See [EXPORT-FORMATS.md](EXPORT-FORMATS.md). Sources: PortShield rules (all / outbound / inbound) or all program rules. Options: portable paths, SHA-256, CSV delimiter. Clipboard or file. Complete policy as `.wfw`. Transfer of all own rule sets (optionally plus the current rules) as one `portshield.rulesets` bundle for another PC.
+## Tools
+- **File locks**: processes that hold a file open (or the files directly in a folder) via the Restart Manager API – type of process, service name, user, session; show in processes, end process.
+- **Ports**: listening TCP ports and UDP endpoints (optionally all connections) with process; search by exact port number or text; copy, show in processes, end process.
+- **Power plans**: all plans with the active one marked; click activates; link to the power options.
+- **System report**: HTML file with system facts, current load, top 15 processes by CPU and memory, sessions and running services (optional). No external CSS, fonts or scripts; print-friendly.
 
-## Snapshots
+## Mini monitor
+- Small always-on-top window with CPU, RAM, disk and network sparklines; drag to move, double-click opens TaskNova.
+- Click a metric for its details: CPU (larger chart, kernel share, clock, top 3), RAM (in use / available / committed, top 3), every disk (active time, read/write), every adapter (send/receive).
+- Position: 3 × 3 anchor points on a chosen monitor (default bottom right on the primary monitor); dragged by hand it stays where it was put. The window grows from its anchored edge when details open.
+- Own theme (like TaskNova, System, Dark, Shadow, Light), opacity 40–100 %, always on top on/off.
 
-Automatic before delete, import, rule set, whitelist, reset, restore, policy import (configurable, retention); manual with note; restore PortShield rules only or complete policy; open, delete.
+## Dashboard mode
+- Full screen without sidebar and header – for a dedicated monitoring screen. F11 or the header button toggles it, Esc leaves it. Can be the start mode.
+- Back / forward and exit top right; right-click there or on the header button opens the dashboard settings.
+- Settings: automatic page rotation (off by default; 10 s – 5 min; pages to show), computer name and clock in the corner, hide the mouse pointer after 4 s.
+
+## Appearance & settings
+- Themes: Dark (default, navy), Shadow (neutral dark grey), Light, System.
+- Accent: TaskNova coral, 10 presets, Windows accent, custom color (Windows color dialog with 16 saved custom colors).
+- UI size: Auto (by the logical size of the screen the window is on), XS 85 %, S 92 %, M 100 %, L 112 %, XL 125 %.
+- Rendering: graphics card (default) or software (no GPU memory, for servers/VMs; after a restart).
+- Chart fill, animations on/off.
+- Start: start page (Overview by default, any page, or "Last used"), start as window / maximized / full screen / dashboard / tray only / mini monitor only, monitor (automatic = last position, or a fixed monitor), open the mini monitor too.
+- Update speed, chart history, processor utility, GPU monitoring, app history, host names, end-task confirmation.
+- Sign-in start in the tray, close/minimize to tray, keep window in tray, always on top, trim memory while in the tray.
+- Every change is saved right away (debounced), including window size/position and the collapsed sidebar.
+- Desktop context menu entry, Task Manager replacement.
+- Elevation status, restart as administrator, data folder, reset settings.
 
 ## Command line
-
-```text
-PortShield.exe --status
-PortShield.exe --list [--all] [--json]
-PortShield.exe --block "C:\Program Files\App\app.exe" [--inbound|--both] [--internet] [--profiles public]
-PortShield.exe --allow <program> …   |   --unblock <program> …
-PortShield.exe --apply ruleset.json [--confirm]
-PortShield.exe --import list.csv [--confirm]
-PortShield.exe --export rules.ps1 [--format ps1] [--all] [--literal-paths] [--hashes]
-PortShield.exe --snapshot [--note "before update"]
-PortShield.exe --kill-switch on|off [--full]
-PortShield.exe --remove-all --confirm
-PortShield.exe --restore-temporary [--all]
-PortShield.exe --register-shell | --unregister-shell
-```
-
-Exit codes: 0 success, 1 errors or nothing done, 2 invalid arguments.
-
-## Reset
-
-*Settings › Data*: **Reset PortShield** – settings and hidden presets, restart. **Factory reset** – PortShield rules, kill switch, whitelist mode, own rule sets, watch list, integrity record, temporary rules, settings, autostart, Explorer context menu (setup: on, portable: off); snapshots optionally; snapshot first; restart. Rules of Windows, other programs and group policy stay.
-
-## Interface
-
-Avalonia, dark (default) / light / system, palette Royal Blue · Bay of Many · Shark, collapsible sidebar, icons on every button, toasts, system tray (kill switch, add, pages, language), English and German (first start: German if Windows uses German), Windows 10/11 and Windows Server 2016–2025.
+| Argument | Effect |
+| --- | --- |
+| `--tray` | Start hidden in the system tray |
+| `--register-autostart` / `--unregister-autostart` | Sign-in task for the current user |
+| `--unregister-autostart-all` | Remove the sign-in tasks of all users (uninstaller) |
+| `--register-context-menu` | Desktop context menu entry for the current user (installer) |
+| `--unregister-integration` | Remove context menu entry and Task Manager replacement (uninstaller) |

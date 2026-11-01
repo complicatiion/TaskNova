@@ -7,6 +7,6 @@
 | Reserved Font Name | – |
 | Source | https://github.com/rsms/inter |
 | Shipped as | Embedded in the package Avalonia.Fonts.Inter |
-| Use in CLEANit | User interface font |
+| Use in TaskNova | User interface font |
 
 Full license text: [LICENSE-OFL-1.1.md](LICENSE-OFL-1.1.md)
