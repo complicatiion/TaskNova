@@ -9,7 +9,10 @@ using TaskNova.Core.History;
 namespace TaskNova.App.ViewModels;
 
 public sealed record AppHistoryRow(string Name, string Title, string? Path, long CpuTime, string CpuTimeText, ulong Io, string IoText,
-    double RunSeconds, string RunText, DateTime LastSeenUtc, string LastSeenText, double CpuShare);
+    double RunSeconds, string RunText, DateTime LastSeenUtc, string LastSeenText, double CpuShare) : Controls.ITypeAheadItem
+{
+    string Controls.ITypeAheadItem.TypeAheadText => Title;
+}
 
 /// <summary>
 /// App history: CPU time and I/O per program, recorded by TaskNova itself while it runs (the Windows SRUM database is

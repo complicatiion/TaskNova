@@ -9,8 +9,10 @@ using TaskNova.Platform.Windows;
 namespace TaskNova.App.ViewModels;
 
 /// <summary>Startup entry with a switch (like the Windows Task Manager: reversible via StartupApproved).</summary>
-public sealed partial class StartupRow : ObservableObject
+public sealed partial class StartupRow : ObservableObject, Controls.ITypeAheadItem
 {
+    string Controls.ITypeAheadItem.TypeAheadText => Name ?? "";
+
     private readonly StartupViewModel _owner;
     private bool _enabled;
 
@@ -84,9 +86,69 @@ public sealed partial class StartupRow : ObservableObject
 }
 
 /// <summary>Startup apps: Run keys, startup folders and logon/boot tasks with publisher, signature and switch.</summary>
-public sealed partial class StartupViewModel(MainViewModel main) : PageViewModel(main)
+public sealed partial class StartupViewModel : PageViewModel
 {
+    private readonly ListSort _sort;
     private List<StartupRow> _all = [];
+
+    public StartupViewModel(MainViewModel main) : base(main)
+    {
+        _sort = new ListSort("startup", main.Settings, main.SaveSettingsSoon, "name", false);
+    }
+
+    // ------------------------------------------------------------------ sorting (header click)
+
+    public string SortColumn => _sort.Column;
+
+    public bool SortDescending => _sort.Descending;
+
+    [RelayCommand]
+    private void Sort(string column)
+    {
+        _sort.Toggle(column);
+        OnPropertyChanged(nameof(SortColumn));
+        OnPropertyChanged(nameof(SortDescending));
+        Apply();
+    }
+
+    // ------------------------------------------------------------------ filter chips (all / enabled / disabled)
+
+    public bool FilterAll
+    {
+        get => Settings.StartupFilter == "all";
+        set => SetFilter(value, "all");
+    }
+
+    public bool FilterEnabled
+    {
+        get => Settings.StartupFilter == "enabled";
+        set => SetFilter(value, "enabled");
+    }
+
+    public bool FilterDisabled
+    {
+        get => Settings.StartupFilter == "disabled";
+        set => SetFilter(value, "disabled");
+    }
+
+    private void SetFilter(bool on, string filter)
+    {
+        if (on && Settings.StartupFilter != filter)
+        {
+            Settings.StartupFilter = filter;
+            Main.SaveSettingsSoon();
+            Apply();
+        }
+
+        // Chips act like radio buttons: the active one cannot be switched off (after the click has been handled).
+        Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+        {
+            OnPropertyChanged(nameof(FilterAll));
+            OnPropertyChanged(nameof(FilterEnabled));
+            OnPropertyChanged(nameof(FilterDisabled));
+        });
+    }
+
     private bool _loaded;
 
     public override string TitleKey => "NavStartup";
@@ -193,13 +255,33 @@ public sealed partial class StartupViewModel(MainViewModel main) : PageViewModel
 
     private void Apply()
     {
-        var rows = _all.Where(r => Search.IsEmpty || Search.Matches(r.Name, r.Publisher, r.Command, r.LocationText)).ToList();
+        var rows = _all
+            .Where(r => Settings.StartupFilter switch
+            {
+                "enabled" => r.Enabled,
+                "disabled" => !r.Enabled,
+                _ => true
+            })
+            .Where(r => Search.IsEmpty || Search.Matches(r.Name, r.Publisher, r.Command, r.LocationText))
+            .ToList();
+        rows.Sort(_sort.Comparer(new Dictionary<string, Comparison<StartupRow>>
+        {
+            ["name"] = (a, b) => ListSort.Text(a.Name, b.Name),
+            ["publisher"] = (a, b) => ListSort.Text(a.Publisher, b.Publisher),
+            ["status"] = (a, b) => b.Enabled.CompareTo(a.Enabled),
+            ["location"] = (a, b) => ListSort.Text(a.LocationText, b.LocationText)
+        }, (a, b) => ListSort.Text(a.Name, b.Name)));
         ListSync.Sync(Items, rows, () => Selected, v => Selected = v);
         UpdateSummary();
     }
 
     internal void OnRowToggled(StartupRow row)
     {
+        if (Settings.StartupFilter != "all" || _sort.Column == "status")
+        {
+            Avalonia.Threading.Dispatcher.UIThread.Post(Apply);
+        }
+
         if (ReferenceEquals(row, Selected))
         {
             OnPropertyChanged(nameof(SelectedEnabled));

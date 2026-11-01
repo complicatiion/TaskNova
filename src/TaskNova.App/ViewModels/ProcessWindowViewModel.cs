@@ -50,6 +50,42 @@ public sealed partial class ProcessWindowViewModel : ObservableObject, IDisposab
 
     public ObservableCollection<ModuleEntry> Modules { get; } = [];
 
+    private IReadOnlyList<ModuleEntry> _modules = [];
+
+    private ListSort? _sortState;
+
+    private ListSort ListSortState => _sortState ??= new ListSort("modules", Main.Settings, Main.SaveSettingsSoon, "name", false, "size");
+
+    public string SortColumn => ListSortState.Column;
+
+    public bool SortDescending => ListSortState.Descending;
+
+    [RelayCommand]
+    private void Sort(string column)
+    {
+        ListSortState.Toggle(column);
+        OnPropertyChanged(nameof(SortColumn));
+        OnPropertyChanged(nameof(SortDescending));
+        ShowModules();
+    }
+
+    private void ShowModules()
+    {
+        var list = _modules.ToList();
+        list.Sort(ListSortState.Comparer(new Dictionary<string, Comparison<ModuleEntry>>
+        {
+            ["name"] = (a, b) => ListSort.Text(a.Name, b.Name),
+            ["path"] = (a, b) => ListSort.Text(a.Path, b.Path),
+            ["base"] = (a, b) => a.BaseAddress.CompareTo(b.BaseAddress),
+            ["size"] = (a, b) => a.Size.CompareTo(b.Size)
+        }, (a, b) => ListSort.Text(a.Path, b.Path)));
+        Modules.Clear();
+        foreach (var module in list)
+        {
+            Modules.Add(module);
+        }
+    }
+
     [ObservableProperty]
     private string _cpuText = "–";
 
@@ -152,11 +188,8 @@ public sealed partial class ProcessWindowViewModel : ObservableObject, IDisposab
         {
             var pid = Row.Pid;
             var (modules, error) = await Task.Run(() => ProcessTools.Modules(pid));
-            Modules.Clear();
-            foreach (var module in modules.OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase))
-            {
-                Modules.Add(module);
-            }
+            _modules = modules;
+            ShowModules();
 
             ModulesSummary = error is not null ? Loc.F("ToastActionFailed", error) : Loc.F("ModulesSummary", modules.Count);
         }

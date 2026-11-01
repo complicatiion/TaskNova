@@ -15,8 +15,10 @@ namespace TaskNova.App.ViewModels;
 public sealed record AdapterCard(string Name, string Description, string Throughput, Avalonia.Media.Geometry? Icon);
 
 /// <summary>One TCP connection or UDP endpoint.</summary>
-public sealed partial class ConnectionRow(ConnectionInfo info) : ObservableObject
+public sealed partial class ConnectionRow(ConnectionInfo info) : ObservableObject, Controls.ITypeAheadItem
 {
+    string Controls.ITypeAheadItem.TypeAheadText => ProcessName ?? "";
+
     public ConnectionInfo Info { get; } = info;
 
     public string Protocol => Info.Protocol switch
@@ -91,6 +93,23 @@ public sealed partial class NetworkViewModel : PageViewModel
     /// <summary>Key figures of the toolbar, each in its own pill.</summary>
     public IReadOnlyList<StatPill> Stats => [_pillEntries, _pillEstablished, _pillListening];
 
+
+    private ListSort? _sortState;
+
+    private ListSort ListSortState => _sortState ??= new ListSort("network", Settings, Main.SaveSettingsSoon, "process", false, "pid");
+
+    public string SortColumn => ListSortState.Column;
+
+    public bool SortDescending => ListSortState.Descending;
+
+    [RelayCommand]
+    private void Sort(string column)
+    {
+        ListSortState.Toggle(column);
+        OnPropertyChanged(nameof(SortColumn));
+        OnPropertyChanged(nameof(SortDescending));
+        Apply();
+    }
 
     [ObservableProperty]
     private bool _showListening = true;
@@ -216,11 +235,16 @@ public sealed partial class NetworkViewModel : PageViewModel
             _rows.Remove(key);
         }
 
-        desired.Sort((a, b) =>
+        desired.Sort(ListSortState.Comparer(new Dictionary<string, Comparison<ConnectionRow>>
         {
-            var byName = string.Compare(a.ProcessName, b.ProcessName, StringComparison.CurrentCultureIgnoreCase);
-            return byName != 0 ? byName : string.CompareOrdinal(a.Info.Key, b.Info.Key);
-        });
+            ["process"] = (a, b) => ListSort.Text(a.ProcessName, b.ProcessName),
+            ["pid"] = (a, b) => a.Pid.CompareTo(b.Pid),
+            ["protocol"] = (a, b) => string.CompareOrdinal(a.Protocol, b.Protocol),
+            ["local"] = (a, b) => a.Info.LocalPort != b.Info.LocalPort ? a.Info.LocalPort.CompareTo(b.Info.LocalPort) : string.CompareOrdinal(a.Info.LocalAddress, b.Info.LocalAddress),
+            ["remote"] = (a, b) => string.CompareOrdinal(a.Remote, b.Remote),
+            ["state"] = (a, b) => string.CompareOrdinal(a.State, b.State),
+            ["host"] = (a, b) => ListSort.Text(a.RemoteHost, b.RemoteHost)
+        }, (a, b) => string.CompareOrdinal(a.Info.Key, b.Info.Key)));
         ListSync.Sync(Items, desired, () => Selected, v => Selected = v);
 
         var tcp = _latest.Count(c => c.Protocol is ConnectionProtocol.Tcp or ConnectionProtocol.Tcp6 && c.State == "ESTABLISHED");

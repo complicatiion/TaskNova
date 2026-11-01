@@ -7,8 +7,11 @@
 
   <Grid RowDefinitions="Auto,*">
     <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,12">
-      <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
-        <ItemsControl Classes="pills" ItemsSource="{Binding Stats}" />
+      <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+        <ToggleButton Classes="chip" IsChecked="{Binding FilterAll}" Content="{DynamicResource FilterAll}" />
+        <ToggleButton Classes="chip" IsChecked="{Binding FilterEnabled}" Content="{DynamicResource FilterEnabled}" />
+        <ToggleButton Classes="chip" IsChecked="{Binding FilterDisabled}" Content="{DynamicResource FilterDisabled}" />
+        <ItemsControl Classes="pills" ItemsSource="{Binding Stats}" Margin="10,0,0,0" />
         <Border Classes="badge moderate" IsVisible="{Binding NeedsElevation}" ToolTip.Tip="{DynamicResource TipStartupElevation}">
           <TextBlock Text="{DynamicResource BadgeLimitedView}" />
         </Border>
@@ -40,10 +43,38 @@
       <DockPanel>
         <Border DockPanel.Dock="Top" Classes="thead">
           <Grid ColumnDefinitions="*,200,130,150,120">
-            <TextBlock Grid.Column="0" Classes="th" Text="{DynamicResource ColName}" Margin="10,0" />
-            <TextBlock Grid.Column="1" Classes="th" Text="{DynamicResource ColPublisher}" Margin="10,0" />
-            <TextBlock Grid.Column="2" Classes="th" Text="{DynamicResource ColStatus}" Margin="10,0" />
-            <TextBlock Grid.Column="3" Classes="th" Text="{DynamicResource ColLocation}" Margin="10,0" />
+            <Button Classes="th" Command="{Binding SortCommand}" CommandParameter="name"
+                    Classes.sorted="{Binding SortColumn, Converter={x:Static ctl:Converters.EqualsParameter}, ConverterParameter=name}"
+                    Classes.ascending="{Binding !SortDescending}">
+              <StackPanel Orientation="Horizontal" Spacing="4">
+                <TextBlock Classes="th" Text="{DynamicResource ColName}" />
+                <PathIcon Data="{StaticResource IconChevronDown}" />
+              </StackPanel>
+            </Button>
+            <Button Grid.Column="1" Classes="th" Command="{Binding SortCommand}" CommandParameter="publisher"
+                    Classes.sorted="{Binding SortColumn, Converter={x:Static ctl:Converters.EqualsParameter}, ConverterParameter=publisher}"
+                    Classes.ascending="{Binding !SortDescending}">
+              <StackPanel Orientation="Horizontal" Spacing="4">
+                <TextBlock Classes="th" Text="{DynamicResource ColPublisher}" />
+                <PathIcon Data="{StaticResource IconChevronDown}" />
+              </StackPanel>
+            </Button>
+            <Button Grid.Column="2" Classes="th" Command="{Binding SortCommand}" CommandParameter="status"
+                    Classes.sorted="{Binding SortColumn, Converter={x:Static ctl:Converters.EqualsParameter}, ConverterParameter=status}"
+                    Classes.ascending="{Binding !SortDescending}">
+              <StackPanel Orientation="Horizontal" Spacing="4">
+                <TextBlock Classes="th" Text="{DynamicResource ColStatus}" />
+                <PathIcon Data="{StaticResource IconChevronDown}" />
+              </StackPanel>
+            </Button>
+            <Button Grid.Column="3" Classes="th" Command="{Binding SortCommand}" CommandParameter="location"
+                    Classes.sorted="{Binding SortColumn, Converter={x:Static ctl:Converters.EqualsParameter}, ConverterParameter=location}"
+                    Classes.ascending="{Binding !SortDescending}">
+              <StackPanel Orientation="Horizontal" Spacing="4">
+                <TextBlock Classes="th" Text="{DynamicResource ColLocation}" />
+                <PathIcon Data="{StaticResource IconChevronDown}" />
+              </StackPanel>
+            </Button>
             <TextBlock Grid.Column="4" Classes="th" Text="{DynamicResource ColImpact}" Margin="10,0" />
           </Grid>
         </Border>

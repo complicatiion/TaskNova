@@ -84,6 +84,9 @@ public sealed partial class MainViewModel : ObservableObject
             SettingsStore.Save(Settings);
         };
 
+        _rotationTimer.Tick += (_, _) => Rotate();
+        _clockTimer.Tick += (_, _) => UpdateClock();
+
         _toastTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(4) };
         _toastTimer.Tick += (_, _) =>
         {
@@ -183,7 +186,21 @@ public sealed partial class MainViewModel : ObservableObject
                 _currentPage.Deactivate();
             }
 
+            // Browser-like history: every page change (sidebar, links, cards) can be undone with Back.
+            if (!_historyMove && !_rotating)
+            {
+                _back.Add(_currentPage);
+                if (_back.Count > MaxHistory)
+                {
+                    _back.RemoveAt(0);
+                }
+
+                _forward.Clear();
+            }
+
             SetProperty(ref _currentPage, value);
+            NotifyHistory();
+            RestartRotation();
             OnPropertyChanged(nameof(CurrentPageIcon));
             OnPropertyChanged(nameof(SearchVisible));
             OnPropertyChanged(nameof(SearchHint));
@@ -204,6 +221,89 @@ public sealed partial class MainViewModel : ObservableObject
     }
 
     public Geometry? CurrentPageIcon => Res.Icon(CurrentPage.IconKey);
+
+    // ------------------------------------------------------------------------------------------- back / forward
+
+    private const int MaxHistory = 50;
+    private readonly List<PageViewModel> _back = [];
+    private readonly List<PageViewModel> _forward = [];
+    private bool _historyMove;
+
+    public bool CanGoBack => _back.Count > 0;
+
+    public bool CanGoForward => _forward.Count > 0;
+
+    public string BackTip => Loc.T("TipBack") + (CanGoBack ? " · " + _back[^1].Title : "");
+
+    public string ForwardTip => Loc.T("TipForward") + (CanGoForward ? " · " + _forward[^1].Title : "");
+
+    private void NotifyHistory()
+    {
+        OnPropertyChanged(nameof(CanGoBack));
+        OnPropertyChanged(nameof(CanGoForward));
+        OnPropertyChanged(nameof(BackTip));
+        OnPropertyChanged(nameof(ForwardTip));
+        GoBackCommand.NotifyCanExecuteChanged();
+        GoForwardCommand.NotifyCanExecuteChanged();
+    }
+
+    /// <summary>Back (Alt+←, mouse back button, header / dashboard button).</summary>
+    [RelayCommand(CanExecute = nameof(CanGoBack))]
+    private void GoBack()
+    {
+        // The dashboard rotation moves without history: skip entries that are the current page already.
+        while (_back.Count > 0 && ReferenceEquals(_back[^1], CurrentPage))
+        {
+            _back.RemoveAt(_back.Count - 1);
+        }
+
+        if (_back.Count == 0)
+        {
+            NotifyHistory();
+            return;
+        }
+
+        var target = _back[^1];
+        _back.RemoveAt(_back.Count - 1);
+        _forward.Add(CurrentPage);
+        MoveInHistory(target);
+    }
+
+    /// <summary>Forward (Alt+→, mouse forward button).</summary>
+    [RelayCommand(CanExecute = nameof(CanGoForward))]
+    private void GoForward()
+    {
+        while (_forward.Count > 0 && ReferenceEquals(_forward[^1], CurrentPage))
+        {
+            _forward.RemoveAt(_forward.Count - 1);
+        }
+
+        if (_forward.Count == 0)
+        {
+            NotifyHistory();
+            return;
+        }
+
+        var target = _forward[^1];
+        _forward.RemoveAt(_forward.Count - 1);
+        _back.Add(CurrentPage);
+        MoveInHistory(target);
+    }
+
+    private void MoveInHistory(PageViewModel target)
+    {
+        _historyMove = true;
+        try
+        {
+            NavigateTo(target);
+        }
+        finally
+        {
+            _historyMove = false;
+        }
+
+        NotifyHistory();
+    }
 
     public void NavigateTo(PageViewModel page)
     {
@@ -295,6 +395,86 @@ public sealed partial class MainViewModel : ObservableObject
 
     [RelayCommand]
     private void ExitDashboard() => IsDashboard = false;
+
+    partial void OnIsDashboardChanged(bool value)
+    {
+        RestartRotation();
+        if (value)
+        {
+            UpdateClock();
+            _clockTimer.Start();
+        }
+        else
+        {
+            _clockTimer.Stop();
+        }
+
+        OnPropertyChanged(nameof(DashboardClockVisible));
+    }
+
+    // Dashboard extras: page rotation, computer name + clock.
+    private readonly DispatcherTimer _rotationTimer = new();
+    private readonly DispatcherTimer _clockTimer = new() { Interval = TimeSpan.FromSeconds(1) };
+    private bool _rotating;
+
+    public bool DashboardClockVisible => IsDashboard && Settings.DashboardShowClock;
+
+    [ObservableProperty]
+    private string _clockText = "";
+
+    public string ComputerName => SystemInfo.ComputerName;
+
+    private void UpdateClock() => ClockText = DateTime.Now.ToString("t", Fmt.Culture) + " · " + DateTime.Now.ToString("d", Fmt.Culture);
+
+    /// <summary>(Re)starts the rotation timer – also after every manual page change, so a click is not overridden at once.</summary>
+    public void RestartRotation()
+    {
+        _rotationTimer.Stop();
+        if (IsDashboard && Settings.DashboardRotate && RotationPages().Count > 1)
+        {
+            _rotationTimer.Interval = TimeSpan.FromSeconds(Math.Max(5, Settings.DashboardRotateSeconds));
+            _rotationTimer.Start();
+        }
+    }
+
+    private List<PageViewModel> RotationPages() =>
+        Settings.DashboardPages.Select(id => AllPages().FirstOrDefault(p => p?.Id == id)).OfType<PageViewModel>().ToList();
+
+    private void Rotate()
+    {
+        var pages = RotationPages();
+        if (pages.Count < 2)
+        {
+            return;
+        }
+
+        var index = pages.IndexOf(CurrentPage);
+        _rotating = true;
+        try
+        {
+            NavigateTo(pages[(index + 1) % pages.Count]);
+        }
+        finally
+        {
+            _rotating = false;
+        }
+    }
+
+    /// <summary>Settings › Dashboard (right-click on the dashboard button).</summary>
+    [RelayCommand]
+    private void OpenDashboardSettings()
+    {
+        IsDashboard = false;
+        NavigateTo(SettingsPage);
+        SettingsPage.RequestScrollTo("dashboard");
+    }
+
+    /// <summary>Dashboard settings changed (rotation, clock).</summary>
+    public void ApplyDashboardSettings()
+    {
+        RestartRotation();
+        OnPropertyChanged(nameof(DashboardClockVisible));
+    }
 
     /// <summary>UI size setting changed: the window recomputes its scale factor.</summary>
     public event Action? UiScaleChanged;
@@ -651,6 +831,8 @@ public sealed partial class MainViewModel : ObservableObject
         OnPropertyChanged(nameof(SearchHint));
         OnPropertyChanged(nameof(ElevationText));
         OnPropertyChanged(nameof(PauseTip));
+        OnPropertyChanged(nameof(BackTip));
+        OnPropertyChanged(nameof(ForwardTip));
         StateChanged?.Invoke();
     }
 

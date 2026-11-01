@@ -9,8 +9,10 @@ using TaskNova.Platform.Windows;
 
 namespace TaskNova.App.ViewModels;
 
-public sealed partial class ServiceRow(ServiceInfo info) : ObservableObject
+public sealed partial class ServiceRow(ServiceInfo info) : ObservableObject, Controls.ITypeAheadItem
 {
+    string Controls.ITypeAheadItem.TypeAheadText => DisplayName ?? "";
+
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(StateText), nameof(PidText), nameof(StartText), nameof(IsRunning), nameof(IsStopped), nameof(StateClass),
         nameof(DisplayName), nameof(Description))]
@@ -96,6 +98,23 @@ public sealed partial class ServicesViewModel : PageViewModel
     /// <summary>all, running, stopped</summary>
     [ObservableProperty]
     private string _filter = "all";
+
+    private ListSort? _sortState;
+
+    private ListSort ServiceSort => _sortState ??= new ListSort("services", Settings, Main.SaveSettingsSoon, "display", false, "pid");
+
+    public string SortColumn => ServiceSort.Column;
+
+    public bool SortDescending => ServiceSort.Descending;
+
+    [RelayCommand]
+    private void Sort(string column)
+    {
+        ServiceSort.Toggle(column);
+        OnPropertyChanged(nameof(SortColumn));
+        OnPropertyChanged(nameof(SortDescending));
+        Apply();
+    }
 
     public bool FilterAll
     {
@@ -311,8 +330,15 @@ public sealed partial class ServicesViewModel : PageViewModel
                 _ => true
             })
             .Where(r => Search.IsEmpty || Search.Matches(r.Info.ProcessId, -1, r.Name, r.DisplayName, r.Description))
-            .OrderBy(r => r.DisplayName, StringComparer.CurrentCultureIgnoreCase)
             .ToList();
+        rows.Sort(ServiceSort.Comparer(new Dictionary<string, Comparison<ServiceRow>>
+        {
+            ["display"] = (a, b) => ListSort.Text(a.DisplayName, b.DisplayName),
+            ["name"] = (a, b) => ListSort.Text(a.Name, b.Name),
+            ["pid"] = (a, b) => a.Info.ProcessId.CompareTo(b.Info.ProcessId),
+            ["status"] = (a, b) => ListSort.Text(a.StateText, b.StateText),
+            ["start"] = (a, b) => ListSort.Text(a.StartText, b.StartText)
+        }, (a, b) => ListSort.Text(a.DisplayName, b.DisplayName)));
         ListSync.Sync(Items, rows, () => Selected, v => Selected = v);
         Summary = Loc.F("ServicesSummary", _rows.Count, _rows.Values.Count(r => r.IsRunning), rows.Count);
         _pillServices.Set(_rows.Count);

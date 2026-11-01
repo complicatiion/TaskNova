@@ -7,7 +7,15 @@
 
   <Grid RowDefinitions="Auto,*">
     <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,12">
-      <ItemsControl Classes="pills" ItemsSource="{Binding Stats}" />
+      <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+        <ToggleButton Classes="chip" IsChecked="{Binding FilterAll}" Content="{DynamicResource FilterAll}" />
+        <ToggleButton Classes="chip" IsChecked="{Binding FilterActive}" Content="{DynamicResource FilterActiveSessions}" />
+        <ToggleButton Classes="chip" IsChecked="{Binding FilterDisconnected}" Content="{DynamicResource FilterDisconnected}" />
+        <ToggleButton Classes="chip" IsChecked="{Binding PerUser}" IsVisible="{Binding IsExpert}" ToolTip.Tip="{DynamicResource TipPerUser}">
+          <ctl:IconLabel Icon="{StaticResource IconAccountMultiple}" IconSize="14" Text="{DynamicResource ChipPerUser}" />
+        </ToggleButton>
+        <ItemsControl Classes="pills" ItemsSource="{Binding Stats}" Margin="10,0,0,0" />
+      </StackPanel>
       <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
         <StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding IsExpert}">
           <Button Classes="tool" Command="{Binding ShadowCommand}" CommandParameter="view" IsEnabled="{Binding CanShadow}"
@@ -19,6 +27,35 @@
                   AutomationProperties.Name="{DynamicResource ActEndAllProcesses}">
             <ToolTip.Tip><ctl:TipContent Title="{DynamicResource ActEndAllProcesses}" Text="{DynamicResource TipEndAllDesc}" /></ToolTip.Tip>
             <PathIcon Data="{StaticResource IconDeleteSweep}" />
+          </Button>
+          <Button Classes="tool" Command="{Binding MessageAllCommand}" AutomationProperties.Name="{DynamicResource ActMessageAll}">
+            <ToolTip.Tip><ctl:TipContent Title="{DynamicResource ActMessageAll}" Text="{DynamicResource TipMessageAllDesc}" /></ToolTip.Tip>
+            <PathIcon Data="{StaticResource IconMessageText}" />
+          </Button>
+          <Button Classes="tool danger" Command="{Binding SignOutDisconnectedCommand}" AutomationProperties.Name="{DynamicResource ActSignOutDisconnected}">
+            <ToolTip.Tip><ctl:TipContent Title="{DynamicResource ActSignOutDisconnected}" Text="{DynamicResource TipSignOutDisconnectedDesc}" /></ToolTip.Tip>
+            <PathIcon Data="{StaticResource IconAccountRemove}" />
+          </Button>
+          <!-- Logon mode (RD Session Host only): enable / drain / drain until restart / disable -->
+          <Button IsVisible="{Binding IsSessionHost}" AutomationProperties.Name="{DynamicResource LblLogonMode}">
+            <ToolTip.Tip><ctl:TipContent Title="{DynamicResource LblLogonMode}" Text="{DynamicResource TipLogonModeDesc}" /></ToolTip.Tip>
+            <Button.Flyout>
+              <MenuFlyout Placement="BottomEdgeAlignedRight">
+                <MenuItem Header="{DynamicResource LogonModeSetEnabled}" Command="{Binding SetLogonModeCommand}" CommandParameter="Enabled">
+                  <MenuItem.Icon><PathIcon Data="{StaticResource IconLockOpen}" /></MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="{DynamicResource LogonModeSetDrain}" Command="{Binding SetLogonModeCommand}" CommandParameter="Drain">
+                  <MenuItem.Icon><PathIcon Data="{StaticResource IconTimerSand}" /></MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="{DynamicResource LogonModeSetDrainUntilRestart}" Command="{Binding SetLogonModeCommand}" CommandParameter="DrainUntilRestart">
+                  <MenuItem.Icon><PathIcon Data="{StaticResource IconRestart}" /></MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="{DynamicResource LogonModeSetDisabled}" Command="{Binding SetLogonModeCommand}" CommandParameter="Disabled">
+                  <MenuItem.Icon><PathIcon Data="{StaticResource IconLock}" /></MenuItem.Icon>
+                </MenuItem>
+              </MenuFlyout>
+            </Button.Flyout>
+            <ctl:IconLabel Icon="{StaticResource IconLock}" Text="{Binding LogonModeText}" />
           </Button>
           <Border Width="1" Background="{DynamicResource BrushBorder}" Margin="2,6" />
         </StackPanel>
@@ -45,20 +82,91 @@
       <DockPanel>
         <Border DockPanel.Dock="Top" Classes="thead">
           <Grid ColumnDefinitions="*,70,110,100,170,140,90,80,100,90">
-            <TextBlock Grid.Column="0" Classes="th" Text="{DynamicResource ColUser}" Margin="10,0" />
-            <TextBlock Grid.Column="1" Classes="th" Text="{DynamicResource ColSession}" Margin="10,0" HorizontalAlignment="Right" />
-            <TextBlock Grid.Column="2" Classes="th" Text="{DynamicResource ColState}" Margin="10,0" />
-            <TextBlock Grid.Column="3" Classes="th" Text="{DynamicResource ColProtocol}" Margin="10,0" />
-            <TextBlock Grid.Column="4" Classes="th" Text="{DynamicResource ColClient}" Margin="10,0" />
-            <TextBlock Grid.Column="5" Classes="th" Text="{DynamicResource ColLogon}" Margin="10,0" />
-            <TextBlock Grid.Column="6" Classes="th" Text="{DynamicResource ColIdle}" Margin="10,0" HorizontalAlignment="Right" />
-            <TextBlock Grid.Column="7" Classes="th" Text="{DynamicResource ColCpu}" Margin="10,0" HorizontalAlignment="Right" />
-            <TextBlock Grid.Column="8" Classes="th" Text="{DynamicResource ColMemory}" Margin="10,0" HorizontalAlignment="Right" />
-            <TextBlock Grid.Column="9" Classes="th" Text="{DynamicResource ColProcesses}" Margin="10,0" HorizontalAlignment="Right" />
+            <Button Classes="th" Command="{Binding SortCommand}" CommandParameter="user"
+                    Classes.sorted="{Binding SortColumn, Converter={x:Static ctl:Converters.EqualsParameter}, ConverterParameter=user}"
+                    Classes.ascending="{Binding !SortDescending}">
+              <StackPanel Orientation="Horizontal" Spacing="4">
+                <TextBlock Classes="th" Text="{DynamicResource ColUser}" />
+                <PathIcon Data="{StaticResource IconChevronDown}" />
+              </StackPanel>
+            </Button>
+            <Button Grid.Column="1" Classes="th num" Command="{Binding SortCommand}" CommandParameter="session"
+                    Classes.sorted="{Binding SortColumn, Converter={x:Static ctl:Converters.EqualsParameter}, ConverterParameter=session}"
+                    Classes.ascending="{Binding !SortDescending}">
+              <StackPanel Orientation="Horizontal" Spacing="4">
+                <PathIcon Data="{StaticResource IconChevronDown}" />
+                <TextBlock Classes="th" Text="{DynamicResource ColSession}" />
+              </StackPanel>
+            </Button>
+            <Button Grid.Column="2" Classes="th" Command="{Binding SortCommand}" CommandParameter="state"
+                    Classes.sorted="{Binding SortColumn, Converter={x:Static ctl:Converters.EqualsParameter}, ConverterParameter=state}"
+                    Classes.ascending="{Binding !SortDescending}">
+              <StackPanel Orientation="Horizontal" Spacing="4">
+                <TextBlock Classes="th" Text="{DynamicResource ColState}" />
+                <PathIcon Data="{StaticResource IconChevronDown}" />
+              </StackPanel>
+            </Button>
+            <Button Grid.Column="3" Classes="th" Command="{Binding SortCommand}" CommandParameter="protocol"
+                    Classes.sorted="{Binding SortColumn, Converter={x:Static ctl:Converters.EqualsParameter}, ConverterParameter=protocol}"
+                    Classes.ascending="{Binding !SortDescending}">
+              <StackPanel Orientation="Horizontal" Spacing="4">
+                <TextBlock Classes="th" Text="{DynamicResource ColProtocol}" />
+                <PathIcon Data="{StaticResource IconChevronDown}" />
+              </StackPanel>
+            </Button>
+            <Button Grid.Column="4" Classes="th" Command="{Binding SortCommand}" CommandParameter="client"
+                    Classes.sorted="{Binding SortColumn, Converter={x:Static ctl:Converters.EqualsParameter}, ConverterParameter=client}"
+                    Classes.ascending="{Binding !SortDescending}">
+              <StackPanel Orientation="Horizontal" Spacing="4">
+                <TextBlock Classes="th" Text="{DynamicResource ColClient}" />
+                <PathIcon Data="{StaticResource IconChevronDown}" />
+              </StackPanel>
+            </Button>
+            <Button Grid.Column="5" Classes="th" Command="{Binding SortCommand}" CommandParameter="logon"
+                    Classes.sorted="{Binding SortColumn, Converter={x:Static ctl:Converters.EqualsParameter}, ConverterParameter=logon}"
+                    Classes.ascending="{Binding !SortDescending}">
+              <StackPanel Orientation="Horizontal" Spacing="4">
+                <TextBlock Classes="th" Text="{DynamicResource ColLogon}" />
+                <PathIcon Data="{StaticResource IconChevronDown}" />
+              </StackPanel>
+            </Button>
+            <Button Grid.Column="6" Classes="th num" Command="{Binding SortCommand}" CommandParameter="idle"
+                    Classes.sorted="{Binding SortColumn, Converter={x:Static ctl:Converters.EqualsParameter}, ConverterParameter=idle}"
+                    Classes.ascending="{Binding !SortDescending}">
+              <StackPanel Orientation="Horizontal" Spacing="4">
+                <PathIcon Data="{StaticResource IconChevronDown}" />
+                <TextBlock Classes="th" Text="{DynamicResource ColIdle}" />
+              </StackPanel>
+            </Button>
+            <Button Grid.Column="7" Classes="th num" Command="{Binding SortCommand}" CommandParameter="cpu"
+                    Classes.sorted="{Binding SortColumn, Converter={x:Static ctl:Converters.EqualsParameter}, ConverterParameter=cpu}"
+                    Classes.ascending="{Binding !SortDescending}">
+              <StackPanel Orientation="Horizontal" Spacing="4">
+                <PathIcon Data="{StaticResource IconChevronDown}" />
+                <TextBlock Classes="th" Text="{DynamicResource ColCpu}" />
+              </StackPanel>
+            </Button>
+            <Button Grid.Column="8" Classes="th num" Command="{Binding SortCommand}" CommandParameter="memory"
+                    Classes.sorted="{Binding SortColumn, Converter={x:Static ctl:Converters.EqualsParameter}, ConverterParameter=memory}"
+                    Classes.ascending="{Binding !SortDescending}">
+              <StackPanel Orientation="Horizontal" Spacing="4">
+                <PathIcon Data="{StaticResource IconChevronDown}" />
+                <TextBlock Classes="th" Text="{DynamicResource ColMemory}" />
+              </StackPanel>
+            </Button>
+            <Button Grid.Column="9" Classes="th num" Command="{Binding SortCommand}" CommandParameter="processes"
+                    Classes.sorted="{Binding SortColumn, Converter={x:Static ctl:Converters.EqualsParameter}, ConverterParameter=processes}"
+                    Classes.ascending="{Binding !SortDescending}">
+              <StackPanel Orientation="Horizontal" Spacing="4">
+                <PathIcon Data="{StaticResource IconChevronDown}" />
+                <TextBlock Classes="th" Text="{DynamicResource ColProcesses}" />
+              </StackPanel>
+            </Button>
           </Grid>
         </Border>
+        <Panel>
         <ListBox Classes="table" AutoScrollToSelectedItem="False" ItemsSource="{Binding Items}" SelectedItem="{Binding Selected}"
-                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                 IsVisible="{Binding PerSession}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
           <ListBox.ItemTemplate>
             <DataTemplate x:DataType="vm:SessionRow">
               <Grid ColumnDefinitions="*,70,110,100,170,140,90,80,100,90" Background="Transparent">
@@ -112,6 +220,26 @@
             </ContextMenu>
           </ListBox.ContextMenu>
         </ListBox>
+
+        <!-- Per user (expert mode): all sessions of a user added up -->
+        <ListBox Classes="table" ItemsSource="{Binding UserTotals}" IsVisible="{Binding PerUser}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+          <ListBox.ItemTemplate>
+            <DataTemplate x:DataType="vm:UserTotalRow">
+              <Grid ColumnDefinitions="*,70,110,100,170,140,90,80,100,90" Background="Transparent">
+                <StackPanel Orientation="Horizontal" Spacing="8" Margin="10,0,0,0">
+                  <PathIcon Data="{StaticResource IconAccountMultiple}" Width="16" Height="16" Foreground="{DynamicResource BrushAccentText}" />
+                  <TextBlock Classes="cell" Margin="0" Text="{Binding User}" />
+                </StackPanel>
+                <TextBlock Grid.Column="1" Classes="cell num dim" Text="{Binding Sessions}" />
+                <TextBlock Grid.Column="2" Classes="cell" Text="{Binding StateText}" />
+                <TextBlock Grid.Column="7" Classes="cell num" Text="{Binding CpuText}" />
+                <TextBlock Grid.Column="8" Classes="cell num" Text="{Binding MemoryText}" />
+                <TextBlock Grid.Column="9" Classes="cell num dim" Text="{Binding ProcessCount}" />
+              </Grid>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+        </Panel>
       </DockPanel>
     </Border>
   </Grid>

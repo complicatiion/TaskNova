@@ -27,9 +27,38 @@
     <Border Grid.Row="1" Classes="tablecard">
       <DockPanel>
         <!-- Header scrolls horizontally together with the rows (code-behind) -->
-        <Border DockPanel.Dock="Top" Classes="thead">
+        <Border DockPanel.Dock="Top" Classes="thead" ToolTip.Tip="{DynamicResource TipColumns}">
+          <Border.ContextMenu>
+            <ContextMenu>
+              <MenuItem Header="{DynamicResource MenuColumns}" IsEnabled="False" />
+              <Separator />
+              <MenuItem Header="PID" ToggleType="CheckBox" IsChecked="{Binding Columns.Pid.Visible, Mode=TwoWay}" />
+              <MenuItem Header="{DynamicResource ColStatus}" ToggleType="CheckBox" IsChecked="{Binding Columns.Status.Visible, Mode=TwoWay}" />
+              <MenuItem Header="{DynamicResource ColUser}" ToggleType="CheckBox" IsChecked="{Binding Columns.User.Visible, Mode=TwoWay}" />
+              <MenuItem Header="{DynamicResource ColSession}" ToggleType="CheckBox" IsChecked="{Binding Columns.Session.Visible, Mode=TwoWay}" />
+              <MenuItem Header="{DynamicResource ColCpu}" ToggleType="CheckBox" IsChecked="{Binding Columns.Cpu.Visible, Mode=TwoWay}" />
+              <MenuItem Header="{DynamicResource ColCpuTime}" ToggleType="CheckBox" IsChecked="{Binding Columns.CpuTime.Visible, Mode=TwoWay}" />
+              <MenuItem Header="{DynamicResource ColMemory}" ToggleType="CheckBox" IsChecked="{Binding Columns.Memory.Visible, Mode=TwoWay}" />
+              <MenuItem Header="{DynamicResource ColWorkingSet}" ToggleType="CheckBox" IsChecked="{Binding Columns.WorkingSet.Visible, Mode=TwoWay}" />
+              <MenuItem Header="{DynamicResource ColPrivateBytes}" ToggleType="CheckBox" IsChecked="{Binding Columns.Private.Visible, Mode=TwoWay}" />
+              <MenuItem Header="{DynamicResource ColThreads}" ToggleType="CheckBox" IsChecked="{Binding Columns.Threads.Visible, Mode=TwoWay}" />
+              <MenuItem Header="{DynamicResource ColHandles}" ToggleType="CheckBox" IsChecked="{Binding Columns.Handles.Visible, Mode=TwoWay}" />
+              <MenuItem Header="{DynamicResource ColPriority}" ToggleType="CheckBox" IsChecked="{Binding Columns.Priority.Visible, Mode=TwoWay}" />
+              <MenuItem Header="{DynamicResource ColIo}" ToggleType="CheckBox" IsChecked="{Binding Columns.Io.Visible, Mode=TwoWay}" />
+              <MenuItem Header="{DynamicResource ColIoRead}" ToggleType="CheckBox" IsChecked="{Binding Columns.IoRead.Visible, Mode=TwoWay}" />
+              <MenuItem Header="{DynamicResource ColIoWrite}" ToggleType="CheckBox" IsChecked="{Binding Columns.IoWrite.Visible, Mode=TwoWay}" />
+              <MenuItem Header="{DynamicResource ColGpu}" ToggleType="CheckBox" IsChecked="{Binding Columns.Gpu.Visible, Mode=TwoWay}" />
+              <MenuItem Header="{DynamicResource ColPlatform}" ToggleType="CheckBox" IsChecked="{Binding Columns.Platform.Visible, Mode=TwoWay}" />
+              <MenuItem Header="{DynamicResource ColDescription}" ToggleType="CheckBox" IsChecked="{Binding Columns.Description.Visible, Mode=TwoWay}" />
+              <MenuItem Header="{DynamicResource ColCommandLine}" ToggleType="CheckBox" IsChecked="{Binding Columns.CommandLine.Visible, Mode=TwoWay}" />
+              <Separator />
+              <MenuItem Header="{DynamicResource ActResetColumns}" Command="{Binding Columns.ResetCommand}">
+                <MenuItem.Icon><PathIcon Data="{StaticResource IconRestart}" /></MenuItem.Icon>
+              </MenuItem>
+            </ContextMenu>
+          </Border.ContextMenu>
           <ScrollViewer x:Name="HeadScroll" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled">
-            <Grid ColumnDefinitions="200,70,96,130,70,72,90,100,104,104,74,80,110,96,100,100,70,80,220,640">
+            <Grid ColumnDefinitions="200,70,96,130,70,72,90,100,104,104,74,80,110,96,100,100,70,80,220,640" ctl:GridColumns.Layout="{Binding Columns}" ctl:GridColumns.Offset="0">
             <Button Grid.Column="0" Classes="th" Command="{Binding SortCommand}" CommandParameter="name"
                     Classes.sorted="{Binding SortColumn, Converter={x:Static ctl:Converters.EqualsParameter}, ConverterParameter=name}"
                     Classes.ascending="{Binding !SortDescending}">
@@ -176,6 +205,26 @@
                 <PathIcon Data="{StaticResource IconChevronDown}" />
               </StackPanel>
             </Button>
+                          <ctl:ColumnGrip Grid.Column="0" Spec="{Binding Columns.Name}" />
+              <ctl:ColumnGrip Grid.Column="1" Spec="{Binding Columns.Pid}" />
+              <ctl:ColumnGrip Grid.Column="2" Spec="{Binding Columns.Status}" />
+              <ctl:ColumnGrip Grid.Column="3" Spec="{Binding Columns.User}" />
+              <ctl:ColumnGrip Grid.Column="4" Spec="{Binding Columns.Session}" />
+              <ctl:ColumnGrip Grid.Column="5" Spec="{Binding Columns.Cpu}" />
+              <ctl:ColumnGrip Grid.Column="6" Spec="{Binding Columns.CpuTime}" />
+              <ctl:ColumnGrip Grid.Column="7" Spec="{Binding Columns.Memory}" />
+              <ctl:ColumnGrip Grid.Column="8" Spec="{Binding Columns.WorkingSet}" />
+              <ctl:ColumnGrip Grid.Column="9" Spec="{Binding Columns.Private}" />
+              <ctl:ColumnGrip Grid.Column="10" Spec="{Binding Columns.Threads}" />
+              <ctl:ColumnGrip Grid.Column="11" Spec="{Binding Columns.Handles}" />
+              <ctl:ColumnGrip Grid.Column="12" Spec="{Binding Columns.Priority}" />
+              <ctl:ColumnGrip Grid.Column="13" Spec="{Binding Columns.Io}" />
+              <ctl:ColumnGrip Grid.Column="14" Spec="{Binding Columns.IoRead}" />
+              <ctl:ColumnGrip Grid.Column="15" Spec="{Binding Columns.IoWrite}" />
+              <ctl:ColumnGrip Grid.Column="16" Spec="{Binding Columns.Gpu}" />
+              <ctl:ColumnGrip Grid.Column="17" Spec="{Binding Columns.Platform}" />
+              <ctl:ColumnGrip Grid.Column="18" Spec="{Binding Columns.Description}" />
+              <ctl:ColumnGrip Grid.Column="19" Spec="{Binding Columns.CommandLine}" />
             </Grid>
           </ScrollViewer>
         </Border>
@@ -188,7 +237,8 @@
           </ListBox.KeyBindings>
           <ListBox.ItemTemplate>
             <DataTemplate x:DataType="vm:ProcessRow">
-              <Grid ColumnDefinitions="200,70,96,130,70,72,90,100,104,104,74,80,110,96,100,100,70,80,220,640" Background="Transparent">
+              <Grid ColumnDefinitions="200,70,96,130,70,72,90,100,104,104,74,80,110,96,100,100,70,80,220,640" Background="Transparent"
+                  ctl:GridColumns.Layout="{Binding $parent[UserControl].((vm:DetailsViewModel)DataContext).Columns}" ctl:GridColumns.Offset="0">
                 <DockPanel Grid.Column="0">
                   <Panel DockPanel.Dock="Left" Width="18" Height="18" Margin="10,0,0,0" VerticalAlignment="Center">
                     <Image Source="{Binding Icon}" Width="16" Height="16" />

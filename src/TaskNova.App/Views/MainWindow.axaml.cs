@@ -17,6 +17,7 @@ public partial class MainWindow : Window
     private WindowState _beforeDashboard = WindowState.Normal;
     private double _scale = 1;
     private Screen? _scaleScreen;
+    private readonly DispatcherTimer _cursorTimer = new() { Interval = TimeSpan.FromSeconds(4) };
     private bool _applyingDashboard;
 
     public MainWindow()
@@ -54,6 +55,43 @@ public partial class MainWindow : Window
         };
         Resized += (_, _) => RememberSoon();
         ScalingChanged += (_, _) => ApplyScale();
+
+        // Mouse side buttons: back / forward like in a browser (also when a child already handled the press).
+        AddHandler(PointerPressedEvent, (_, e) =>
+        {
+            var kind = e.GetCurrentPoint(this).Properties.PointerUpdateKind;
+            if (kind == PointerUpdateKind.XButton1Pressed && _vm?.GoBackCommand.CanExecute(null) == true)
+            {
+                _vm.GoBackCommand.Execute(null);
+                e.Handled = true;
+            }
+            else if (kind == PointerUpdateKind.XButton2Pressed && _vm?.GoForwardCommand.CanExecute(null) == true)
+            {
+                _vm.GoForwardCommand.Execute(null);
+                e.Handled = true;
+            }
+        }, Avalonia.Interactivity.RoutingStrategies.Tunnel, handledEventsToo: true);
+
+        // Dashboard: hide the mouse pointer after a few seconds without movement (setting).
+        _cursorTimer.Tick += (_, _) =>
+        {
+            _cursorTimer.Stop();
+            if (_vm is { IsDashboard: true, Settings.DashboardHideCursor: true })
+            {
+                Cursor = new Cursor(StandardCursorType.None);
+            }
+        };
+        AddHandler(PointerMovedEvent, (_, _) =>
+        {
+            if (_vm?.IsDashboard != true)
+            {
+                return;
+            }
+
+            Cursor = Cursor.Default;
+            _cursorTimer.Stop();
+            _cursorTimer.Start();
+        }, Avalonia.Interactivity.RoutingStrategies.Tunnel, handledEventsToo: true);
         Opened += (_, _) => ApplyScale();
 
         DataContextChanged += (_, _) =>
@@ -186,6 +224,13 @@ public partial class MainWindow : Window
 
     private void ApplyDashboard(bool on)
     {
+        Cursor = Cursor.Default;
+        _cursorTimer.Stop();
+        if (on)
+        {
+            _cursorTimer.Start();
+        }
+
         // Win32 may report an intermediate Normal state while switching Maximized -> FullScreen: not a "left full screen".
         _applyingDashboard = true;
         Dispatcher.UIThread.Post(() => _applyingDashboard = false, DispatcherPriority.Background);

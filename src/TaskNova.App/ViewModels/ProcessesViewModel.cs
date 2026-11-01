@@ -22,6 +22,7 @@ public sealed partial class ProcessesViewModel : PageViewModel
 
     public ProcessesViewModel(MainViewModel main) : base(main)
     {
+        Columns = new ProcessColumns(main.Settings, main.SaveSettingsSoon);
         foreach (var group in new[] { ProcessGroup.App, ProcessGroup.Background, ProcessGroup.Windows })
         {
             var row = new GroupRow(group) { IsExpanded = !main.Settings.CollapsedGroups.Contains(group.ToString()) };
@@ -53,6 +54,9 @@ public sealed partial class ProcessesViewModel : PageViewModel
 
     [ObservableProperty]
     private object? _selectedItem;
+
+    /// <summary>Column widths / visibility (drag the header edge, right-click the header).</summary>
+    public ProcessColumns Columns { get; }
 
     public ProcessRow? Selected => SelectedItem as ProcessRow;
 
@@ -236,7 +240,51 @@ public sealed partial class ProcessesViewModel : PageViewModel
     }
 
     private bool Matches(ProcessRow row) =>
-        Search.IsEmpty || Search.Matches(row.Pid, row.SessionId, row.Name, row.Description, row.Path, row.UserName, row.Company);
+        Settings.ProcessFilter switch
+        {
+            "suspended" => row.IsSuspended,
+            // Efficiency mode sets the idle priority class (base priority 4).
+            "efficiency" => row.BasePriority == 4,
+            _ => true
+        } &&
+        (Search.IsEmpty || Search.Matches(row.Pid, row.SessionId, row.Name, row.Description, row.Path, row.UserName, row.Company));
+
+    // ------------------------------------------------------------------ filter chips (all / suspended / efficiency mode)
+
+    public bool FilterAll
+    {
+        get => Settings.ProcessFilter == "all";
+        set => SetFilter(value, "all");
+    }
+
+    public bool FilterSuspended
+    {
+        get => Settings.ProcessFilter == "suspended";
+        set => SetFilter(value, "suspended");
+    }
+
+    public bool FilterEfficiency
+    {
+        get => Settings.ProcessFilter == "efficiency";
+        set => SetFilter(value, "efficiency");
+    }
+
+    private void SetFilter(bool on, string filter)
+    {
+        if (on && Settings.ProcessFilter != filter)
+        {
+            Settings.ProcessFilter = filter;
+            Main.SaveSettingsSoon();
+            Rebuild(force: true);
+        }
+
+        Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+        {
+            OnPropertyChanged(nameof(FilterAll));
+            OnPropertyChanged(nameof(FilterSuspended));
+            OnPropertyChanged(nameof(FilterEfficiency));
+        });
+    }
 
     /// <summary>
     /// Rebuilds the display order. Value sorts change every tick; name/PID sorts only when processes start or end.
@@ -245,7 +293,8 @@ public sealed partial class ProcessesViewModel : PageViewModel
     {
         var store = Main.Processes;
         var sortKey = Settings.ProcessSort + Settings.ProcessSortDescending;
-        var valueSort = Settings.ProcessSort is "cpu" or "memory" or "io" or "gpu";
+        // Value sorts and state filters (suspended, efficiency) change with every tick.
+        var valueSort = Settings.ProcessSort is "cpu" or "memory" or "io" or "gpu" || Settings.ProcessFilter != "all";
         if (!force && !valueSort && _builtStructure == store.StructureVersion && _builtDetails == store.DetailsVersion && _builtSort == sortKey)
         {
             UpdateSummary();

@@ -132,10 +132,38 @@
             <DockPanel>
               <Border DockPanel.Dock="Top" Classes="thead">
                 <Grid ColumnDefinitions="200,*,130,90">
-                  <TextBlock Classes="th" Text="{DynamicResource ColName}" Margin="10,0" />
-                  <TextBlock Grid.Column="1" Classes="th" Text="{DynamicResource ColPath}" Margin="10,0" />
-                  <TextBlock Grid.Column="2" Classes="th" Text="{DynamicResource ColBaseAddress}" Margin="10,0" />
-                  <TextBlock Grid.Column="3" Classes="th" Text="{DynamicResource ColSize}" Margin="10,0" />
+                  <Button Classes="th" Command="{Binding SortCommand}" CommandParameter="name"
+                          Classes.sorted="{Binding SortColumn, Converter={x:Static ctl:Converters.EqualsParameter}, ConverterParameter=name}"
+                          Classes.ascending="{Binding !SortDescending}">
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                      <TextBlock Classes="th" Text="{DynamicResource ColName}" />
+                      <PathIcon Data="{StaticResource IconChevronDown}" />
+                    </StackPanel>
+                  </Button>
+                  <Button Grid.Column="1" Classes="th" Command="{Binding SortCommand}" CommandParameter="path"
+                          Classes.sorted="{Binding SortColumn, Converter={x:Static ctl:Converters.EqualsParameter}, ConverterParameter=path}"
+                          Classes.ascending="{Binding !SortDescending}">
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                      <TextBlock Classes="th" Text="{DynamicResource ColPath}" />
+                      <PathIcon Data="{StaticResource IconChevronDown}" />
+                    </StackPanel>
+                  </Button>
+                  <Button Grid.Column="2" Classes="th" Command="{Binding SortCommand}" CommandParameter="base"
+                          Classes.sorted="{Binding SortColumn, Converter={x:Static ctl:Converters.EqualsParameter}, ConverterParameter=base}"
+                          Classes.ascending="{Binding !SortDescending}">
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                      <TextBlock Classes="th" Text="{DynamicResource ColBaseAddress}" />
+                      <PathIcon Data="{StaticResource IconChevronDown}" />
+                    </StackPanel>
+                  </Button>
+                  <Button Grid.Column="3" Classes="th" Command="{Binding SortCommand}" CommandParameter="size"
+                          Classes.sorted="{Binding SortColumn, Converter={x:Static ctl:Converters.EqualsParameter}, ConverterParameter=size}"
+                          Classes.ascending="{Binding !SortDescending}">
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                      <TextBlock Classes="th" Text="{DynamicResource ColSize}" />
+                      <PathIcon Data="{StaticResource IconChevronDown}" />
+                    </StackPanel>
+                  </Button>
                 </Grid>
               </Border>
               <ListBox Classes="table" ItemsSource="{Binding Modules}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">

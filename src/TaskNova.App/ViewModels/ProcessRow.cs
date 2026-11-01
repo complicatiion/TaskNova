@@ -16,8 +16,10 @@ namespace TaskNova.App.ViewModels;
 /// tick; PropertyChanged fires only when the displayed value actually changes (rounded), so invisible rows cost nothing
 /// and visible rows redraw only what changed.
 /// </summary>
-public sealed class ProcessRow : ObservableObject
+public sealed class ProcessRow : ObservableObject, Controls.ITypeAheadItem
 {
+    string Controls.ITypeAheadItem.TypeAheadText => DisplayName ?? "";
+
     private double _cpu;
     private double _cpuShown = -1;
     private ulong _memory;

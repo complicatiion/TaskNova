@@ -48,8 +48,10 @@ public abstract class ToolPageViewModel(MainViewModel main) : PageViewModel(main
 
 // ================================================================================================== file locks
 
-public sealed record LockerRow(int Pid, string Name, Bitmap? Icon, string? User, string Kind, string? Service, int Session)
+public sealed record LockerRow(int Pid, string Name, Bitmap? Icon, string? User, string Kind, string? Service, int Session) : Controls.ITypeAheadItem
 {
+    string Controls.ITypeAheadItem.TypeAheadText => Name;
+
     public string ServiceText => Service ?? "–";
 
     public string UserText => User ?? "–";
@@ -70,6 +72,46 @@ public sealed partial class FileLocksViewModel(MainViewModel main) : ToolPageVie
     public override SampleDemand Demand => SampleDemand.Processes;
 
     public ObservableCollection<LockerRow> Items { get; } = [];
+
+    private List<LockerRow> _found = [];
+
+    private ListSort? _sortState;
+
+    private ListSort ListSortState => _sortState ??= new ListSort("filelocks", Settings, Main.SaveSettingsSoon, "name", false, "pid", "session");
+
+    public string SortColumn => ListSortState.Column;
+
+    public bool SortDescending => ListSortState.Descending;
+
+    [RelayCommand]
+    private void Sort(string column)
+    {
+        ListSortState.Toggle(column);
+        OnPropertyChanged(nameof(SortColumn));
+        OnPropertyChanged(nameof(SortDescending));
+        ShowSorted();
+    }
+
+    private void ShowSorted()
+    {
+        var selected = Selected;
+        var rows = _found.ToList();
+        rows.Sort(ListSortState.Comparer(new Dictionary<string, Comparison<LockerRow>>
+        {
+            ["name"] = (a, b) => ListSort.Text(a.Name, b.Name),
+            ["pid"] = (a, b) => a.Pid.CompareTo(b.Pid),
+            ["type"] = (a, b) => ListSort.Text(a.Kind, b.Kind),
+            ["user"] = (a, b) => ListSort.Text(a.User, b.User),
+            ["session"] = (a, b) => a.Session.CompareTo(b.Session)
+        }, (a, b) => a.Pid.CompareTo(b.Pid)));
+        Items.Clear();
+        foreach (var row in rows)
+        {
+            Items.Add(row);
+        }
+
+        Selected = selected is null ? null : Items.FirstOrDefault(r => r.Pid == selected.Pid);
+    }
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(FindCommand))]
@@ -129,7 +171,7 @@ public sealed partial class FileLocksViewModel(MainViewModel main) : ToolPageVie
         try
         {
             var (lockers, error) = await Task.Run(() => SystemTools.FindLockers(path));
-            Items.Clear();
+            var found = new List<LockerRow>();
             foreach (var locker in lockers.DistinctBy(l => l.Pid))
             {
                 var (name, icon, user) = Describe(locker.Pid, locker.AppName);
@@ -143,8 +185,11 @@ public sealed partial class FileLocksViewModel(MainViewModel main) : ToolPageVie
                     1000 => "LockKindCritical",
                     _ => "LockKindOther"
                 });
-                Items.Add(new LockerRow(locker.Pid, name, icon, user, kind, locker.ServiceName, locker.SessionId));
+                found.Add(new LockerRow(locker.Pid, name, icon, user, kind, locker.ServiceName, locker.SessionId));
             }
+
+            _found = found;
+            ShowSorted();
 
             Summary = error is not null ? Loc.F("ToastActionFailed", error)
                 : Items.Count == 0 ? Loc.T("LocksNone")
@@ -179,8 +224,10 @@ public sealed partial class FileLocksViewModel(MainViewModel main) : ToolPageVie
 
 // ================================================================================================== ports
 
-public sealed record PortRow(ConnectionInfo Info, string Name, Bitmap? Icon)
+public sealed record PortRow(ConnectionInfo Info, string Name, Bitmap? Icon) : Controls.ITypeAheadItem
 {
+    string Controls.ITypeAheadItem.TypeAheadText => Name;
+
     public string Protocol => Info.Protocol switch
     {
         ConnectionProtocol.Tcp => "TCP",
@@ -224,6 +271,24 @@ public sealed partial class PortsViewModel(MainViewModel main) : ToolPageViewMod
     [ObservableProperty]
     private bool _onlyListening = true;
 
+    private ListSort? _sortState;
+
+    private ListSort ListSortState => _sortState ??= new ListSort("ports", Settings, Main.SaveSettingsSoon, "port", false, "pid");
+
+    public string SortColumn => ListSortState.Column;
+
+    public bool SortDescending => ListSortState.Descending;
+
+    [RelayCommand]
+    private void Sort(string column)
+    {
+        ListSortState.Toggle(column);
+        OnPropertyChanged(nameof(SortColumn));
+        OnPropertyChanged(nameof(SortDescending));
+        Apply();
+    }
+
+
     private readonly StatPill _pillEntries = new("PillEntries");
     private readonly StatPill _pillProcesses = new("PillProcesses");
 
@@ -262,9 +327,17 @@ public sealed partial class PortsViewModel(MainViewModel main) : ToolPageViewMod
             .Where(r => exactPort >= 0
                 ? r.Info.LocalPort == exactPort || r.Info.RemotePort == exactPort
                 : Search.IsEmpty || Search.Matches(r.Pid, -1, r.Name, r.Port.ToString(Fmt.Culture), r.Local, r.Remote, r.Protocol))
-            .OrderBy(r => r.Port)
-            .ThenBy(r => r.Protocol, StringComparer.Ordinal)
             .ToList();
+        rows.Sort(ListSortState.Comparer(new Dictionary<string, Comparison<PortRow>>
+        {
+            ["port"] = (a, b) => a.Port.CompareTo(b.Port),
+            ["protocol"] = (a, b) => string.CompareOrdinal(a.Protocol, b.Protocol),
+            ["process"] = (a, b) => ListSort.Text(a.Name, b.Name),
+            ["local"] = (a, b) => string.CompareOrdinal(a.Local, b.Local),
+            ["remote"] = (a, b) => string.CompareOrdinal(a.Remote, b.Remote),
+            ["state"] = (a, b) => string.CompareOrdinal(a.State, b.State),
+            ["pid"] = (a, b) => a.Pid.CompareTo(b.Pid)
+        }, (a, b) => a.Port != b.Port ? a.Port.CompareTo(b.Port) : string.CompareOrdinal(a.Protocol, b.Protocol)));
 
         var selectedKey = Selected?.Info.Key;
         Items.Clear();

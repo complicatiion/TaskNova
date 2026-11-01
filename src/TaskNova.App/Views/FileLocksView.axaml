@@ -8,10 +8,10 @@
   <Grid RowDefinitions="Auto,Auto,*">
     <Border Classes="card" Margin="0,0,0,12">
       <StackPanel Spacing="10">
-        <!-- Path field limited in width, so the buttons next to it keep their full text -->
+        <!-- Path field takes the free width (grows with the window); the buttons stay right-aligned with their full text -->
         <Grid>
           <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" MaxWidth="560" />
+            <ColumnDefinition Width="*" MinWidth="220" />
             <ColumnDefinition Width="Auto" />
           </Grid.ColumnDefinitions>
           <TextBox Text="{Binding Path, Mode=TwoWay}" Watermark="{DynamicResource LocksWatermark}">
@@ -22,7 +22,7 @@
               <KeyBinding Gesture="Enter" Command="{Binding FindCommand}" />
             </TextBox.KeyBindings>
           </TextBox>
-          <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" Margin="10,0,0,0">
+          <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" Margin="12,0,0,0" HorizontalAlignment="Right">
             <Button Command="{Binding BrowseFileCommand}" MinWidth="104">
               <ctl:IconLabel Icon="{StaticResource IconFile}" Text="{DynamicResource BtnPickFile}" />
             </Button>
@@ -60,11 +60,46 @@
       <DockPanel>
         <Border DockPanel.Dock="Top" Classes="thead">
           <Grid ColumnDefinitions="*,90,160,170,90">
-            <TextBlock Grid.Column="0" Classes="th" Text="{DynamicResource ColName}" Margin="10,0" />
-            <TextBlock Grid.Column="1" Classes="th" Text="PID" Margin="10,0" />
-            <TextBlock Grid.Column="2" Classes="th" Text="{DynamicResource ColType}" Margin="10,0" />
-            <TextBlock Grid.Column="3" Classes="th" Text="{DynamicResource ColUser}" Margin="10,0" />
-            <TextBlock Grid.Column="4" Classes="th" Text="{DynamicResource ColSession}" Margin="10,0" />
+            <Button Classes="th" Command="{Binding SortCommand}" CommandParameter="name"
+                    Classes.sorted="{Binding SortColumn, Converter={x:Static ctl:Converters.EqualsParameter}, ConverterParameter=name}"
+                    Classes.ascending="{Binding !SortDescending}">
+              <StackPanel Orientation="Horizontal" Spacing="4">
+                <TextBlock Classes="th" Text="{DynamicResource ColName}" />
+                <PathIcon Data="{StaticResource IconChevronDown}" />
+              </StackPanel>
+            </Button>
+            <Button Grid.Column="1" Classes="th" Command="{Binding SortCommand}" CommandParameter="pid"
+                    Classes.sorted="{Binding SortColumn, Converter={x:Static ctl:Converters.EqualsParameter}, ConverterParameter=pid}"
+                    Classes.ascending="{Binding !SortDescending}">
+              <StackPanel Orientation="Horizontal" Spacing="4">
+                <TextBlock Classes="th" Text="PID" />
+                <PathIcon Data="{StaticResource IconChevronDown}" />
+              </StackPanel>
+            </Button>
+            <Button Grid.Column="2" Classes="th" Command="{Binding SortCommand}" CommandParameter="type"
+                    Classes.sorted="{Binding SortColumn, Converter={x:Static ctl:Converters.EqualsParameter}, ConverterParameter=type}"
+                    Classes.ascending="{Binding !SortDescending}">
+              <StackPanel Orientation="Horizontal" Spacing="4">
+                <TextBlock Classes="th" Text="{DynamicResource ColType}" />
+                <PathIcon Data="{StaticResource IconChevronDown}" />
+              </StackPanel>
+            </Button>
+            <Button Grid.Column="3" Classes="th" Command="{Binding SortCommand}" CommandParameter="user"
+                    Classes.sorted="{Binding SortColumn, Converter={x:Static ctl:Converters.EqualsParameter}, ConverterParameter=user}"
+                    Classes.ascending="{Binding !SortDescending}">
+              <StackPanel Orientation="Horizontal" Spacing="4">
+                <TextBlock Classes="th" Text="{DynamicResource ColUser}" />
+                <PathIcon Data="{StaticResource IconChevronDown}" />
+              </StackPanel>
+            </Button>
+            <Button Grid.Column="4" Classes="th" Command="{Binding SortCommand}" CommandParameter="session"
+                    Classes.sorted="{Binding SortColumn, Converter={x:Static ctl:Converters.EqualsParameter}, ConverterParameter=session}"
+                    Classes.ascending="{Binding !SortDescending}">
+              <StackPanel Orientation="Horizontal" Spacing="4">
+                <TextBlock Classes="th" Text="{DynamicResource ColSession}" />
+                <PathIcon Data="{StaticResource IconChevronDown}" />
+              </StackPanel>
+            </Button>
           </Grid>
         </Border>
         <ListBox Classes="table" ItemsSource="{Binding Items}" SelectedItem="{Binding Selected}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">

@@ -17,6 +17,12 @@
         <ToggleButton Classes="chip" IsChecked="{Binding TreeChip}" ToolTip.Tip="{DynamicResource TipTreeMode}">
           <ctl:IconLabel Icon="{StaticResource IconFileTree}" IconSize="14" Text="{DynamicResource ModeTree}" />
         </ToggleButton>
+        <Border Width="1" Background="{DynamicResource BrushBorder}" Margin="6,6" />
+        <ToggleButton Classes="chip" IsChecked="{Binding FilterAll}" Content="{DynamicResource FilterAll}" />
+        <ToggleButton Classes="chip" IsChecked="{Binding FilterSuspended}" Content="{DynamicResource FilterSuspended}" />
+        <ToggleButton Classes="chip" IsChecked="{Binding FilterEfficiency}" ToolTip.Tip="{DynamicResource TipFilterEfficiency}">
+          <ctl:IconLabel Icon="{StaticResource IconLeaf}" IconSize="14" Text="{DynamicResource FilterEfficiency}" />
+        </ToggleButton>
         <ItemsControl Classes="pills" ItemsSource="{Binding Stats}" Margin="12,0,0,0" />
       </StackPanel>
 
@@ -39,8 +45,24 @@
     <Border Grid.Row="1" Classes="tablecard">
       <DockPanel>
         <!-- Header -->
-        <Border DockPanel.Dock="Top" Classes="thead">
-          <Grid ColumnDefinitions="*,96,80,104,100,76,74">
+        <Border DockPanel.Dock="Top" Classes="thead" ToolTip.Tip="{DynamicResource TipColumns}">
+          <Border.ContextMenu>
+            <ContextMenu>
+              <MenuItem Header="{DynamicResource MenuColumns}" IsEnabled="False" />
+              <Separator />
+              <MenuItem Header="{DynamicResource ColStatus}" ToggleType="CheckBox" IsChecked="{Binding Columns.Status.Visible, Mode=TwoWay}" />
+              <MenuItem Header="{DynamicResource ColCpu}" ToggleType="CheckBox" IsChecked="{Binding Columns.Cpu.Visible, Mode=TwoWay}" />
+              <MenuItem Header="{DynamicResource ColMemory}" ToggleType="CheckBox" IsChecked="{Binding Columns.Memory.Visible, Mode=TwoWay}" />
+              <MenuItem Header="{DynamicResource ColIo}" ToggleType="CheckBox" IsChecked="{Binding Columns.Io.Visible, Mode=TwoWay}" />
+              <MenuItem Header="{DynamicResource ColGpu}" ToggleType="CheckBox" IsChecked="{Binding Columns.Gpu.Visible, Mode=TwoWay}" />
+              <MenuItem Header="PID" ToggleType="CheckBox" IsChecked="{Binding Columns.Pid.Visible, Mode=TwoWay}" />
+              <Separator />
+              <MenuItem Header="{DynamicResource ActResetColumns}" Command="{Binding Columns.ResetCommand}">
+                <MenuItem.Icon><PathIcon Data="{StaticResource IconRestart}" /></MenuItem.Icon>
+              </MenuItem>
+            </ContextMenu>
+          </Border.ContextMenu>
+          <Grid ColumnDefinitions="*,96,80,104,100,76,74" ctl:GridColumns.Layout="{Binding Columns}" ctl:GridColumns.Offset="1">
             <Button Classes="th" Command="{Binding SortCommand}" CommandParameter="name"
                     Classes.sorted="{Binding SortColumn, Converter={x:Static ctl:Converters.EqualsParameter}, ConverterParameter=name}"
                     Classes.ascending="{Binding !SortDescending}">
@@ -97,6 +119,12 @@
                 <TextBlock Classes="th" Text="PID" />
               </StackPanel>
             </Button>
+                      <ctl:ColumnGrip Grid.Column="1" Spec="{Binding Columns.Status}" />
+            <ctl:ColumnGrip Grid.Column="2" Spec="{Binding Columns.Cpu}" />
+            <ctl:ColumnGrip Grid.Column="3" Spec="{Binding Columns.Memory}" />
+            <ctl:ColumnGrip Grid.Column="4" Spec="{Binding Columns.Io}" />
+            <ctl:ColumnGrip Grid.Column="5" Spec="{Binding Columns.Gpu}" />
+            <ctl:ColumnGrip Grid.Column="6" Spec="{Binding Columns.Pid}" />
           </Grid>
         </Border>
 
@@ -117,7 +145,8 @@
               </Grid>
             </DataTemplate>
             <DataTemplate DataType="vm:ProcessRow">
-              <Grid ColumnDefinitions="*,96,80,104,100,76,74" Background="Transparent">
+              <Grid ColumnDefinitions="*,96,80,104,100,76,74" Background="Transparent"
+                  ctl:GridColumns.Layout="{Binding $parent[UserControl].((vm:ProcessesViewModel)DataContext).Columns}" ctl:GridColumns.Offset="1">
                 <DockPanel Margin="{Binding Indent}" LastChildFill="True">
                   <Panel DockPanel.Dock="Left" Width="22">
                     <ToggleButton Classes="expander" IsChecked="{Binding IsExpanded}" IsVisible="{Binding HasChildren}" VerticalAlignment="Center">

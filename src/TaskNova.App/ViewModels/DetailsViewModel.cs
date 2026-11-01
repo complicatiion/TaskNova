@@ -13,6 +13,9 @@ public sealed partial class DetailsViewModel(MainViewModel main) : PageViewModel
     private int _builtDetails = -1;
     private string? _builtSort;
 
+    /// <summary>Column widths / visibility (drag the header edge, right-click the header).</summary>
+    public DetailsColumns Columns { get; } = new(main.Settings, main.SaveSettingsSoon);
+
     public override string TitleKey => "NavDetails";
 
     public override string IconKey => "IconFormatListBulleted";

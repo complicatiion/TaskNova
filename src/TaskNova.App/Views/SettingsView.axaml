@@ -187,6 +187,43 @@
         </StackPanel>
       </Border>
 
+      <!-- ====================================================== Dashboard (monitoring screen) -->
+      <Border Classes="card" x:Name="DashboardCard">
+        <StackPanel Spacing="12">
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <PathIcon Data="{StaticResource IconFullscreen}" Width="20" Height="20" Foreground="{DynamicResource BrushAccentText}" />
+            <TextBlock Classes="h2" Text="{DynamicResource HdrDashboard}" />
+          </StackPanel>
+          <ctl:InfoText Text="{DynamicResource DashboardIntro}" />
+          <Grid Classes="settings" ColumnDefinitions="*,260" RowDefinitions="Auto,Auto,Auto,Auto">
+            <TextBlock Text="{DynamicResource LblDashboardRotate}" TextWrapping="Wrap" />
+            <ToggleSwitch Grid.Column="1" IsChecked="{Binding DashboardRotate}" OnContent="" OffContent="" HorizontalAlignment="Right" />
+            <TextBlock Grid.Row="1" Text="{DynamicResource LblDashboardInterval}" TextWrapping="Wrap" IsEnabled="{Binding DashboardRotate}" />
+            <ComboBox Grid.Row="1" Grid.Column="1" ItemsSource="{Binding RotationIntervals}" SelectedItem="{Binding SelectedRotationInterval}"
+                      HorizontalAlignment="Stretch" ItemTemplate="{StaticResource ChoiceTemplate}" IsEnabled="{Binding DashboardRotate}" />
+            <TextBlock Grid.Row="2" Text="{DynamicResource LblDashboardClock}" TextWrapping="Wrap" />
+            <ToggleSwitch Grid.Row="2" Grid.Column="1" IsChecked="{Binding DashboardShowClock}" OnContent="" OffContent="" HorizontalAlignment="Right" />
+            <TextBlock Grid.Row="3" Text="{DynamicResource LblDashboardCursor}" TextWrapping="Wrap" />
+            <ToggleSwitch Grid.Row="3" Grid.Column="1" IsChecked="{Binding DashboardHideCursor}" OnContent="" OffContent="" HorizontalAlignment="Right" />
+          </Grid>
+          <StackPanel Spacing="6" IsEnabled="{Binding DashboardRotate}">
+            <TextBlock Classes="label" Text="{DynamicResource LblDashboardPages}" />
+            <ItemsControl ItemsSource="{Binding DashboardPages}">
+              <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                  <WrapPanel Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+              </ItemsControl.ItemsPanel>
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="vm:DashboardPageOption">
+                  <CheckBox Content="{Binding Title}" IsChecked="{Binding IsChecked}" Margin="0,0,18,6" MinWidth="150" />
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+        </StackPanel>
+      </Border>
+
       <!-- ====================================================== Mini monitor -->
       <Border Classes="card">
         <StackPanel Spacing="12">

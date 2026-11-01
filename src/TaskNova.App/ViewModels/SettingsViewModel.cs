@@ -71,6 +71,22 @@ public sealed partial class AccentOption : ObservableObject
 
 public sealed record Choice(string Value, string Title);
 
+/// <summary>A page that the dashboard rotation may show (check box).</summary>
+public sealed class DashboardPageOption(SettingsViewModel owner, string id, string title) : ObservableObject
+{
+    public string Id { get; } = id;
+
+    public string Title { get; } = title;
+
+    public bool IsChecked
+    {
+        get => owner.Settings.DashboardPages.Contains(Id);
+        set => owner.SetDashboardPage(Id, value);
+    }
+
+    public void Refresh() => OnPropertyChanged(nameof(IsChecked));
+}
+
 /// <summary>One of the 3 × 3 anchor points of the mini monitor position picker.</summary>
 public sealed class AnchorOption(SettingsViewModel owner, string id, string nameKey) : ObservableObject
 {
@@ -508,6 +524,86 @@ public sealed partial class SettingsViewModel : PageViewModel
         Main.NotifyMiniMonitorSettingsChanged();
     }
 
+    // ------------------------------------------------------------------------------------------- dashboard
+
+    public new Core.Storage.AppSettings Settings => base.Settings;
+
+    /// <summary>Scroll the page to a card ("dashboard": right-click on the dashboard button).</summary>
+    public event Action<string>? ScrollRequested;
+
+    public void RequestScrollTo(string section) => Avalonia.Threading.Dispatcher.UIThread.Post(() => ScrollRequested?.Invoke(section),
+        Avalonia.Threading.DispatcherPriority.Background);
+
+    public ObservableCollection<DashboardPageOption> DashboardPages { get; } = [];
+
+    public ObservableCollection<Choice> RotationIntervals { get; } = [];
+
+    public bool DashboardRotate
+    {
+        get => Settings.DashboardRotate;
+        set
+        {
+            Update(() => Settings.DashboardRotate = value);
+            Main.ApplyDashboardSettings();
+            OnPropertyChanged();
+        }
+    }
+
+    public Choice? SelectedRotationInterval
+    {
+        get => RotationIntervals.FirstOrDefault(c => c.Value == Settings.DashboardRotateSeconds.ToString());
+        set
+        {
+            if (!_loading && value is not null && int.TryParse(value.Value, out var seconds) && seconds != Settings.DashboardRotateSeconds)
+            {
+                Update(() => Settings.DashboardRotateSeconds = seconds);
+                Main.ApplyDashboardSettings();
+            }
+        }
+    }
+
+    public bool DashboardShowClock
+    {
+        get => Settings.DashboardShowClock;
+        set
+        {
+            Update(() => Settings.DashboardShowClock = value);
+            Main.ApplyDashboardSettings();
+        }
+    }
+
+    public bool DashboardHideCursor
+    {
+        get => Settings.DashboardHideCursor;
+        set => Update(() => Settings.DashboardHideCursor = value);
+    }
+
+    internal void SetDashboardPage(string id, bool on)
+    {
+        var pages = Settings.DashboardPages;
+        if (on && !pages.Contains(id))
+        {
+            // Keep the order of the sidebar.
+            pages.Add(id);
+            var order = Main.AllPages().Select(p => p.Id).ToList();
+            pages.Sort((a, b) => order.IndexOf(a).CompareTo(order.IndexOf(b)));
+        }
+        else if (!on && pages.Count > 1)
+        {
+            pages.Remove(id);
+        }
+
+        Main.SaveSettingsSoon();
+        Main.ApplyDashboardSettings();
+        Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+        {
+            foreach (var option in DashboardPages)
+            {
+                option.Refresh();
+            }
+        });
+    }
+
     // ------------------------------------------------------------------------------------------- alerts
 
     public bool AlertsEnabled
@@ -669,6 +765,18 @@ public sealed partial class SettingsViewModel : PageViewModel
             StartModes.Add(new Choice(mode, Loc.T("StartMode_" + mode)));
         }
 
+        RotationIntervals.Clear();
+        foreach (var seconds in new[] { 10, 30, 60, 120, 300 })
+        {
+            RotationIntervals.Add(new Choice(seconds.ToString(), Loc.F("AlertSecondsOption", seconds)));
+        }
+
+        DashboardPages.Clear();
+        foreach (var page in Main.AllPages().Where(p => p is not null and not SettingsViewModel and not AboutViewModel))
+        {
+            DashboardPages.Add(new DashboardPageOption(this, page.Id, page.Title));
+        }
+
         AlertDurations.Clear();
         foreach (var seconds in new[] { 10, 30, 60, 120, 300 })
         {
@@ -697,6 +805,7 @@ public sealed partial class SettingsViewModel : PageViewModel
         OnPropertyChanged(nameof(StartModeHint));
         OnPropertyChanged(nameof(SelectedMiniTheme));
         OnPropertyChanged(nameof(SelectedAlertDuration));
+        OnPropertyChanged(nameof(SelectedRotationInterval));
         OnPropertyChanged(nameof(SelectedAlertCooldown));
         foreach (var anchor in Anchors)
         {
@@ -965,7 +1074,8 @@ public sealed partial class SettingsViewModel : PageViewModel
                      nameof(CloseToTray), nameof(MinimizeToTray), nameof(KeepWindowInTray), nameof(AlwaysOnTop),
                      nameof(StartMiniMonitor), nameof(MiniOpacity), nameof(MiniOpacityText), nameof(MiniTopmost), nameof(MiniPositionCustom),
                      nameof(TrimMemoryInTray), nameof(RenderRestartNeeded), nameof(AlertsEnabled), nameof(AlertCpuPercent), nameof(AlertCpuText),
-                     nameof(AlertMemoryPercent), nameof(AlertMemoryText), nameof(ExpertMode), nameof(SelectedAlertDuration), nameof(SelectedAlertCooldown), nameof(SelectedStartMonitor), nameof(SelectedMiniMonitorScreen)
+                     nameof(AlertMemoryPercent), nameof(AlertMemoryText), nameof(ExpertMode), nameof(DashboardRotate), nameof(DashboardShowClock),
+                     nameof(DashboardHideCursor), nameof(SelectedRotationInterval), nameof(SelectedAlertDuration), nameof(SelectedAlertCooldown), nameof(SelectedStartMonitor), nameof(SelectedMiniMonitorScreen)
                  })
         {
             OnPropertyChanged(property);
@@ -980,6 +1090,12 @@ public sealed partial class SettingsViewModel : PageViewModel
         Main.NotifyUiScaleChanged();
         Main.NotifyMiniMonitorSettingsChanged();
         Main.Users.OnSettingsChanged();
+        Main.ApplyDashboardSettings();
+        foreach (var option in DashboardPages)
+        {
+            option.Refresh();
+        }
+
         if (Host.MainWindow is { } window)
         {
             window.Topmost = Settings.AlwaysOnTop;

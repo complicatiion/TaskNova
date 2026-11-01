@@ -18,6 +18,8 @@
     <KeyBinding Gesture="Ctrl+M" Command="{Binding ToggleMiniMonitorCommand}" />
     <KeyBinding Gesture="F11" Command="{Binding ToggleDashboardCommand}" />
     <KeyBinding Gesture="Ctrl+N" Command="{Binding RunTaskCommand}" />
+    <KeyBinding Gesture="Alt+Left" Command="{Binding GoBackCommand}" />
+    <KeyBinding Gesture="Alt+Right" Command="{Binding GoForwardCommand}" />
   </Window.KeyBindings>
 
   <Window.Resources>
@@ -128,7 +130,22 @@
           <Button Classes="icon" Command="{Binding ToggleMiniMonitorCommand}" ToolTip.Tip="{DynamicResource TipMiniMonitor}">
             <PathIcon Data="{StaticResource IconMonitorDashboard}" />
           </Button>
+          <!-- Back / forward through the visited pages (also Alt+← / Alt+→ and the mouse side buttons) -->
+          <Button Classes="icon" Command="{Binding GoBackCommand}" ToolTip.Tip="{Binding BackTip}">
+            <PathIcon Data="{StaticResource IconArrowLeftBold}" />
+          </Button>
+          <Button Classes="icon" Command="{Binding GoForwardCommand}" ToolTip.Tip="{Binding ForwardTip}">
+            <PathIcon Data="{StaticResource IconArrowRightBold}" />
+          </Button>
+          <!-- Dashboard: click toggles, right-click opens its settings -->
           <Button Classes="icon" Command="{Binding ToggleDashboardCommand}" ToolTip.Tip="{DynamicResource TipDashboard}">
+            <Button.ContextMenu>
+              <ContextMenu>
+                <MenuItem Header="{DynamicResource ActDashboardSettings}" Command="{Binding OpenDashboardSettingsCommand}">
+                  <MenuItem.Icon><PathIcon Data="{StaticResource IconCog}" /></MenuItem.Icon>
+                </MenuItem>
+              </ContextMenu>
+            </Button.ContextMenu>
             <PathIcon Data="{StaticResource IconFullscreen}" />
           </Button>
           <Button Classes="icon" Command="{Binding RestartElevatedCommand}" IsVisible="{Binding !IsElevated}"
@@ -143,11 +160,33 @@
     <Grid Grid.Row="1" Grid.Column="1">
       <ctl:PageHost Page="{Binding CurrentPage}" Margin="20,16,18,16" />
 
-      <!-- Dashboard mode: small exit button top right (also Esc / F11) -->
-      <Button Classes="icon" IsVisible="{Binding IsDashboard}" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,6,8,0"
-              Opacity="0.55" Command="{Binding ExitDashboardCommand}" ToolTip.Tip="{DynamicResource TipExitDashboard}">
-        <PathIcon Data="{StaticResource IconClose}" />
-      </Button>
+      <!-- Dashboard mode: back / forward and exit top right (also Alt+arrows, Esc / F11); right-click: dashboard settings -->
+      <StackPanel x:Name="DashboardBar" Orientation="Horizontal" Spacing="4" IsVisible="{Binding IsDashboard}" HorizontalAlignment="Right"
+                  VerticalAlignment="Top" Margin="0,6,8,0" Opacity="0.55">
+        <StackPanel.ContextMenu>
+          <ContextMenu>
+            <MenuItem Header="{DynamicResource ActDashboardSettings}" Command="{Binding OpenDashboardSettingsCommand}">
+              <MenuItem.Icon><PathIcon Data="{StaticResource IconCog}" /></MenuItem.Icon>
+            </MenuItem>
+          </ContextMenu>
+        </StackPanel.ContextMenu>
+        <Button Classes="icon" Command="{Binding GoBackCommand}" ToolTip.Tip="{Binding BackTip}">
+          <PathIcon Data="{StaticResource IconArrowLeftBold}" />
+        </Button>
+        <Button Classes="icon" Command="{Binding GoForwardCommand}" ToolTip.Tip="{Binding ForwardTip}">
+          <PathIcon Data="{StaticResource IconArrowRightBold}" />
+        </Button>
+        <Button Classes="icon" Command="{Binding ExitDashboardCommand}" ToolTip.Tip="{DynamicResource TipExitDashboard}">
+          <PathIcon Data="{StaticResource IconClose}" />
+        </Button>
+      </StackPanel>
+
+      <!-- Dashboard: computer name and clock (monitor walls with several servers) -->
+      <StackPanel IsVisible="{Binding DashboardClockVisible}" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="24,0,0,14"
+                  IsHitTestVisible="False" Opacity="0.85">
+        <TextBlock Text="{Binding ComputerName}" FontSize="22" FontWeight="SemiBold" Foreground="{DynamicResource BrushAccentText}" />
+        <TextBlock Text="{Binding ClockText}" FontSize="15" Foreground="{DynamicResource BrushTextSecondary}" />
+      </StackPanel>
 
       <Border x:Name="ToastHost" Classes="toast" Classes.error="{Binding ToastIsError}" IsVisible="{Binding HasToast}"
               HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="24,0,24,22" MinWidth="240" MaxWidth="480">
