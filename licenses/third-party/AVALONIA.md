@@ -5,7 +5,7 @@
 | Version | 11.3.14 (Avalonia, Avalonia.Desktop, Avalonia.Themes.Fluent, Avalonia.Fonts.Inter) |
 | License | MIT |
 | Source | https://github.com/AvaloniaUI/Avalonia |
-| Use in TaskNova | Cross-platform user interface, Fluent theme, system tray |
+| Use in CLEANit | Cross-platform user interface, Fluent theme, system tray |
 
 Avalonia ships further MIT-licensed helper libraries (e.g. MicroCom, Tmds.DBus.Protocol for Linux) and uses SkiaSharp/HarfBuzzSharp for rendering – see [SKIASHARP.md](SKIASHARP.md). The Inter font embedded via Avalonia.Fonts.Inter is licensed under the SIL OFL 1.1 – see [INTER-FONT.md](INTER-FONT.md).
 

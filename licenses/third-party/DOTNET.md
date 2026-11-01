@@ -5,7 +5,7 @@
 | Version | 10.0 |
 | License | MIT |
 | Source | https://github.com/dotnet/runtime |
-| Use in TaskNova | Self-contained runtime of tasknova.exe |
+| Use in CLEANit | Self-contained runtime of CLEANit.exe |
 
 ## License text
 

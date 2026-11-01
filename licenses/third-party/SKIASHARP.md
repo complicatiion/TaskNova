@@ -4,7 +4,7 @@
 | --- | --- |
 | License | MIT (managed bindings); native Skia: BSD-3-Clause (Google LLC); native HarfBuzz: MIT-style “Old MIT” license |
 | Source | https://github.com/mono/SkiaSharp · https://skia.org · https://github.com/harfbuzz/harfbuzz |
-| Use in TaskNova | Rendering and text shaping of the user interface (dependency of Avalonia) |
+| Use in CLEANit | Rendering and text shaping of the user interface (dependency of Avalonia) |
 
 The native libraries `libSkiaSharp.dll` and `libHarfBuzzSharp.dll` contain Skia (Copyright (c) 2011 Google Inc., BSD-3-Clause) and HarfBuzz (Copyright © the HarfBuzz authors, MIT-style license). Their full license notices are available in the respective repositories linked above and are distributed with the SkiaSharp NuGet packages.
 

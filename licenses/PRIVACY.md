@@ -1,23 +1,35 @@
 # Privacy
 
-TaskNova is **local-first**:
+PortShield is **local-first**:
 
-- **No telemetry, no account, no cloud.** TaskNova does not send any usage data anywhere.
-- **No downloads, no update checks, no online lookups.** Fonts and icons are embedded.
-- **Network connections** only occur when you switch on *Resolve remote host names* (off by default): the Network page then asks your DNS server for the names of remote addresses (reverse DNS). And when you open a link (project page, website) in your browser.
+- **No telemetry, no account, no cloud.** PortShield sends no usage data anywhere and has no online features.
+- **No network connections by PortShield.** It only reads and changes the Windows Firewall of this computer. Links (project page, license pages, sksdesign.de) open in your browser only when you click them.
+- **No external resources in the app.** Fonts and icons are embedded.
 
-Process, service, session and connection data are read from this machine through Windows interfaces and only shown – they are not stored, except for the app history below.
+## Data read on this computer
 
-**Files you create yourself:** the *System report* (HTML) and *dump files* (.dmp) are written only to the place you choose in the save dialog. A dump file contains the full memory of the process, which can include passwords, documents and other personal data – handle it like the data itself.
+- Firewall rules, profiles and group policy settings of the Windows Firewall (registry, COM interface, netsh).
+- Version information, signature and – only for exports that ask for it – the SHA-256 hash of the programs in the rules.
+- The list of running processes (only when you open *Running program*).
+- Firewall products registered in the Windows Security Center (client editions).
+- Display language, region and keyboard layouts for the first-start language.
 
-## Data stored by TaskNova
+Nothing of this is stored or sent, except as described below.
+
+## Data stored by PortShield
 
 | Location | Content |
 | --- | --- |
-| `%AppData%\TaskNova\settings.json` | Settings (theme, accent, window position, intervals …) |
-| `%LocalAppData%\TaskNova\app-history.json` | App history: per program name its CPU time, I/O bytes, run time, first and last seen (switch off in the settings, delete on the App history page) |
-| Task Scheduler `\TaskNova\Tray <user>` | Only when *Start TaskNova in the tray when I sign in* is on |
-| `HKCU\Software\Classes\DesktopBackground\Shell\TaskNova` | Only when the desktop context menu entry is on |
-| `HKLM\…\Image File Execution Options\taskmgr.exe` → `Debugger` | Only when *Replace the Windows Task Manager* is on |
+| `%AppData%\PortShield\settings.json` (portable: `data\settings.json`) | interface settings per user (language, theme, window size, defaults for new rules, protected programs, export options) |
+| `%ProgramData%\PortShield\snapshots\` (portable: `data\snapshots`) | snapshots: the complete firewall policy (`policy.wfw`, contains all rules of this PC incl. program paths with user names) and PortShield's rules (`rules.json`) |
+| `%ProgramData%\PortShield\rulesets\` | your own rule sets (program paths, preferably with variables) |
+| `%ProgramData%\PortShield\baseline.json` | integrity check: PortShield's rules as PortShield last wrote them (names, program paths, settings) |
+| `%ProgramData%\PortShield\temporary.json`, `watch.json` | temporarily allowed rules (until when) and watched rule sets (file names, ignored programs) |
+| `%ProgramData%\PortShield\pending-add.txt` | short-lived hand-over of paths from the Explorer context menu to the running app (deleted when read) |
+| Windows Firewall | the rules you create (group "PortShield", marker `[ps:…]` in the description) |
+| Task Scheduler `\PortShield\Tray <user>` | only if you enable *Start in the system tray at sign-in* |
+| Task Scheduler `\PortShield\Restore temporary rules` | only while rules are allowed temporarily (blocks them again, runs as SYSTEM) |
+| Windows Security log (event 5157) | only if you start recording on *Connections*: Windows itself logs blocked connections (program, addresses, ports); PortShield only reads them. *Stop recording* turns the audit policy off again |
+| `HKLM\SOFTWARE\Classes\exefile\shell\PortShield.Block`, `…\Directory\shell\PortShield.Block` | only if you enable the Explorer context menu |
 
-Portable mode (file `tasknova.portable` next to the executable): settings and app history are stored in the `data` folder next to the app.
+Exports are written only where you save them. They may contain program paths with user names, machine names and hashes – check them before passing them on. Snapshots can be deleted at any time in *Snapshots*; uninstalling PortShield offers to remove its rules and all of its data.

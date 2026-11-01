@@ -1,142 +1,100 @@
 # Changelog
 
-All notable changes to TaskNova. One file for all versions – newest on top.
+All changes to PortShield in one file, newest version first.
+Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versioning: [SemVer](https://semver.org/).
 
-## 0.0.5 – 2026-11-01
+## [0.0.4] – 2026-10-31
 
-### New
-- **Back / forward** through the visited pages: header buttons, in dashboard mode next to "leave dashboard", Alt+← / Alt+→ and the mouse side buttons.
-- **Dashboard settings** (own card, also via right-click on the dashboard button): automatic page rotation (off by default, interval, pages), computer name and clock, hide the mouse pointer.
-- **Sorting in every list**: Startup apps, Users, Services, Network, Ports, File locks and the modules of the process window now sort by header click like Processes and Details; the sort is remembered per list.
-- **Filter chips**: Processes (all / suspended / efficiency), Startup apps (all / enabled / disabled), Users (all / active / disconnected).
-- **Columns** of Processes and Details: drag the header edge to resize (double-click = default width), right-click the header to show or hide columns, reset; remembered.
-- **Quick jump** in all lists: type the first letters of a name.
-- **Expert mode**: logon mode of an RD Session Host (allow / drain / drain until restart / disable, like `change logon`), sign out disconnected sessions (optionally only after 2 hours idle), message to all sessions, "per user" view with all sessions of a user added up.
+### Added
 
-### Changed
-- File locks: path field takes the free width, File / Folder / Find right-aligned.
-
-### Build
-- **Publish profile "Portable"** (Visual Studio › Publish): Native AOT win-x64 into `artifacts\publish\TaskNova`; afterwards the project writes the portable marker, packs `tasknova_v<version>_portable.zip` (+ SHA-256) and runs Inno Setup automatically (`tasknova_v<version>_setup.exe` + SHA-256). Without Inno Setup: warning only. Switches: `BuildInstaller=false`, `BuildPortableZip=false`, `InnoSetupCompiler=<path>`.
-- `build\publish.ps1` uses the same profile.
-
-## 0.0.4 – 2026-10-31
-
-### New
-- **Run new task** (Ctrl+N, header button, tray menu): program, document, folder or URL like Win+R, optionally with administrator rights, with a history of the last commands.
-- **Efficiency mode** for processes (EcoQoS + idle priority, like the Windows 11 Task Manager) in the context menus of Processes and Details.
-- **Restart process**: ends the process and starts it again with the same command line.
-- **Analyze wait chain**: shows which lock, window message, COM call or other process the threads of a hanging program wait for, incl. deadlock detection.
-- **Process window**: facts (path, command line, user, session, parent, start time, signature), live CPU and memory charts and the loaded modules (DLLs) of one process.
-- **Alerts** (off by default): small notification in the corner of the screen when CPU or memory stays above a limit; limits, duration and cooldown adjustable; test button.
-- **Expert mode** (off by default) for terminal servers and Citrix: end all processes of a user (session processes stay, the user stays signed in) and RDP shadowing (view / control) on the Users page.
+- **Connections** (new page under *Firewall*, also in the tray): blocked connections from the Security log (event 5157) – program, direction, remote address and port, protocol, count, last seen; time range (1 h / 24 h / 7 days), direction, *internet only*, search; *Block program* / *Allow program* with review, copy address, open location. *Start recording* turns on the audit policy “Filtering Platform Connection – Failure” (via GUID, works in every Windows language).
+- **Allow temporarily**: blocked PortShield rules for 15 / 30 / 60 / 120 minutes (command bar *Temporarily* and context menu); PortShield blocks them again on time. Safety net when PortShield is not running: one-shot task `\PortShield\Restore temporary rules` (SYSTEM, also at boot) runs `PortShield.exe --restore-temporary`. Overview notice with *Block again now*; badge “allowed until …” in the list.
+- **Integrity check**: after every own change PortShield records its rules (`baseline.json`); rules deleted or changed outside PortShield (Windows update, installer, other tool, group policy, wf.msc) are reported on the overview – *Restore* (same id, snapshot first) or *Accept*. Changes made by PortShield never hide other changes.
+- **Watched rule sets**: applied sets are watched (eye button on the card, *Watched* pill); at start, on refresh and every 30 minutes the overview reports new programs without a rule (e.g. a new version folder) – *Apply* (review with the missing programs only) or *Ignore*.
+- **Remove presets**: trash button on every rule set card (left of *Show file*); presets are hidden (an update does not bring them back), own sets deleted.
+- **Settings › Data**: *Reset PortShield* (settings, hidden presets) and *Factory reset* (PortShield rules, kill switch, whitelist mode, own rule sets, watch list, temporary rules, settings, autostart, Explorer context menu as after installation; snapshots optionally) – PortShield restarts.
+- Command line: `--restore-temporary [--all]`; changes from the command line are recorded for the integrity check.
 
 ### Changed
-- All table toolbars use symbol buttons with two-line tooltips (action + description); dialogs and cards keep symbol + text.
-- Startup apps: real on/off switch in the toolbar for the selected entry.
-- Services: console button with a console symbol.
-- Overview: kernel and memory pills on the line of the card heading, right-aligned; Top CPU / Top memory show more entries when the cards are taller (maximized, dashboard, large screens).
-- App history: "Recorded since" as a pill. Power plans: "Active" as a pill. System report: "Save report".
-- File locks: narrower path field, the buttons keep their full text.
-- Light theme softened: muted greys instead of pure white.
-- Settings: hint texts under UI size, rendering, start mode and monitor removed.
-- Reset settings no longer uses reflection (Native AOT safe) and re-applies "always on top".
 
-### Build
-- `tasknova.iss` compiles directly in the Inno Setup IDE: it finds `tasknova.exe` in the Visual Studio publish/build folders under `src\TaskNova.App\bin\Release` (or the `publish.ps1` output), reads the version from the exe, writes the setup to `artifacts\` and works with Inno Setup 6.0–6.x (`x64` / `x64compatible`).
-
-## 0.0.3 – 2026-10-31
-
-### Changed
-- Key figures of the page toolbars are shown as **pills** (value in the accent color + label): Processes (processes, CPU, memory), Details (shown / total processes), Network (entries, established, listening), Ports (entries, processes), Services (services, running, shown), Users (sessions, active), Startup apps (entries, enabled).
-- Card introductions start with a small round **info symbol** (power plans, accent color, licenses, privacy).
-- Shorter toolbar buttons: *End*, *Details*, *Show processes*, *Delete*, *Console*; Services start / stop / restart are symbol buttons with tooltips. Context menus keep the full texts.
-- About: *GitHub Repository*, *License folder*, *Flush memory* (now also trims the working set, so the value in the Task Manager drops right away).
-- Power plans: *Windows power options*; power plan and system report cards have the same fixed width.
-- Settings › Administrator & data: buttons right-aligned.
-- Overview: key figure pairs centered in their columns, so the kernel and memory pills sit exactly between them; the usage bars of Top CPU / Top memory are narrow in a normal window (names readable), wide in large windows.
-- Network: at most 5 adapter cards per row (2 in a normal window).
-- Removed intro texts: memory of TaskNova, file locks, system report, app history.
+- Overview: *Activate kill switch* as wide as *Turn on whitelist mode*, *Scan* as wide as *Refresh*; button *Windows Firewall* renamed to *Open Windows Firewall*.
+- Scan: start text without “and lets PortShield adopt them”.
+- Snapshots: info text removed.
 
 ### Fixed
-- Startup apps: the counters did not update when an entry was switched in the list.
 
-## 0.0.2 – 2026-10-31
+- Installer: `MinVersion` was `10.0.44393` (typo) – setup refused every Windows version with “not supported”. Now `10.0.14393` (Windows 10 1607 / Server 2016).
 
-### New
-- **Tools** group in the sidebar:
-  - **File locks** – which processes hold a file or folder open (Restart Manager API, like Explorer and installers); show or end the process.
-  - **Ports** – who listens on or uses a port; search by port number, show or end the process.
-  - **Power plans** – see and switch the active power plan.
-  - **System report** – self-contained HTML report (system, load, top processes, sessions, services), created locally.
-- **Create dump file** in the process context menus (Processes, Details) – full memory dump for WinDbg / Visual Studio.
-- **Dashboard mode** for a dedicated monitoring screen: full screen without sidebar and header (F11, Esc leaves it).
-- **Start settings**: start page (default Overview, or "Last used"), start as window / maximized / full screen / dashboard / tray only / mini monitor only, start monitor, open the mini monitor too.
-- **UI size**: Auto (by the screen the window is on), XS, S, M, L, XL.
-- **Rendering** setting: graphics card or software (applies after a restart).
-- **Mini monitor** rebuilt: title "TaskNova · Mini Monitor", metric labels in the accent color, click a metric for its details (CPU: larger chart, kernel share, clock, top 3 · RAM: in use / available / committed, top 3 · every disk · every adapter with send/receive). Own settings card: position on a 3 × 3 monitor picker (default bottom right), monitor (default primary), own theme (default: like TaskNova), opacity, always on top.
-- **About**: memory diagnostics (working set, private bytes, .NET heap, garbage collections, rendering, build) with "Release memory"; expanded privacy section.
-- Optional **trim memory while in the tray** (off by default).
+## [0.0.3] – 2026-10-31
+
+### Added
+
+- **Rule set editor** (*Rules › New rule set*, *Edit* on own sets, *Copy* on every set): name, description and any number of lines – program, folder or pattern, optional service, direction (out / in / both), action, scope. *Add folder* writes `Folder\**\*.exe` (with sub folders) or `Folder\*.exe`; *Check paths* counts the programs every line finds on this PC. Paths are stored portable (`%ProgramFiles%` …).
+- **`**`** in patterns: any sub folder depth (`%ProgramFiles%\Vendor\**\*.exe`).
+- **Transfer rule sets** (card in *Import & export*, also on the *Rules* page): all own sets – optionally plus the current PortShield rules as their own set – in one file (`portshield.rulesets`); importing it on another PC restores them without reconfiguring. Single rule sets are still accepted.
 
 ### Changed
-- "Info" is now "About" (also in German).
-- Theme "Shadow grey" is now **Shadow**: neutral dark grey (#202020) without the blue tint; Dark stays navy.
-- Overview fills the window without a vertical scroll bar on normal screens; kernel share and "used / total" memory in centered accent pills; the whole Top CPU / Top memory card opens the Processes page sorted by that column; the system card opens the Windows "About" page (right-click: msinfo32, advanced system properties, Control Panel; msinfo32 where the Settings app is missing).
-- Default window size 1180 × 760, clamped to the screen.
-- Settings are saved right after every change (debounced), including the collapsed sidebar, window size and position – a sign-out or crash no longer loses them.
-- The start page no longer silently follows the last page: "Last used" is now a choice in the start page list.
-- Accent color: the hex code pill next to the heading is gone.
-- About: website, GitHub and license buttons centered, "GitHub Repo" label, licenses folder button centered.
-- Network: adapter cards 2 per row in a normal window and more on wide windows, with proper spacing; "Show in processes" and "Details" are only enabled with a selected connection; double-click opens the process on the Processes page.
 
-### Memory
-- Release builds publish as **Native AOT** by default; the non-AOT build is no longer compressed (a compressed single file is unpacked into memory at every start).
-- At most 2 cached page views (was 5); bounded icon cache; no per-row allocations in the process update loop; the details timer stops while the window is hidden.
+- Sidebar: *Snapshots* above *Import & export* (also in the tray).
+- Overview and scan: the counter labels take the colour of their number.
+- Kill switch card: state as a pill on the right of the header – *Off* green, *Active* red.
+- Quick actions centered.
+- “Note:” in front of the whitelist hint, the trademark notice and the hint for other security products.
+- About: license permissions without “Commercial use”.
 
 ### Fixed
-- Network: "Details" did nothing without a selected connection.
-- Adapter cards overlapped the connection table (missing bottom margin).
 
-### Build
-- `build\publish.ps1` publishes directly into `artifacts\tasknova_v<version>_portable\TaskNova` – no `artifacts\publish` folder. The ZIP and the setup are both built from that folder; `tasknova.iss` uses it as default source (without the portable marker), so the setup can also be compiled in the Inno Setup IDE after a publish.
-- `-Aot` was replaced by `-NoAot` (AOT is the default).
+- Snapshots: the reason was not level with date and content when a snapshot had no note.
+- Select all (Add rules): single check mark instead of a double one.
 
-## 0.0.1 – 2026-10-31
+## [0.0.2] – 2026-10-31
+
+### Added
+
+- **Scan** (new page under *Manage*, also in the tray): sorts all program rules by origin – PortShield, other tools (e.g. Firewall App Blocker, wf.msc, installers), Windows, group policy – and finds missing programs, duplicates, allow/block conflicts and disabled rules. Counters work as filters.
+- **Adopt** rules of other tools: only the PortShield marker is added to the description (optionally renamed to “PortShield · Program · Out”); group, program and action stay; snapshot first. Windows and group policy rules are never adopted; group policy rules are read from the registry (read only).
+- **Merge duplicates**: one rule per program, direction and action stays (a PortShield rule is preferred).
+- Overview notice when program rules of other tools exist, with a *Scan* button.
+- **Service rules**: rules for a single Windows service inside `svchost.exe` (`"service": "DiagTrack"` in rule sets, *Service* column in CSV, `-Service` in PowerShell, `service=` in netsh). svchost itself stays protected.
+- Presets: **Maxon Cinema 4D – offline** (all versions under `Program Files\Maxon Cinema 4D *`, `…\Maxon\Cinema 4D *`, `…\Maxon\Maxon Cinema 4D *`, `…\Cinema 4D *`), **Windows – telemetry** now with the services *DiagTrack* and *dmwappushservice*.
+- Command line: rule sets and imports understand services.
+
+### Changed
+
+- Sidebar: group **FIREWALL** (Outbound, Inbound, **Rules** – formerly *Rule sets*), group *Manage* with Scan, Import & export, Snapshots.
+- First start in a **normal window** (about 80 % of the screen, centered) instead of maximized; settings of 0.0.1 are migrated once.
+- Overview: the logo takes the **status colour** (green active, orange warning, red alert); counters coloured – PortShield rules accent blue, blocked red, allowed green, internet only orange.
+- Kill switch in the sidebar in accent colour, completely red while active.
+- Rules page: cards in a grid – three side by side in a normal window, more when maximized, fewer only on very small displays.
+- Snapshots: *Restore complete policy* button in accent colour.
+- Quick actions: *Rules*, *Reset*, *Running*.
+- Texts: info texts on export, import, policy, rule sets, kill switch, quick actions and the empty rule list removed; “Note:” in front of the snapshot, profile and running-program hints.
+- Overlapping wildcard patterns of a rule set find each program only once.
+
+## [0.0.1] – 2026-10-31
 
 First version.
 
-### Monitoring
-- One sampler thread for everything: `NtQuerySystemInformation` (all processes and threads in one call, per-core times), `GetSystemTimes`, `GlobalMemoryStatusEx`, `GetPerformanceInfo`; PDH for disks, GPU engines and the optional processor utility; adapter counters through `GetIfEntry2`.
-- Demand-driven sampling: only what the visible page needs; in the tray only the totals (plus processes every 5th tick for the app history).
-- Snapshots are handed to the UI in one batch; a newer snapshot replaces one the UI has not applied yet (no backlog).
-- Update speed 0.5 / 1 / 2 / 5 s or paused; chart history 60 / 120 / 300 s.
-- Optional "% Processor Utility" (like the Windows Task Manager), off by default.
-- GPU utilization per adapter and per process from the "GPU Engine" counters (every 2 s), adapter names and memory via DXGI.
+### Fixed (build)
 
-### Pages
-- Overview with ring gauges, live tiles, top consumers and system facts.
-- Processes grouped (Apps / Background / Windows processes) or as a parent → child tree; heat cells for CPU, memory, I/O, GPU; security hints.
-- Process actions: end task, end process tree, suspend/resume, priority, CPU affinity, open file location, properties, copy details.
-- Performance: CPU (overall with kernel share or per logical processor), memory, disks, network adapters, GPU.
-- App history recorded by TaskNova (JSON per user).
-- Network: adapters and TCP/UDP connections with process; optional reverse DNS.
-- Details: all processes, all columns, horizontal scrolling with synchronized header.
-- Startup apps: Run keys, startup folders, scheduled tasks (read from the task XML files), switch via StartupApproved.
-- Users: sessions with protocol (console/RDP/ICA), client, logon and idle time, usage; disconnect, sign out, message.
-- Services via the SCM API: start, stop with dependents, restart, startup type incl. delayed start, dependencies.
+- Styles.axaml: badge styles split per control type (AVLN2000 – a combined selector `TextBlock, PathIcon` has no common `Foreground`).
 
-### Interface
-- Dark by default, Shadow grey, Light, System (follows Windows live).
-- Accent color: TaskNova coral, 10 presets, Windows accent, custom color via the Windows color dialog. All accent shades computed in OKLCH with automatic contrast (text ≥ 4.5:1); Fluent check marks, switches and selections use the accent.
-- Live charts drawn by own lightweight controls (no chart library); redraw only when visible and changed.
-- Header search for every page (`pid:`, `session:` filters), keyboard shortcuts.
-- Starts in a normal window (1080 × 700), remembers size and position.
-- System tray with tinted logo, CPU/RAM tooltip and full menu; close/minimize to tray; optional sign-in start (scheduled task).
-- Mini monitor (always on top).
-- Classic desktop context menu entry; optional Task Manager replacement (IFEO).
-- English and German.
+### Added
 
-### Build
-- .NET 10, Avalonia 11.3.14, CommunityToolkit.Mvvm 8.4.0, compiled bindings, LibraryImport – prepared for Native AOT.
-- Executable `tasknova.exe`, manifest `highestAvailable`.
-- Inno Setup installer and portable ZIP via `build\publish.ps1`.
+- **Rule lists** *Outbound* and *Inbound*: all PortShield rules (optionally also the program rules of Windows and other apps) with action, name, program, address scope, profiles, state and publisher; search, filters (blocked, allowed, disabled, program missing), sortable and movable columns, multi-selection.
+- **Command bar and context menu** (no classic menu bar): add application(s), folder, running program; block, allow, enable, disable, delete; addresses (all / internet only), profiles, rename, copy path, open file location, file properties, run program, select all, invert selection, export of the selection. Keyboard: Del, F2, F5, Ctrl+A, Ctrl+B, Ctrl+E, Ctrl+I.
+- **Review dialog** before every change: direction (outbound, inbound, both), action, scope, profiles, state; per program *new*, *will be changed*, *already exists*, *protected*, *not found*, *duplicate*; warning when another rule blocks a program that should be allowed.
+- **Internet only** scope: computed address ranges (everything except RFC 1918, loopback, link-local, multicast) – LAN devices stay reachable.
+- **Folder scan** with sub folders and without installers/uninstallers; **running programs** with full image path.
+- **Overview**: protection state, firewall profiles (on/off, defaults, active network, group policy), notices for missing administrator rights, stopped firewall service, *local rules ignored by group policy*, third-party firewalls (Security Center), turned-off profiles; rule counts; quick actions.
+- **Kill switch** (sidebar, overview, tray): block rules without a program that beat every allow rule – internet only (default) or complete, with a warning in remote sessions.
+- **Whitelist mode**: default outbound action *Block* on all profiles (inbound defaults are kept).
+- **Rule sets**: presets (Adobe, TechSmith Snagit, Windows telemetry helpers) and own sets; portable paths with `%Variables%` and `*` wildcards; *Save current rules as rule set*, import, export, apply with review.
+- **Import & export**: PortShield JSON, CSV (`;` `,` tab, Excel-safe), path list, SHA-256 hash list, PowerShell (idempotent, `-PolicyStore` for GPOs, `-Remove`), netsh batch, HTML and Markdown report, XML; import of JSON, CSV (also German headers) and TXT lists; complete policy as `.wfw` (export/import).
+- **Snapshots** before deleting, imports, rule sets, whitelist mode, reset and restore: complete policy (`policy.wfw`) plus PortShield rules (`rules.json`); restore only PortShield's rules or the complete policy; retention setting.
+- **Group policy and domain detection** (registry, `NetGetJoinInformation`), Windows Server support.
+- **Explorer context menu** “Block with PortShield” for .exe files and folders (settings, installer task); a running instance takes the paths over.
+- **Command line** (`--status`, `--list`, `--block`, `--allow`, `--unblock`, `--apply`, `--import`, `--export`, `--snapshot`, `--kill-switch`, `--remove-all`, `--register-shell`).
+- **Protected programs**: core Windows processes, PortShield itself and an own list are never blocked.
+- **Interface**: Avalonia, dark (default) and light theme in the PortShield palette, collapsible sidebar, icons on every button, English and German (automatic on the first start), system tray, toasts.
+- Installer (Inno Setup), portable ZIP, GitHub Actions workflow, MIT license.
