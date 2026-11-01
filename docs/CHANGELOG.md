@@ -2,6 +2,24 @@
 
 All notable changes to TaskNova. One file for all versions – newest on top.
 
+## 0.0.5 – 2026-11-01
+
+### New
+- **Back / forward** through the visited pages: header buttons, in dashboard mode next to "leave dashboard", Alt+← / Alt+→ and the mouse side buttons.
+- **Dashboard settings** (own card, also via right-click on the dashboard button): automatic page rotation (off by default, interval, pages), computer name and clock, hide the mouse pointer.
+- **Sorting in every list**: Startup apps, Users, Services, Network, Ports, File locks and the modules of the process window now sort by header click like Processes and Details; the sort is remembered per list.
+- **Filter chips**: Processes (all / suspended / efficiency), Startup apps (all / enabled / disabled), Users (all / active / disconnected).
+- **Columns** of Processes and Details: drag the header edge to resize (double-click = default width), right-click the header to show or hide columns, reset; remembered.
+- **Quick jump** in all lists: type the first letters of a name.
+- **Expert mode**: logon mode of an RD Session Host (allow / drain / drain until restart / disable, like `change logon`), sign out disconnected sessions (optionally only after 2 hours idle), message to all sessions, "per user" view with all sessions of a user added up.
+
+### Changed
+- File locks: path field takes the free width, File / Folder / Find right-aligned.
+
+### Build
+- **Publish profile "Portable"** (Visual Studio › Publish): Native AOT win-x64 into `artifacts\publish\TaskNova`; afterwards the project writes the portable marker, packs `tasknova_v<version>_portable.zip` (+ SHA-256) and runs Inno Setup automatically (`tasknova_v<version>_setup.exe` + SHA-256). Without Inno Setup: warning only. Switches: `BuildInstaller=false`, `BuildPortableZip=false`, `InnoSetupCompiler=<path>`.
+- `build\publish.ps1` uses the same profile.
+
 ## 0.0.4 – 2026-10-31
 
 ### New
@@ -23,6 +41,9 @@ All notable changes to TaskNova. One file for all versions – newest on top.
 - Light theme softened: muted greys instead of pure white.
 - Settings: hint texts under UI size, rendering, start mode and monitor removed.
 - Reset settings no longer uses reflection (Native AOT safe) and re-applies "always on top".
+
+### Build
+- `tasknova.iss` compiles directly in the Inno Setup IDE: it finds `tasknova.exe` in the Visual Studio publish/build folders under `src\TaskNova.App\bin\Release` (or the `publish.ps1` output), reads the version from the exe, writes the setup to `artifacts\` and works with Inno Setup 6.0–6.x (`x64` / `x64compatible`).
 
 ## 0.0.3 – 2026-10-31
 

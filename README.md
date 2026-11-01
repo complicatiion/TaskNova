@@ -2,7 +2,7 @@
 
 # TaskNova
 
-**A fast, modern task manager for Windows 10/11 and Windows Server 2019–2025: processes, performance, app history, network, startup apps, users, details and services in one window – with live charts, a dark design and your own accent color.**
+**A fast, modern task manager for Windows 10/11 and Windows Server 2019–2025: processes, performance, app history, network, startup apps, users, details and services in one window.**
 
 TaskNova shows what your computer is doing right now and lets you act on it: end, suspend or prioritize processes, start and stop services, switch startup apps off, disconnect or sign out sessions on a terminal server. It reads everything with a handful of native Windows calls on its own background thread, so the window stays responsive even at 100 % CPU, and it uses very little itself when it sits in the system tray.
 
@@ -23,14 +23,16 @@ TaskNova shows what your computer is doing right now and lets you act on it: end
 - **Services** — Start, stop (with dependents), restart, change the startup type, see path, account and dependencies.
 - **Run new task** — Like Win+R, optionally as administrator (Ctrl+N).
 - **Alerts** — Optional notification when CPU or memory stays above a limit, also from the tray.
-- **Expert mode for terminal servers & Citrix** — Optional: end all processes of a user and shadow RDP sessions.
+- **Expert mode for terminal servers & Citrix** — Optional: end all processes of a user, shadow RDP sessions, drain mode, sign out disconnected sessions, message to all, usage per user.
 - **Tools** — **File locks** (which program holds a file open), **Ports** (who listens on port 443?), **Power plans** and an offline **HTML system report**.
+- **Lists your way** — Sort every list by clicking a column, filter chips, resize and hide columns, type to jump to a name.
+- **Back & forward** — Through the visited pages like in a browser (Alt+←/→, mouse side buttons).
 - **Search everywhere** — One search box (Ctrl+F) for every list; `pid:1234` and `session:2` filter precisely.
 - **Appearance** — **Dark** by default, **Shadow** (neutral dark grey), **Light** or **System** (follows Windows). Accent color: the TaskNova coral, **10 presets**, the **Windows accent** or **any color** from the Windows color picker – icons, highlights, logo, charts, switches and selections follow it, with readable contrast in every theme.
 - **UI size** — Auto by screen size or XS to XL.
 - **Mini monitor** — A small always-on-top window with CPU, memory, disk and network charts (Ctrl+M); click a metric for its details (top processes, every disk, every adapter).
 - **Mini monitor settings** — Own settings card: position on a 3 × 3 monitor picker (default bottom right), which monitor (default primary), its own theme independent of the app, opacity and always on top; dragged by hand it stays where you put it.
-- **Dashboard mode** — Full screen without sidebar for a dedicated monitoring screen (F11).
+- **Dashboard mode** — Full screen without sidebar for a dedicated monitoring screen (F11), with optional page rotation, computer name and clock.
 - **Start the way you like** — Start page, window / maximized / full screen / dashboard / tray / mini monitor only, on the monitor of your choice.
 - **System tray** — Starts in a normal window by default, optional start in the tray at sign-in, close or minimize to the tray, CPU and memory in the tray tooltip.
 - **Windows integration** — Classic **desktop context menu** entry (no signed package needed) and, optionally, **replace the Windows Task Manager** so Ctrl+Shift+Esc opens TaskNova.
@@ -118,6 +120,7 @@ Right-click → **Suspend**. The row shows *Suspended* with a snowflake; **Resum
 | F5 | Refresh now |
 | Ctrl+P | Pause / resume updates |
 | Ctrl+N | Run new task |
+| Alt+← / Alt+→ | Back / forward |
 | Ctrl+M | Mini monitor |
 | F11 | Dashboard mode on / off (Esc leaves it) |
 | Del | End the selected task |

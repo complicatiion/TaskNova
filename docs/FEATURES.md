@@ -51,6 +51,13 @@
 - Start, stop (asks before stopping running dependents), restart; startup type automatic / automatic (delayed) / manual / disabled.
 - Detail panel: description (indirect strings resolved), binary path, account, depends on, needed by.
 
+## Navigation & lists
+- Back / forward through the visited pages (header, dashboard bar, Alt+← / Alt+→, mouse side buttons; up to 50 steps).
+- Every list sorts by header click (again = other direction), remembered per list; ties are sorted by name.
+- Filter chips: Processes (all / suspended / efficiency), Startup apps (all / enabled / disabled), Users (all / active / disconnected), Services (all / running / stopped).
+- Processes and Details: resizable columns (drag the header edge, double-click = default), show / hide columns (right-click the header), reset.
+- Quick jump: type the first letters of a name in any list.
+
 ## Run new task
 - Ctrl+N, header button or tray menu; programs, documents, folders, URLs, `.msc`; optional administrator rights; history of the last 12 commands; browse dialog.
 
@@ -59,6 +66,9 @@
 
 ## Expert mode
 - Off by default (Settings › Expert mode). Users page: end all processes of a session (Windows session processes and TaskNova stay; the user stays signed in), RDP shadowing view / control via `mstsc /shadow` (not for Citrix ICA sessions – use Citrix Director).
+- Logon mode of an RD Session Host: allow, drain, drain until restart, disable (`change logon`; state read from the registry).
+- Sign out all disconnected sessions of other users (optionally only after 2 h idle), message to all sessions.
+- "Per user" view: one row per user with sessions, CPU, memory and processes added up.
 
 ## Tools
 - **File locks**: processes that hold a file open (or the files directly in a folder) via the Restart Manager API – type of process, service name, user, session; show in processes, end process.
@@ -74,6 +84,8 @@
 
 ## Dashboard mode
 - Full screen without sidebar and header – for a dedicated monitoring screen. F11 or the header button toggles it, Esc leaves it. Can be the start mode.
+- Back / forward and exit top right; right-click there or on the header button opens the dashboard settings.
+- Settings: automatic page rotation (off by default; 10 s – 5 min; pages to show), computer name and clock in the corner, hide the mouse pointer after 4 s.
 
 ## Appearance & settings
 - Themes: Dark (default, navy), Shadow (neutral dark grey), Light, System.
