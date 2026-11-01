@@ -163,6 +163,40 @@ public sealed class AppSettings
     /// <summary>Unlocks session administration: end all processes of a user, RDP shadowing. Off by default.</summary>
     public bool ExpertMode { get; set; }
 
+    // ---------------------------------------------------------------- Dashboard mode
+
+    /// <summary>Dashboard: turn through <see cref="DashboardPages"/> automatically. Off by default.</summary>
+    public bool DashboardRotate { get; set; }
+
+    public int DashboardRotateSeconds { get; set; } = 30;
+
+    /// <summary>Page ids shown in turn by the dashboard rotation.</summary>
+    public List<string> DashboardPages { get; set; } = ["overview", "performance"];
+
+    /// <summary>Computer name and clock in the dashboard corner (monitor walls with several servers).</summary>
+    public bool DashboardShowClock { get; set; } = true;
+
+    /// <summary>Hides the mouse pointer in the dashboard after a few seconds without movement.</summary>
+    public bool DashboardHideCursor { get; set; } = true;
+
+    // ---------------------------------------------------------------- Lists
+
+    /// <summary>Sort per list: list id → "column:asc" / "column:desc".</summary>
+    public Dictionary<string, string> ListSorts { get; set; } = new();
+
+    /// <summary>Column widths per list: "list.column" → width in px; negative = hidden (the width is kept for showing it again).</summary>
+    public Dictionary<string, double> ColumnLayouts { get; set; } = new();
+
+    /// <summary>Filter chips: processes (all, suspended, efficiency), startup (all, enabled, disabled), users (all, active, disconnected).</summary>
+    public string ProcessFilter { get; set; } = "all";
+
+    public string StartupFilter { get; set; } = "all";
+
+    public string UsersFilter { get; set; } = "all";
+
+    /// <summary>Users page: one row per user (sessions added up) instead of one per session.</summary>
+    public bool UsersPerUser { get; set; }
+
     public bool FirstRunDone { get; set; }
 
     /// <summary>Copies every value of <paramref name="other"/> into this instance (reset keeps the shared object).</summary>
@@ -215,12 +249,23 @@ public sealed class AppSettings
         DetailsSortDescending = other.DetailsSortDescending;
         CollapsedGroups = [.. other.CollapsedGroups];
         RunHistory = [.. other.RunHistory];
+        DashboardPages = [.. other.DashboardPages];
+        ListSorts = new Dictionary<string, string>(other.ListSorts);
+        ColumnLayouts = new Dictionary<string, double>(other.ColumnLayouts);
         AlertsEnabled = other.AlertsEnabled;
         AlertCpuPercent = other.AlertCpuPercent;
         AlertMemoryPercent = other.AlertMemoryPercent;
         AlertSeconds = other.AlertSeconds;
         AlertCooldownMinutes = other.AlertCooldownMinutes;
         ExpertMode = other.ExpertMode;
+        DashboardRotate = other.DashboardRotate;
+        DashboardRotateSeconds = other.DashboardRotateSeconds;
+        DashboardShowClock = other.DashboardShowClock;
+        DashboardHideCursor = other.DashboardHideCursor;
+        ProcessFilter = other.ProcessFilter;
+        StartupFilter = other.StartupFilter;
+        UsersFilter = other.UsersFilter;
+        UsersPerUser = other.UsersPerUser;
         FirstRunDone = other.FirstRunDone;
     }
 }
@@ -313,6 +358,19 @@ public static class SettingsStore
         s.CustomColors ??= [];
         s.CollapsedGroups ??= [];
         s.RunHistory ??= [];
+        s.DashboardPages ??= [];
+        s.DashboardPages = s.DashboardPages.Where(p => StartPages.Contains(p) && p != "last").Distinct().ToList();
+        if (s.DashboardPages.Count == 0)
+        {
+            s.DashboardPages = ["overview", "performance"];
+        }
+
+        s.DashboardRotateSeconds = Math.Clamp(s.DashboardRotateSeconds, 5, 3600);
+        s.ListSorts ??= new();
+        s.ColumnLayouts ??= new();
+        s.ProcessFilter = s.ProcessFilter is "all" or "suspended" or "efficiency" ? s.ProcessFilter : "all";
+        s.StartupFilter = s.StartupFilter is "all" or "enabled" or "disabled" ? s.StartupFilter : "all";
+        s.UsersFilter = s.UsersFilter is "all" or "active" or "disconnected" ? s.UsersFilter : "all";
         if (s.RunHistory.Count > 12)
         {
             s.RunHistory = s.RunHistory.Take(12).ToList();

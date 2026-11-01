@@ -56,4 +56,66 @@
     <None Include="..\..\README.md" Link="README.md" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 
+  <!-- =====================================================================================================
+       Release packaging after "Publish" with the Portable profile (TaskNovaRelease=true):
+       1. tasknova.portable marker (settings in .\data next to the exe)
+       2. artifacts\tasknova_v<version>_portable.zip + .sha256   (BuildPortableZip=false skips it)
+       3. Inno Setup: artifacts\tasknova_v<version>_setup.exe + .sha256 (BuildInstaller=false skips it;
+          InnoSetupCompiler=<path to ISCC.exe> when Inno Setup is installed elsewhere)
+       Normal builds and F5 never run this.
+       ===================================================================================================== -->
+  <PropertyGroup>
+    <TaskNovaRoot>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\..\'))</TaskNovaRoot>
+    <TaskNovaArtifacts>$(TaskNovaRoot)artifacts\</TaskNovaArtifacts>
+    <BuildPortableZip Condition="'$(BuildPortableZip)' == ''">true</BuildPortableZip>
+    <BuildInstaller Condition="'$(BuildInstaller)' == ''">true</BuildInstaller>
+  </PropertyGroup>
+
+  <Target Name="TaskNovaRelease" AfterTargets="Publish" Condition="'$(TaskNovaRelease)' == 'true'">
+    <PropertyGroup>
+      <_TnPublishDir>$([System.IO.Path]::GetFullPath('$(PublishDir)'))</_TnPublishDir>
+      <_TnPublishDirTrim>$(_TnPublishDir.TrimEnd('\'))</_TnPublishDirTrim>
+      <_TnPublishParent>$([System.IO.Path]::GetDirectoryName('$(_TnPublishDirTrim)'))</_TnPublishParent>
+      <_TnArtifactsTrim>$(TaskNovaArtifacts.TrimEnd('\'))</_TnArtifactsTrim>
+      <_TnZip>$(TaskNovaArtifacts)tasknova_v$(Version)_portable.zip</_TnZip>
+      <_TnSetup>$(TaskNovaArtifacts)tasknova_v$(Version)_setup.exe</_TnSetup>
+      <_TnIss>$(TaskNovaRoot)build\installer\tasknova.iss</_TnIss>
+      <!-- ISCC.exe: explicit path, PATH-independent default install locations -->
+      <_TnIscc Condition="'$(InnoSetupCompiler)' != '' And Exists('$(InnoSetupCompiler)')">$(InnoSetupCompiler)</_TnIscc>
+      <_TnIscc Condition="'$(_TnIscc)' == '' And Exists('$(MSBuildProgramFiles32)\Inno Setup 6\ISCC.exe')">$(MSBuildProgramFiles32)\Inno Setup 6\ISCC.exe</_TnIscc>
+      <_TnIscc Condition="'$(_TnIscc)' == '' And Exists('$(ProgramW6432)\Inno Setup 6\ISCC.exe')">$(ProgramW6432)\Inno Setup 6\ISCC.exe</_TnIscc>
+      <_TnIscc Condition="'$(_TnIscc)' == '' And Exists('$(LocalAppData)\Programs\Inno Setup 6\ISCC.exe')">$(LocalAppData)\Programs\Inno Setup 6\ISCC.exe</_TnIscc>
+    </PropertyGroup>
+
+    <Error Condition="!Exists('$(_TnPublishDir)tasknova.exe')" Text="TaskNova release: tasknova.exe not found in $(_TnPublishDir)." />
+    <ItemGroup>
+      <_TnPdb Include="$(_TnPublishDir)**\*.pdb" />
+    </ItemGroup>
+    <Delete Files="@(_TnPdb)" />
+    <WriteLinesToFile File="$(_TnPublishDir)tasknova.portable" Lines="Portable mode: settings and app history are stored in .\data" Overwrite="true" />
+    <MakeDir Directories="$(TaskNovaArtifacts)" />
+
+    <!-- Portable ZIP: the folder TaskNova\ with everything inside -->
+    <Delete Condition="'$(BuildPortableZip)' == 'true'" Files="$(_TnZip);$(_TnZip).sha256" />
+    <ZipDirectory Condition="'$(BuildPortableZip)' == 'true'" SourceDirectory="$(_TnPublishParent)" DestinationFile="$(_TnZip)" Overwrite="true" />
+    <GetFileHash Condition="'$(BuildPortableZip)' == 'true'" Files="$(_TnZip)" Algorithm="SHA256">
+      <Output TaskParameter="Hash" PropertyName="_TnZipHash" />
+    </GetFileHash>
+    <WriteLinesToFile Condition="'$(BuildPortableZip)' == 'true'" File="$(_TnZip).sha256"
+                      Lines="$(_TnZipHash.ToLowerInvariant())  tasknova_v$(Version)_portable.zip" Overwrite="true" />
+    <Message Condition="'$(BuildPortableZip)' == 'true'" Importance="high" Text="TaskNova portable: $(_TnZip)" />
+
+    <!-- Setup -->
+    <Warning Condition="'$(BuildInstaller)' == 'true' And '$(_TnIscc)' == ''"
+             Text="TaskNova release: Inno Setup 6 (ISCC.exe) not found – setup skipped. Install it from https://jrsoftware.org/isinfo.php or set InnoSetupCompiler." />
+    <Exec Condition="'$(BuildInstaller)' == 'true' And '$(_TnIscc)' != ''"
+          Command="&quot;$(_TnIscc)&quot; /Q &quot;/DSourceDir=$(_TnPublishDirTrim)&quot; &quot;/DAppVersion=$(Version)&quot; &quot;/DOutputDir=$(_TnArtifactsTrim)&quot; &quot;$(_TnIss)&quot;" />
+    <GetFileHash Condition="'$(BuildInstaller)' == 'true' And '$(_TnIscc)' != '' And Exists('$(_TnSetup)')" Files="$(_TnSetup)" Algorithm="SHA256">
+      <Output TaskParameter="Hash" PropertyName="_TnSetupHash" />
+    </GetFileHash>
+    <WriteLinesToFile Condition="'$(_TnSetupHash)' != ''" File="$(_TnSetup).sha256"
+                      Lines="$(_TnSetupHash.ToLowerInvariant())  tasknova_v$(Version)_setup.exe" Overwrite="true" />
+    <Message Condition="'$(_TnSetupHash)' != ''" Importance="high" Text="TaskNova setup: $(_TnSetup)" />
+  </Target>
+
 </Project>
